@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - Seat
+  - CoreData
+  - ScienceStation
   layers:
   - Default
   - TransparentFX
