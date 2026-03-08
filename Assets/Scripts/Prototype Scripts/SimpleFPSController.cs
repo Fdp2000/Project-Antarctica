@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI; // Needed for the Crosshair Image
 
 [RequireComponent(typeof(CharacterController))]
 public class SimpleFPSController : MonoBehaviour
@@ -13,9 +14,13 @@ public class SimpleFPSController : MonoBehaviour
     [Header("Interaction Settings")]
     public float interactRange = 4.0f;
     public KeyCode interactKey = KeyCode.E;
+    public Image crosshairDot; // Drag your UI Image here
+    public Material highlightMaterial; // Drag your 'Knobhighligt' material here
 
     public Vector3 scienceSeatOffset = new Vector3(0, 1.5f, 0);
     public Vector3 drivingSeatOffset = new Vector3(0, 1.5f, 0);
+
+    private Outline currentOutline;
 
     [Header("Player State (Read Only)")]
     public bool hasCoreData = false;
@@ -32,36 +37,40 @@ public class SimpleFPSController : MonoBehaviour
     private Vector3 unseatLocalPosition;
     private VehicleController currentVehicle;
 
+    // Feedback Variables
+    private GameObject lastHighlightedObject;
+    private Material originalMaterial;
+    private Renderer[] highlightedRenderers;
+    private Material[] originalMaterials;
+
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (crosshairDot != null) crosshairDot.enabled = true;
     }
 
     void Update()
     {
-        // 1. MOUSE LOOK 
+        // 1. MOUSE LOOK (Disabled if the script is disabled by KnobInteraction)
         rotationX += -Input.GetAxis("Mouse Y") * lookSensitivity;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
         transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * lookSensitivity);
 
-        // 2. CHECK IF GETTING UP
         if (Input.GetKeyDown(interactKey) && isSeated)
         {
             GetUp();
-            return; // Stop running code for this frame so we don't accidentally click something else
+            return;
         }
 
-        // 3. HANDLE INTERACTIONS & WALKING (Only if standing)
+        // 2. ALWAYS HANDLE VISUAL FEEDBACK
+        HandleInteractions();
+
         if (!isSeated)
         {
-            HandleInteractions();
-
-            // THE FIX: If HandleInteractions() just made us sit down, stop running the movement code for this frame!
-            if (isSeated) return;
-
             Vector3 forward = transform.TransformDirection(Vector3.forward);
             Vector3 right = transform.TransformDirection(Vector3.right);
 
@@ -80,27 +89,32 @@ public class SimpleFPSController : MonoBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
-        Debug.DrawRay(ray.origin, ray.direction * interactRange, Color.red);
-
         if (Physics.Raycast(ray, out hit, interactRange))
         {
-            // A. SEAT INTERACTION
+            GameObject hitObj = hit.collider.gameObject;
+
+            // Highlight Logic for Knobs/Winch
+            if (hitObj.CompareTag("Winch") || hitObj.name.Contains("Knob"))
+            {
+                ApplyHighlight(hitObj);
+            }
+            else
+            {
+                ClearHighlight();
+            }
+
+            // --- EXISTING INTERACTION LOGIC ---
             if (hit.collider.CompareTag("Seat"))
             {
                 if (Input.GetKeyDown(interactKey)) SitDown(hit.transform, false);
             }
-
-            // B. SCIENCE STATION INTERACTION
             else if (hit.collider.CompareTag("ScienceStation"))
             {
                 if (Input.GetKeyDown(interactKey))
                 {
                     if (hasCoreData) SitDown(hit.transform, true);
-                    else Debug.Log("You need Core Data!");
                 }
             }
-
-            // C. CORE DATA INTERACTION
             else if (hit.collider.CompareTag("CoreData"))
             {
                 if (Input.GetKeyDown(interactKey))
@@ -109,63 +123,52 @@ public class SimpleFPSController : MonoBehaviour
                     Destroy(hit.collider.gameObject);
                 }
             }
-
-            // D. WINCH INTERACTION
             else if (hit.collider.CompareTag("Winch"))
             {
                 WinchController winch = hit.collider.GetComponent<WinchController>();
-
                 if (winch != null)
                 {
-                    if (Input.GetKeyDown(interactKey))
-                    {
-                        Debug.Log("Winch CLICK detected!");
-                        winch.ClickToOpen();
-                    }
-                    else if (Input.GetKey(interactKey))
-                    {
-                        winch.HoldToClose();
-                    }
-                }
-                else
-                {
-                    if (Input.GetKeyDown(interactKey))
-                    {
-                        Debug.LogWarning("You clicked an object tagged 'Winch', but it is missing the WinchController.cs script!");
-                    }
+                    if (Input.GetKeyDown(interactKey)) winch.ClickToOpen();
+                    else if (Input.GetKey(interactKey)) winch.HoldToClose();
                 }
             }
         }
-    }
-
-    private void SitDown(Transform seatTransform, bool scienceMode)
-    {
-        isSeated = true;
-        isDoingScience = scienceMode;
-        currentSeat = seatTransform;
-        unseatLocalPosition = seatTransform.InverseTransformPoint(transform.position);
-        characterController.enabled = false;
-
-        transform.SetParent(currentSeat);
-
-        // --- THE FIX ---
-        // Pick the right offset based on which seat we clicked
-        if (isDoingScience)
-        {
-            transform.localPosition = scienceSeatOffset;
-        }
         else
         {
-            transform.localPosition = drivingSeatOffset;
+            ClearHighlight();
         }
-        // ---------------
+    }
 
-        transform.localRotation = Quaternion.identity;
+    void ApplyHighlight(GameObject obj)
+    {
+        // Check if the object we are looking at has an Outline component attached
+        Outline outline = obj.GetComponentInParent<Outline>();
 
-        if (!isDoingScience)
+        if (outline != null)
         {
-            currentVehicle = currentSeat.GetComponentInParent<VehicleController>();
-            if (currentVehicle != null) currentVehicle.isPlayerDriving = true;
+            // If we were looking at a different outline, turn it off first
+            if (currentOutline != null && currentOutline != outline)
+            {
+                currentOutline.enabled = false;
+            }
+
+            // Turn on the new outline
+            currentOutline = outline;
+            currentOutline.enabled = true;
+
+            if (crosshairDot != null) crosshairDot.color = Color.green;
+        }
+    }
+
+    void ClearHighlight()
+    {
+        if (currentOutline != null)
+        {
+            // Turn off the outline when we look away
+            currentOutline.enabled = false;
+            currentOutline = null;
+
+            if (crosshairDot != null) crosshairDot.color = Color.white;
         }
     }
 
@@ -173,17 +176,32 @@ public class SimpleFPSController : MonoBehaviour
     {
         isSeated = false;
         isDoingScience = false;
-
         if (currentVehicle != null)
         {
             currentVehicle.isPlayerDriving = false;
             currentVehicle = null;
         }
-
         Vector3 newStandPosition = currentSeat.TransformPoint(unseatLocalPosition);
         transform.SetParent(null);
         transform.position = newStandPosition;
         currentSeat = null;
         characterController.enabled = true;
+    }
+    private void SitDown(Transform seatTransform, bool scienceMode)
+    {
+        isSeated = true;
+        isDoingScience = scienceMode;
+        currentSeat = seatTransform;
+        unseatLocalPosition = seatTransform.InverseTransformPoint(transform.position);
+        characterController.enabled = false;
+        transform.SetParent(currentSeat);
+        transform.localPosition = isDoingScience ? scienceSeatOffset : drivingSeatOffset;
+        transform.localRotation = Quaternion.identity;
+
+        if (!isDoingScience)
+        {
+            currentVehicle = currentSeat.GetComponentInParent<VehicleController>();
+            if (currentVehicle != null) currentVehicle.isPlayerDriving = true;
+        }
     }
 }
