@@ -36,16 +36,21 @@ public class KnobInteraction : MonoBehaviour
     {
         if (isDragging && radioScript != null)
         {
-            // Use GetAxis("Mouse X") instead of raw mousePosition. 
-            // This is much smoother for "dragging" interactions.
             float mouseX = Input.GetAxis("Mouse X") * sensitivity;
 
-            // 1. Update Radio Logic
+            // 1. Remember the frequency BEFORE we change it
+            float previousFrequency = radioScript.currentFrequency;
+
+            // 2. Update and Clamp the Radio Frequency
             radioScript.currentFrequency += mouseX;
             radioScript.currentFrequency = Mathf.Clamp(radioScript.currentFrequency, 88.0f, 108.0f);
 
-            // 2. Rotate the physical Knob (Local Z is usually the 'spin' axis for knobs)
-            transform.Rotate(Vector3.forward, -mouseX * rotationSpeed * Time.deltaTime);
+            // 3. Calculate how much the frequency ACTUALLY changed
+            // If we hit the clamp limit, actualChange will be exactly 0
+            float actualChange = radioScript.currentFrequency - previousFrequency;
+
+            // 4. Rotate the physical Knob ONLY by the actual change
+            transform.Rotate(Vector3.forward, -actualChange * rotationSpeed * Time.deltaTime);
         }
     }
 }
