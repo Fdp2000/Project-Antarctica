@@ -3,7 +3,7 @@ using UnityEngine;
 public class ScienceKnobInteraction : MonoBehaviour
 {
     [Header("References")]
-    public SeismographDrum drumScript;
+    public CRTWaveController waveController;
     public SimpleFPSController playerController;
 
     public enum KnobType { Amplitude, Frequency, Phase }
@@ -44,7 +44,7 @@ public class ScienceKnobInteraction : MonoBehaviour
 
     void Update()
     {
-        if (isDragging && drumScript != null)
+        if (isDragging && waveController != null)
         {
             float mouseX = Input.GetAxis("Mouse X") * sensitivity;
             float actualChange = 0f;
@@ -52,20 +52,21 @@ public class ScienceKnobInteraction : MonoBehaviour
             switch (function)
             {
                 case KnobType.Amplitude:
-                    float prevAmp = drumScript.playerAmplitude;
-                    drumScript.playerAmplitude = Mathf.Clamp(drumScript.playerAmplitude + (mouseX * 0.01f), 0.02f, 0.2f);
-                    actualChange = drumScript.playerAmplitude - prevAmp;
+                    float prevAmp = waveController.playerAmplitude;
+                    // Lowered clamp max to 0.4f to match the new visual scale
+                    waveController.playerAmplitude = Mathf.Clamp(waveController.playerAmplitude + (mouseX * 0.01f), 0.01f, 0.4f);
+                    actualChange = waveController.playerAmplitude - prevAmp;
                     break;
 
                 case KnobType.Frequency:
-                    float prevFreq = drumScript.playerFrequency;
-                    drumScript.playerFrequency = Mathf.Clamp(drumScript.playerFrequency + (mouseX * 0.1f), 0.5f, 6.0f);
-                    actualChange = drumScript.playerFrequency - prevFreq;
+                    float prevFreq = waveController.playerFrequency;
+                    waveController.playerFrequency = Mathf.Clamp(waveController.playerFrequency + (mouseX * 0.1f), 0.1f, 10.0f);
+                    actualChange = waveController.playerFrequency - prevFreq;
                     break;
 
                 case KnobType.Phase:
-                    // Phase is infinite, so we use raw input for visual rotation
-                    drumScript.playerPhase += mouseX * 0.1f;
+                    float prevPhase = waveController.playerPhase;
+                    waveController.playerPhase += mouseX * 0.2f; // Unclamped or looped so they can twist it endlessly to catch up
                     actualChange = mouseX;
                     break;
             }
