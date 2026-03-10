@@ -6,6 +6,9 @@ using UnityEngine;
 /// </summary>
 public class PunchcardInteractable : MonoBehaviour
 {
+    [HideInInspector]
+    public CRTWaveController waveController;
+
     [Header("Dispense Animation")]
     [Tooltip("How far the card should slide out when it spawns.")]
     public float slideDistance = 0.2f;
@@ -43,10 +46,21 @@ public class PunchcardInteractable : MonoBehaviour
         }
     }
 
-    void OnMouseDown()
+    void OnMouseOver()
     {
-        Debug.Log("<color=cyan>Punchcard Collected!</color>");
-        // For right now, collecting it just despawns the object.
-        Destroy(gameObject);
+        // Require the player to be looking at (mousing over) the object AND press 'E'
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log("<color=cyan>Punchcard Collected via E!</color>");
+            
+            // Tell the machine to turn off its lights and waves
+            if (waveController != null)
+            {
+                waveController.TurnOffMachine();
+            }
+
+            // For right now, collecting it just despawns the object.
+            Destroy(gameObject);
+        }
     }
 }

@@ -23,7 +23,8 @@ public class SimpleFPSController : MonoBehaviour
     private Outline currentOutline;
 
     [Header("Player State (Read Only)")]
-    public bool hasCoreData = false;
+    public bool hasCassette = false;
+    public GameObject heldCassetteVisual; // Drag a cassette model that is a child of the camera here (lower left)
     public bool isDoingScience = false;
 
     public Camera playerCamera;
@@ -93,8 +94,18 @@ public class SimpleFPSController : MonoBehaviour
         {
             GameObject hitObj = hit.collider.gameObject;
 
-            // Highlight Logic for Knobs/Winch
-            if (hitObj.CompareTag("Winch") || hitObj.name.Contains("Knob"))
+            // Highlight Logic for Knobs/Winch/Cassettes
+            bool shouldHighlight = false;
+            if (hitObj.CompareTag("Winch") || hitObj.name.Contains("Knob")) shouldHighlight = true;
+            
+            // Highlight the tape if we look at it
+            if (hitObj.GetComponent<CassetteInteractable>() != null) shouldHighlight = true;
+            
+            // Only highlight the Tape Drive if we actually have the tape to put in it!
+            CassetteReceiver receiver = hitObj.GetComponent<CassetteReceiver>();
+            if (receiver != null && hasCassette && !receiver.hasCassette) shouldHighlight = true;
+
+            if (shouldHighlight)
             {
                 ApplyHighlight(hitObj);
             }
@@ -112,15 +123,32 @@ public class SimpleFPSController : MonoBehaviour
             {
                 if (Input.GetKeyDown(interactKey))
                 {
-                    if (hasCoreData) SitDown(hit.transform, true);
+                    if (hasCassette) SitDown(hit.transform, true);
                 }
             }
-            else if (hit.collider.CompareTag("CoreData"))
+            
+            // Component-based Cassette pickup (Replacing 'CoreData' tag)
+            CassetteInteractable cassette = hit.collider.GetComponent<CassetteInteractable>();
+            if (cassette != null && Input.GetKeyDown(interactKey))
             {
-                if (Input.GetKeyDown(interactKey))
+                hasCassette = true;
+                if (heldCassetteVisual != null) heldCassetteVisual.SetActive(true);
+                Destroy(hit.collider.gameObject);
+                Debug.Log("<color=orange>Cassette Picked Up!</color>");
+            }
+            
+            // Inserting the Cassette into the Receiver
+            if (receiver != null && Input.GetKeyDown(interactKey))
+            {
+                if (hasCassette && !receiver.hasCassette)
                 {
-                    hasCoreData = true;
-                    Destroy(hit.collider.gameObject);
+                    hasCassette = false;
+                    if (heldCassetteVisual != null) heldCassetteVisual.SetActive(false);
+                    receiver.InsertCassette();
+                }
+                else if (!hasCassette && !receiver.hasCassette)
+                {
+                    Debug.Log("I need to find the cassette first...");
                 }
             }
             else if (hit.collider.CompareTag("Winch"))
@@ -128,8 +156,7 @@ public class SimpleFPSController : MonoBehaviour
                 WinchController winch = hit.collider.GetComponent<WinchController>();
                 if (winch != null)
                 {
-                    if (Input.GetKeyDown(interactKey)) winch.ClickToOpen();
-                    else if (Input.GetKey(interactKey)) winch.HoldToClose();
+                    if (Input.GetKey(interactKey)) winch.InteractWinch();
                 }
             }
         }

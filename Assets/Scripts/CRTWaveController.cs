@@ -221,7 +221,12 @@ public class CRTWaveController : MonoBehaviour
             // Spit out the reward
             if (punchcardPrefab != null && punchcardSpawnPoint != null)
             {
-                Instantiate(punchcardPrefab, punchcardSpawnPoint.position, punchcardSpawnPoint.rotation);
+                GameObject spawnedCard = Instantiate(punchcardPrefab, punchcardSpawnPoint.position, punchcardSpawnPoint.rotation);
+                PunchcardInteractable interactable = spawnedCard.GetComponent<PunchcardInteractable>();
+                if (interactable != null)
+                {
+                    interactable.waveController = this;
+                }
             }
         }
 
@@ -307,6 +312,45 @@ public class CRTWaveController : MonoBehaviour
                 if (currentLight != null) currentLight.intensity = 0f;
             }
         }
+    }
+
+    public void TurnOffMachine()
+    {
+        // Stop the Update loop from running altogether
+        this.enabled = false;
+
+        // Hide the oscilloscope waves
+        if (targetLine) targetLine.gameObject.SetActive(false);
+        if (playerLine) playerLine.gameObject.SetActive(false);
+
+        // Turn off the main alignment light
+        if (lightRenderer != null && lightOffMaterial != null) lightRenderer.material = lightOffMaterial;
+        if (pointLightObject != null) pointLightObject.SetActive(false);
+
+        // Turn off all completion progress LEDs
+        for (int i = 0; i < progressLEDs.Length; i++)
+        {
+            if (progressLEDs[i] != null && lightOffMaterial != null) progressLEDs[i].material = lightOffMaterial;
+            if (i < progressPointLights.Length && progressPointLights[i] != null) progressPointLights[i].intensity = 0f;
+        }
+    }
+
+    public void TurnOnMachine()
+    {
+        Debug.Log("<color=cyan>CRT WAVE CONTROLLER ONLINE.</color>");
+        
+        // Reset old progress purely in case we are rebooting
+        currentProgress = 0f;
+        isMinigameComplete = false;
+        
+        PickNewTargets();
+
+        // Reveal the oscilloscope waves
+        if (targetLine) targetLine.gameObject.SetActive(true);
+        if (playerLine) playerLine.gameObject.SetActive(true);
+
+        // Turn the script Update loop back on!
+        this.enabled = true;
     }
 
     void DrawWave(LineRenderer lr, float amp, float freq, float phase)
