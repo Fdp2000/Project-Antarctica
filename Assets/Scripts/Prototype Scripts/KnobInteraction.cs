@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class KnobInteraction : MonoBehaviour
 {
-    public SMeterPrototype radioScript;
+    public RadioTuner radioScript;
     public SimpleFPSController playerController; // NEW: Drag your Player here
     public float sensitivity = 5.0f;
     public float rotationSpeed = 500f;
@@ -43,7 +43,7 @@ public class KnobInteraction : MonoBehaviour
 
             // 2. Update and Clamp the Radio Frequency
             radioScript.currentFrequency += mouseX;
-            radioScript.currentFrequency = Mathf.Clamp(radioScript.currentFrequency, 88.0f, 108.0f);
+            radioScript.currentFrequency = Mathf.Clamp(radioScript.currentFrequency, 0.0f, 100.0f);
 
             // 3. Calculate how much the frequency ACTUALLY changed
             // If we hit the clamp limit, actualChange will be exactly 0
