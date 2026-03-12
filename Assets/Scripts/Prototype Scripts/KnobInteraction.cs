@@ -43,7 +43,7 @@ public class KnobInteraction : MonoBehaviour
 
             // 2. Update and Clamp the Radio Frequency
             radioScript.currentFrequency += mouseX;
-            radioScript.currentFrequency = Mathf.Clamp(radioScript.currentFrequency, 0.0f, 100.0f);
+            radioScript.currentFrequency = Mathf.Clamp(radioScript.currentFrequency, 136f, 174f);
 
             // 3. Calculate how much the frequency ACTUALLY changed
             // If we hit the clamp limit, actualChange will be exactly 0

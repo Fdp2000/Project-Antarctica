@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI; // Needed for the Crosshair Image
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class SimpleFPSController : MonoBehaviour
@@ -14,8 +14,8 @@ public class SimpleFPSController : MonoBehaviour
     [Header("Interaction Settings")]
     public float interactRange = 4.0f;
     public KeyCode interactKey = KeyCode.E;
-    public Image crosshairDot; // Drag your UI Image here
-    public Material highlightMaterial; // Drag your 'Knobhighligt' material here
+    public Image crosshairDot;
+    public Material highlightMaterial;
 
     public Vector3 scienceSeatOffset = new Vector3(0, 1.5f, 0);
     public Vector3 drivingSeatOffset = new Vector3(0, 1.5f, 0);
@@ -24,7 +24,8 @@ public class SimpleFPSController : MonoBehaviour
 
     [Header("Player State (Read Only)")]
     public bool hasCassette = false;
-    public GameObject heldCassetteVisual; // Drag a cassette model that is a child of the camera here (lower left)
+    public RadioBeacon currentlyHeldTapeBeacon;
+    public GameObject heldCassetteVisual;
     public bool isDoingScience = false;
 
     public Camera playerCamera;
@@ -38,24 +39,16 @@ public class SimpleFPSController : MonoBehaviour
     private Vector3 unseatLocalPosition;
     private VehicleController currentVehicle;
 
-    // Feedback Variables
-    private GameObject lastHighlightedObject;
-    private Material originalMaterial;
-    private Renderer[] highlightedRenderers;
-    private Material[] originalMaterials;
-
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
         if (crosshairDot != null) crosshairDot.enabled = true;
     }
 
     void Update()
     {
-        // 1. MOUSE LOOK (Disabled if the script is disabled by KnobInteraction)
         rotationX += -Input.GetAxis("Mouse Y") * lookSensitivity;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
@@ -67,22 +60,23 @@ public class SimpleFPSController : MonoBehaviour
             return;
         }
 
-        // 2. ALWAYS HANDLE VISUAL FEEDBACK
         HandleInteractions();
 
         if (!isSeated)
         {
             Vector3 forward = transform.TransformDirection(Vector3.forward);
             Vector3 right = transform.TransformDirection(Vector3.right);
-
             float curSpeedX = walkSpeed * Input.GetAxis("Vertical");
             float curSpeedY = walkSpeed * Input.GetAxis("Horizontal");
-
             moveDirection = (forward * curSpeedX) + (right * curSpeedY);
             moveDirection.y -= 9.81f * Time.deltaTime;
-
             characterController.Move(moveDirection * Time.deltaTime);
         }
+    }
+
+    public bool IsPunchcardInTray()
+    {
+        return FindObjectOfType<PunchcardInteractable>() != null;
     }
 
     private void HandleInteractions()
@@ -93,70 +87,58 @@ public class SimpleFPSController : MonoBehaviour
         if (Physics.Raycast(ray, out hit, interactRange))
         {
             GameObject hitObj = hit.collider.gameObject;
-
-            // Highlight Logic for Knobs/Winch/Cassettes
             bool shouldHighlight = false;
+
             if (hitObj.CompareTag("Winch") || hitObj.name.Contains("Knob")) shouldHighlight = true;
-            
-            // Highlight the tape if we look at it
             if (hitObj.GetComponent<CassetteInteractable>() != null) shouldHighlight = true;
-            
-            // Only highlight the Tape Drive if we actually have the tape to put in it!
+
+            PunchcardInteractable punchcard = hitObj.GetComponent<PunchcardInteractable>();
+            if (punchcard != null) shouldHighlight = true;
+
             CassetteReceiver receiver = hitObj.GetComponent<CassetteReceiver>();
             if (receiver != null && hasCassette && !receiver.hasCassette) shouldHighlight = true;
 
-            if (shouldHighlight)
-            {
-                ApplyHighlight(hitObj);
-            }
-            else
-            {
-                ClearHighlight();
-            }
+            if (shouldHighlight) ApplyHighlight(hitObj);
+            else ClearHighlight();
 
-            // --- EXISTING INTERACTION LOGIC ---
-            if (hit.collider.CompareTag("Seat"))
+            // --- WINCH INTERACTION (CONTINUOUS HOLD) ---
+            if (hitObj.CompareTag("Winch"))
             {
-                if (Input.GetKeyDown(interactKey)) SitDown(hit.transform, false);
-            }
-            else if (hit.collider.CompareTag("ScienceStation"))
-            {
-                if (Input.GetKeyDown(interactKey))
+                WinchController winch = hitObj.GetComponent<WinchController>();
+                if (winch != null && Input.GetKey(interactKey)) // Use GetKey for holding
                 {
-                    if (hasCassette) SitDown(hit.transform, true);
+                    winch.InteractWinch();
                 }
             }
-            
-            // Component-based Cassette pickup (Replacing 'CoreData' tag)
-            CassetteInteractable cassette = hit.collider.GetComponent<CassetteInteractable>();
-            if (cassette != null && Input.GetKeyDown(interactKey))
+
+            // --- SINGLE CLICK INTERACTIONS ---
+            if (Input.GetKeyDown(interactKey))
             {
-                hasCassette = true;
-                if (heldCassetteVisual != null) heldCassetteVisual.SetActive(true);
-                Destroy(hit.collider.gameObject);
-                Debug.Log("<color=orange>Cassette Picked Up!</color>");
-            }
-            
-            // Inserting the Cassette into the Receiver
-            if (receiver != null && Input.GetKeyDown(interactKey))
-            {
-                if (hasCassette && !receiver.hasCassette)
+                if (punchcard != null)
+                {
+                    if (punchcard.waveController != null) punchcard.waveController.NotifyPunchcardCollected();
+                    Destroy(hitObj);
+                    return;
+                }
+
+                CassetteInteractable cassette = hitObj.GetComponent<CassetteInteractable>();
+                if (cassette != null)
+                {
+                    hasCassette = true;
+                    currentlyHeldTapeBeacon = cassette.sourceBeacon;
+                    if (heldCassetteVisual != null) heldCassetteVisual.SetActive(true);
+                    Destroy(hitObj);
+                    return;
+                }
+
+                if (hit.collider.CompareTag("Seat")) SitDown(hit.transform, false);
+                else if (hit.collider.CompareTag("ScienceStation") && hasCassette) SitDown(hit.transform, true);
+                else if (receiver != null && hasCassette && !receiver.hasCassette)
                 {
                     hasCassette = false;
                     if (heldCassetteVisual != null) heldCassetteVisual.SetActive(false);
-                    receiver.InsertCassette();
-                }
-                else if (!hasCassette && !receiver.hasCassette)
-                {
-                    Debug.Log("I need to find the cassette first...");
-                }
-            }
-            else if (hit.collider.CompareTag("Winch"))
-            {
-                WinchController winch = hit.collider.GetComponent<WinchController>();
-                if (winch != null)
-                {
-                    if (Input.GetKey(interactKey)) winch.InteractWinch();
+                    receiver.InsertCassette(currentlyHeldTapeBeacon);
+                    currentlyHeldTapeBeacon = null;
                 }
             }
         }
@@ -168,21 +150,12 @@ public class SimpleFPSController : MonoBehaviour
 
     void ApplyHighlight(GameObject obj)
     {
-        // Check if the object we are looking at has an Outline component attached
         Outline outline = obj.GetComponentInParent<Outline>();
-
         if (outline != null)
         {
-            // If we were looking at a different outline, turn it off first
-            if (currentOutline != null && currentOutline != outline)
-            {
-                currentOutline.enabled = false;
-            }
-
-            // Turn on the new outline
+            if (currentOutline != null && currentOutline != outline) currentOutline.enabled = false;
             currentOutline = outline;
             currentOutline.enabled = true;
-
             if (crosshairDot != null) crosshairDot.color = Color.green;
         }
     }
@@ -191,10 +164,8 @@ public class SimpleFPSController : MonoBehaviour
     {
         if (currentOutline != null)
         {
-            // Turn off the outline when we look away
             currentOutline.enabled = false;
             currentOutline = null;
-
             if (crosshairDot != null) crosshairDot.color = Color.white;
         }
     }
@@ -214,6 +185,7 @@ public class SimpleFPSController : MonoBehaviour
         currentSeat = null;
         characterController.enabled = true;
     }
+
     private void SitDown(Transform seatTransform, bool scienceMode)
     {
         isSeated = true;

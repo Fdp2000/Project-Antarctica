@@ -1,21 +1,17 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// Placed on the tape drive of the Science Machine. 
-/// Receives the cassette from the player and broadcasts an event to the ScienceStationManager.
-/// </summary>
 [RequireComponent(typeof(Collider), typeof(Outline))]
 public class CassetteReceiver : MonoBehaviour
 {
-    [Tooltip("The visual model of the tape already inside the drive. Should start disabled in the Scene.")]
     public GameObject insertedCassetteVisual;
+    [HideInInspector] public bool hasCassette = false;
 
-    [HideInInspector] 
-    public bool hasCassette = false;
+    // Memory bank for the currently inserted tape
+    [HideInInspector] public RadioBeacon currentlyInsertedBeacon;
 
-    // We use a public Action so the ScienceStationManager can listen to it cleanly
-    public event Action OnCassetteInserted;
+    // The event now passes the specific beacon data to anyone listening
+    public event Action<RadioBeacon> OnCassetteInserted;
 
     void Start()
     {
@@ -23,19 +19,20 @@ public class CassetteReceiver : MonoBehaviour
         if (outline != null) outline.enabled = false;
     }
 
-    public void InsertCassette()
+    // Your SimpleFPSController calls this and passes the data
+    public void InsertCassette(RadioBeacon beaconFromTape)
     {
         hasCassette = true;
-        
-        // Turn on the mesh inside the drive
+        currentlyInsertedBeacon = beaconFromTape;
+
         if (insertedCassetteVisual != null)
         {
             insertedCassetteVisual.SetActive(true);
         }
 
-        Debug.Log("<color=yellow>Cassette Inserted into the Drive!</color>");
-        
-        // Broadcast the event to anyone listening (i.e. the ScienceStationManager)
-        OnCassetteInserted?.Invoke();
+        Debug.Log($"<color=yellow>Cassette Inserted! Source POI: {(beaconFromTape != null ? beaconFromTape.gameObject.name : "UNKNOWN")}</color>");
+
+        // Broadcast the event WITH the specific beacon data
+        OnCassetteInserted?.Invoke(currentlyInsertedBeacon);
     }
 }
