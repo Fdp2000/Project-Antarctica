@@ -84,7 +84,7 @@ public class SMeterDisplay : MonoBehaviour
         }
 
         // Get the real signal from the physical tuner dial
-        float incomingSignal = tuner.signalClarity;
+        float incomingSignal = tuner.finalSignalClarity;
 
         // --- The Capacitor Delay ---
         // If the signal suddenly changes (like scrolling onto the target frequency), 
