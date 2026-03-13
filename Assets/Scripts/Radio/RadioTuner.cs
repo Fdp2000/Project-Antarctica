@@ -4,10 +4,13 @@ public class RadioTuner : MonoBehaviour
 {
     [Header("Dependencies")]
     public Transform vehicleTransform;
-    public RadioBeacon targetBeacon;
+    [Tooltip("Drag all the Radio Beacons in your scene into this array.")]
+    public RadioBeacon[] availableBeacons;
 
     [Header("Tuning Settings")]
-    [Range(0f, 100f)] public float currentFrequency = 88.5f;
+    [Tooltip("VHF Telemetry Band")]
+    [Range(136f, 174f)]
+    public float currentFrequency = 155.0f;
     public float tuningTolerance = 2.0f;
     public float jitterSpeed = 2.0f;
 
@@ -19,50 +22,102 @@ public class RadioTuner : MonoBehaviour
     [Header("Navigation Settings")]
     public float maxDirectionalAngle = 60f;
     public float maxSignalDistance = 500f;
-    public float proximityZoneRadius = 50f;
     [Range(0f, 1f)] public float directionInfluenceOnDistance = 0.8f;
 
-    [Header("Transitions & Smoothing")]
-    [Tooltip("How many seconds it takes to crossfade when entering/exiting the proximity bubble.")]
-    public float proximityTransitionTime = 1.0f;
+    [Tooltip("How many meters outside the proximity radius it takes to smoothly fade back to normal distance math.")]
+    public float proximityBlendDistance = 20f; // NEW: The physical crossfade zone
 
-    [Tooltip("How fast the OVERALL signal glides up or down (e.g., 0.25 = 4 seconds to climb 100%). Set to 0 for instant.")]
-    public float signalTransitionSpeed = 0f;
+    [Header("Transitions & Smoothing")]
+    [Tooltip("How fast the OVERALL signal glides up or down. Set to 0 for instant.")]
+    public float signalTransitionSpeed = 2.0f;
+
+    [Header("Tuning Speed Penalty (Failsafe)")]
+    [Tooltip("Maximum MHz per second the dial can move before the signal drops.")]
+    public float maxTuningSpeed = 8.0f;
+    [Tooltip("How fast the signal recovers (fades back in) after they stop violently tuning.")]
+    public float signalRecoverySpeed = 1.5f;
+
+    private float previousFrequency;
+    private float tuningPenalty = 0f;
 
     [Header("Output (Read Only)")]
     [Range(0f, 1f)]
     public float finalSignalClarity;
 
+    [HideInInspector]
+    public RadioBeacon activeBeacon;
+
     [Header("Debug")]
     public bool showDebugUI = true;
+    public bool showFrequencyUI = true;
+    public bool showSignalUI = true;
 
-    // Internal variable to track the crossfade between standard math and proximity math
-    private float currentProximityWeight = 0f;
+    void Start()
+    {
+        previousFrequency = currentFrequency;
+    }
 
     void Update()
     {
-        if (targetBeacon == null || vehicleTransform == null) return;
+        float currentTuningSpeed = Mathf.Abs(currentFrequency - previousFrequency) / Time.deltaTime;
+        previousFrequency = currentFrequency;
 
-        CalculateSignal();
-    }
+        if (currentTuningSpeed > maxTuningSpeed)
+        {
+            tuningPenalty = 1f;
+        }
+        else
+        {
+            tuningPenalty = Mathf.MoveTowards(tuningPenalty, 0f, signalRecoverySpeed * Time.deltaTime);
+        }
 
-    private void CalculateSignal()
-    {
-        // 1. THE BASE TUNING & JITTER (Instant)
-        float freqDiff = Mathf.Abs(currentFrequency - targetBeacon.broadcastFrequency);
-        float rawTuning = Mathf.Clamp01(1.0f - (freqDiff / tuningTolerance));
-
-        if (rawTuning <= 0.01f)
+        if (availableBeacons == null || availableBeacons.Length == 0 || vehicleTransform == null)
         {
             ApplyFinalSignal(0f);
             return;
         }
 
-        float jitter = (Mathf.PerlinNoise(Time.time * jitterSpeed, 0f) - 0.5f) * 0.04f;
+        float highestSignalThisFrame = 0f;
+        RadioBeacon strongestBeacon = null;
+
+        foreach (RadioBeacon beacon in availableBeacons)
+        {
+            if (beacon == null) continue;
+
+            float beaconSignal = EvaluateBeaconSignal(beacon);
+
+            if (beaconSignal > highestSignalThisFrame)
+            {
+                highestSignalThisFrame = beaconSignal;
+                strongestBeacon = beacon;
+            }
+        }
+
+        activeBeacon = strongestBeacon;
+        ApplyFinalSignal(highestSignalThisFrame);
+    }
+
+    private float EvaluateBeaconSignal(RadioBeacon beacon)
+    {
+        if (beacon.isDead) return 0f;
+
+        float freqDiff = Mathf.Abs(currentFrequency - beacon.broadcastFrequency);
+        float rawTuning = Mathf.Clamp01(1.0f - (freqDiff / tuningTolerance));
+
+        if (rawTuning <= 0.01f) return 0f;
+
+        float jitter = (Mathf.PerlinNoise(Time.time * jitterSpeed, beacon.GetInstanceID()) - 0.5f) * 0.04f;
         float activeTuning = Mathf.Clamp01(rawTuning + jitter);
 
-        // 2. DIRECTIONAL ALLIGNMENT (Instant)
-        Vector3 dirToBeacon = (targetBeacon.transform.position - vehicleTransform.position).normalized;
+        // --- THE UNIFIED OVERWRITE LOGIC ---
+        if (beacon.isCompleted)
+        {
+            float lockedMaxSignal = activeTuning * (baseTuningWeight + directionWeight + distanceWeight);
+            return lockedMaxSignal * beacon.signalMultiplier;
+        }
+
+        // --- NORMAL NAVIGATION MATH ---
+        Vector3 dirToBeacon = (beacon.transform.position - vehicleTransform.position).normalized;
         dirToBeacon.y = 0;
         Vector3 vehicleForward = vehicleTransform.forward;
         vehicleForward.y = 0;
@@ -70,49 +125,36 @@ public class RadioTuner : MonoBehaviour
         float angleToBeacon = Vector3.Angle(vehicleForward, dirToBeacon);
         float directionScore = Mathf.Clamp01(1.0f - (angleToBeacon / maxDirectionalAngle));
 
-        // 3. DISTANCE ALLIGNMENT (Instant)
-        float currentDistance = Vector3.Distance(vehicleTransform.position, targetBeacon.transform.position);
-        float distanceScore = Mathf.InverseLerp(maxSignalDistance, proximityZoneRadius, currentDistance);
+        float currentDistance = Vector3.Distance(vehicleTransform.position, beacon.transform.position);
 
-        // 4. CALCULATE BOTH STATES
-        // State A: Outside the bubble (Standard Math)
+        float distanceScore = Mathf.InverseLerp(maxSignalDistance, beacon.proximityRadius, currentDistance);
+
         float effectiveDistanceMultiplier = (1.0f - directionInfluenceOnDistance) + (directionScore * directionInfluenceOnDistance);
+
         float standardSignal = (activeTuning * baseTuningWeight) +
                                (activeTuning * directionScore * directionWeight) +
                                (activeTuning * effectiveDistanceMultiplier * distanceScore * distanceWeight);
 
-        // State B: Inside the bubble (Override Math)
         float overrideSignal = activeTuning * (baseTuningWeight + directionWeight + distanceWeight);
 
-        // 5. THE PROXIMITY LERP
-        float targetProximityWeight = (currentDistance <= proximityZoneRadius) ? 1f : 0f;
+        // --- NEW: THE BLEND ZONE MATH ---
+        // Instead of instantly snapping from 1 to 0, it physically crossfades over the 'proximityBlendDistance'
+        float proximityWeight = Mathf.InverseLerp(beacon.proximityRadius + proximityBlendDistance, beacon.proximityRadius, currentDistance);
 
-        if (proximityTransitionTime > 0f)
-        {
-            float transitionSpeed = 1f / proximityTransitionTime;
-            currentProximityWeight = Mathf.MoveTowards(currentProximityWeight, targetProximityWeight, transitionSpeed * Time.deltaTime);
-        }
-        else
-        {
-            currentProximityWeight = targetProximityWeight;
-        }
-
-        // Crossfade to get the target signal for this exact frame
-        float targetSignal = Mathf.Lerp(standardSignal, overrideSignal, currentProximityWeight);
-
-        // 6. APPLY OVERALL TRANSITION SPEED
-        ApplyFinalSignal(targetSignal);
+        return Mathf.Lerp(standardSignal, overrideSignal, proximityWeight);
     }
 
     private void ApplyFinalSignal(float targetSignal)
     {
+        float penalizedSignal = targetSignal * (1f - tuningPenalty);
+
         if (signalTransitionSpeed > 0f)
         {
-            finalSignalClarity = Mathf.MoveTowards(finalSignalClarity, targetSignal, signalTransitionSpeed * Time.deltaTime);
+            finalSignalClarity = Mathf.MoveTowards(finalSignalClarity, penalizedSignal, signalTransitionSpeed * Time.deltaTime);
         }
         else
         {
-            finalSignalClarity = targetSignal;
+            finalSignalClarity = penalizedSignal;
         }
     }
 
@@ -120,13 +162,34 @@ public class RadioTuner : MonoBehaviour
     {
         if (!showDebugUI) return;
 
-        GUI.color = Color.yellow;
-        GUI.skin.label.fontSize = 24;
-        GUI.skin.label.fontStyle = FontStyle.Bold;
-        GUI.Label(new Rect(20, 20, 500, 50), "FREQ: " + currentFrequency.ToString("F1") + " MHz");
+        int currentYPosition = 20;
 
-        GUI.color = Color.green;
-        float signalPercentage = finalSignalClarity * 100f;
-        GUI.Label(new Rect(20, 60, 500, 50), "SIGNAL: " + signalPercentage.ToString("F0") + " %");
+        if (showFrequencyUI)
+        {
+            GUI.color = Color.yellow;
+            GUI.skin.label.fontSize = 24;
+            GUI.skin.label.fontStyle = FontStyle.Bold;
+            GUI.Label(new Rect(20, currentYPosition, 500, 50), "FREQ: " + currentFrequency.ToString("F1") + " MHz");
+
+            currentYPosition += 40;
+        }
+
+        if (showSignalUI)
+        {
+            GUI.color = Color.green;
+            GUI.skin.label.fontSize = 24;
+            GUI.skin.label.fontStyle = FontStyle.Bold;
+
+            float signalPercentage = finalSignalClarity * 100f;
+            GUI.Label(new Rect(20, currentYPosition, 500, 50), "SIGNAL: " + signalPercentage.ToString("F0") + " %");
+
+            currentYPosition += 40;
+
+            if (activeBeacon != null && finalSignalClarity > 0.01f)
+            {
+                GUI.color = Color.cyan;
+                GUI.Label(new Rect(20, currentYPosition, 500, 50), "LOCKED ON: " + activeBeacon.gameObject.name);
+            }
+        }
     }
 }
