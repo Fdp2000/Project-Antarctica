@@ -6,6 +6,7 @@ public class SimpleFPSController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5.0f;
+    public float gravity = 9.81f; // Added a variable for gravity
 
     [Header("Look Settings")]
     public float lookSensitivity = 2.0f;
@@ -49,6 +50,7 @@ public class SimpleFPSController : MonoBehaviour
 
     void Update()
     {
+        // Look logic
         rotationX += -Input.GetAxis("Mouse Y") * lookSensitivity;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
@@ -62,14 +64,34 @@ public class SimpleFPSController : MonoBehaviour
 
         HandleInteractions();
 
+        // --- FIXED MOVEMENT & GRAVITY LOGIC ---
         if (!isSeated)
         {
+            // 1. Remember the current vertical velocity
+            float currentY = moveDirection.y;
+
+            // 2. Calculate the horizontal movement based on where we are looking
             Vector3 forward = transform.TransformDirection(Vector3.forward);
             Vector3 right = transform.TransformDirection(Vector3.right);
             float curSpeedX = walkSpeed * Input.GetAxis("Vertical");
             float curSpeedY = walkSpeed * Input.GetAxis("Horizontal");
+
+            // Overwrite moveDirection with horizontal inputs
             moveDirection = (forward * curSpeedX) + (right * curSpeedY);
-            moveDirection.y -= 9.81f * Time.deltaTime;
+
+            // 3. Re-apply the vertical velocity and calculate gravity
+            if (characterController.isGrounded)
+            {
+                // A small downward push keeps the controller smoothly snapped to the floor
+                moveDirection.y = -2.0f;
+            }
+            else
+            {
+                // If in the air, accumulate gravity over time
+                moveDirection.y = currentY - (gravity * Time.deltaTime);
+            }
+
+            // 4. Finally, move the player
             characterController.Move(moveDirection * Time.deltaTime);
         }
     }
@@ -105,7 +127,7 @@ public class SimpleFPSController : MonoBehaviour
             if (hitObj.CompareTag("Winch"))
             {
                 WinchController winch = hitObj.GetComponent<WinchController>();
-                if (winch != null && Input.GetKey(interactKey)) // Use GetKey for holding
+                if (winch != null && Input.GetKey(interactKey))
                 {
                     winch.InteractWinch();
                 }
