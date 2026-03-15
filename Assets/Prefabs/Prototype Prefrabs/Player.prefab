@@ -53,7 +53,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.5
+  m_Radius: 0.25
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -76,9 +76,13 @@ MonoBehaviour:
   lookXLimit: 85
   interactRange: 2
   interactKey: 101
+  crosshairDot: {fileID: 0}
+  highlightMaterial: {fileID: 0}
   scienceSeatOffset: {x: 0, y: 2.3, z: 0}
   drivingSeatOffset: {x: 0, y: 2, z: 0}
-  hasCoreData: 0
+  hasCassette: 0
+  currentlyHeldTapeBeacon: {fileID: 0}
+  heldCassetteVisual: {fileID: 0}
   isDoingScience: 0
   playerCamera: {fileID: 5501588702293416327}
 --- !u!1 &6598162170707994674
