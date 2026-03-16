@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2067125815251509546
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 9.741816
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.0000002380049
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.11951103
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fa3521deb923246be906487570a279a5, type: 3}
+      propertyPath: m_Name
+      value: FANACRUISER_V2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fa3521deb923246be906487570a279a5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7221292797979114974}
+    - targetCorrespondingSourceObject: {fileID: 8863367434314212803, guid: fa3521deb923246be906487570a279a5, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 4433532719902418616}
+    - targetCorrespondingSourceObject: {fileID: 8863367434314212803, guid: fa3521deb923246be906487570a279a5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 634102609386724220}
+  m_SourcePrefab: {fileID: 100100000, guid: fa3521deb923246be906487570a279a5, type: 3}
+--- !u!1 &1184040071407737979 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fa3521deb923246be906487570a279a5, type: 3}
+  m_PrefabInstance: {fileID: 2067125815251509546}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7221292797979114974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184040071407737979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdb3bb307e9fd114fb53a7aaec6dfaaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VehicleController
+  moveSpeed: 5
+  turnSpeed: 45
+  winch: {fileID: 0}
+  scienceMachine: {fileID: 0}
+  player: {fileID: 0}
+  isPlayerDriving: 0
+--- !u!1 &7471162006084207849 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8863367434314212803, guid: fa3521deb923246be906487570a279a5, type: 3}
+  m_PrefabInstance: {fileID: 2067125815251509546}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4433532719902418616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7471162006084207849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b459dbba8aa731646b1a9bd91331faed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WinchController
+  doorHinge: {fileID: 8665626527813994373}
+  openAngle: -225
+  closedAngle: -90
+  closeSpeed: 45
+  openHoldTime: 0.25
+  closeCooldownTime: 1.2
+  openCooldownTime: 2
+--- !u!114 &634102609386724220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7471162006084207849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!4 &8665626527813994373 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -1950733119399844177, guid: fa3521deb923246be906487570a279a5, type: 3}
+  m_PrefabInstance: {fileID: 2067125815251509546}
+  m_PrefabAsset: {fileID: 0}
