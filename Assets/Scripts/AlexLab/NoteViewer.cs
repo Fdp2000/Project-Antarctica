@@ -47,8 +47,8 @@ public class NoteViewer : MonoBehaviour
     // Rotate note slightly with mouse
     if (currentNote != null)
     {
-        float rotX = -Input.GetAxis("Mouse Y") * rotationSpeed * Time.deltaTime;
-        float rotY = Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime;
+        float rotX = -Input.GetAxis("Mouse Y") * rotationSpeed * Time.deltaTime*0.2f;
+        float rotY = Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime*0.2f;
 
         currentNote.transform.Rotate(rotX, rotY, 0, Space.Self);
     }
