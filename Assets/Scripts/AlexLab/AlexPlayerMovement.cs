@@ -26,6 +26,8 @@ public class AlexPlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
+    return;
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
         controller.Move(move * speed * Time.deltaTime);
 

@@ -21,6 +21,8 @@ public class AlexCameraMovement : MonoBehaviour
 
     void Update()
     {
+        if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
+    return;
         float mouseX = lookInput.x * sensitivity * Time.deltaTime;
         float mouseY = lookInput.y * sensitivity * Time.deltaTime;
 
