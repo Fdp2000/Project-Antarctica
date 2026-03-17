@@ -6,7 +6,19 @@ public class SimpleFPSController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5.0f;
-    public float gravity = 9.81f; // Added a variable for gravity
+    public float crouchSpeed = 2.5f;
+    public float gravity = 9.81f;
+
+    [Header("Crouch Settings")]
+    public KeyCode crouchKey = KeyCode.LeftControl;
+    public float crouchHeight = 1.0f;
+    // --- NEW: Custom layer mask so we only check against solid walls, not triggers
+    public LayerMask obstacleLayers = Physics.DefaultRaycastLayers;
+
+    [Header("Camera Settings")]
+    // --- NEW: Easily adjust the exact camera height from the Inspector
+    public Vector3 standingCameraOffset = new Vector3(0, 0.6f, 0);
+    public Vector3 crouchingCameraOffset = new Vector3(0, 0.2f, 0);
 
     [Header("Look Settings")]
     public float lookSensitivity = 2.0f;
@@ -40,12 +52,24 @@ public class SimpleFPSController : MonoBehaviour
     private Vector3 unseatLocalPosition;
     private VehicleController currentVehicle;
 
+    // --- Crouch State Variables ---
+    private float standingHeight;
+    private Vector3 standingCenter;
+    private bool isCrouching = false;
+
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         if (crosshairDot != null) crosshairDot.enabled = true;
+
+        // Memorize default standing data
+        standingHeight = characterController.height;
+        standingCenter = characterController.center;
+
+        // Force the camera to start at the exact standing offset you choose
+        if (playerCamera != null) playerCamera.transform.localPosition = standingCameraOffset;
     }
 
     void Update()
@@ -64,38 +88,95 @@ public class SimpleFPSController : MonoBehaviour
 
         HandleInteractions();
 
-        // --- FIXED MOVEMENT & GRAVITY LOGIC ---
+        // --- CROUCH LOGIC (HOLD & CAPSULE CHECK) ---
         if (!isSeated)
         {
-            // 1. Remember the current vertical velocity
-            float currentY = moveDirection.y;
+            bool isHoldingCrouch = Input.GetKey(crouchKey);
 
-            // 2. Calculate the horizontal movement based on where we are looking
+            if (isHoldingCrouch && !isCrouching)
+            {
+                SetCrouchState(true);
+            }
+            else if (!isHoldingCrouch && isCrouching)
+            {
+                if (CanStandUp())
+                {
+                    SetCrouchState(false);
+                }
+            }
+        }
+
+        // --- MOVEMENT & GRAVITY LOGIC ---
+        if (!isSeated)
+        {
+            float currentY = moveDirection.y;
             Vector3 forward = transform.TransformDirection(Vector3.forward);
             Vector3 right = transform.TransformDirection(Vector3.right);
-            float curSpeedX = walkSpeed * Input.GetAxis("Vertical");
-            float curSpeedY = walkSpeed * Input.GetAxis("Horizontal");
 
-            // Overwrite moveDirection with horizontal inputs
+            float activeSpeed = isCrouching ? crouchSpeed : walkSpeed;
+            float curSpeedX = activeSpeed * Input.GetAxis("Vertical");
+            float curSpeedY = activeSpeed * Input.GetAxis("Horizontal");
+
             moveDirection = (forward * curSpeedX) + (right * curSpeedY);
 
-            // 3. Re-apply the vertical velocity and calculate gravity
             if (characterController.isGrounded)
             {
-                // A small downward push keeps the controller smoothly snapped to the floor
                 moveDirection.y = -2.0f;
             }
             else
             {
-                // If in the air, accumulate gravity over time
                 moveDirection.y = currentY - (gravity * Time.deltaTime);
             }
 
-            // 4. Finally, move the player
             characterController.Move(moveDirection * Time.deltaTime);
         }
     }
 
+    // --- UPDATED: The Bulletproof Capsule Check ---
+    private bool CanStandUp()
+    {
+        // Math to figure out the top and bottom of the player's standing body
+        Vector3 topPoint = transform.position + standingCenter + Vector3.up * (standingHeight / 2f - characterController.radius);
+        Vector3 bottomPoint = transform.position + standingCenter - Vector3.up * (standingHeight / 2f - characterController.radius);
+
+        characterController.enabled = false;
+
+        // Check if anything solid is sitting inside where our body wants to be
+        // QueryTriggerInteraction.Ignore ensures we don't get blocked by invisible trigger zones!
+        bool isObstructed = Physics.CheckCapsule(bottomPoint, topPoint, characterController.radius * 0.95f, obstacleLayers, QueryTriggerInteraction.Ignore);
+
+        characterController.enabled = true;
+
+        return !isObstructed;
+    }
+
+    private void SetCrouchState(bool state)
+    {
+        isCrouching = state;
+
+        if (isCrouching)
+        {
+            characterController.height = crouchHeight;
+            characterController.center = standingCenter - new Vector3(0, (standingHeight - crouchHeight) / 2f, 0);
+
+            if (playerCamera != null)
+            {
+                playerCamera.transform.localPosition = crouchingCameraOffset;
+            }
+        }
+        else
+        {
+            characterController.height = standingHeight;
+            characterController.center = standingCenter;
+
+            if (playerCamera != null)
+            {
+                playerCamera.transform.localPosition = standingCameraOffset;
+            }
+        }
+    }
+
+    // ... [Interaction Code remains exactly the same below] ...
     public bool IsPunchcardInTray()
     {
         return FindObjectOfType<PunchcardInteractable>() != null;
@@ -123,7 +204,6 @@ public class SimpleFPSController : MonoBehaviour
             if (shouldHighlight) ApplyHighlight(hitObj);
             else ClearHighlight();
 
-            // --- WINCH INTERACTION (CONTINUOUS HOLD) ---
             if (hitObj.CompareTag("Winch"))
             {
                 WinchController winch = hitObj.GetComponent<WinchController>();
@@ -133,7 +213,6 @@ public class SimpleFPSController : MonoBehaviour
                 }
             }
 
-            // --- SINGLE CLICK INTERACTIONS ---
             if (Input.GetKeyDown(interactKey))
             {
                 if (punchcard != null)
