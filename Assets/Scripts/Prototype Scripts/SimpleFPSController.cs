@@ -246,7 +246,7 @@ public class SimpleFPSController : MonoBehaviour
                     return;
                 }
 
-                if (targetObj.CompareTag("Seat")) SitDown(targetObj.transform, false);
+                if (targetObj.CompareTag("Seat") && !hasCassette) SitDown(targetObj.transform, false);
                 else if (targetObj.CompareTag("ScienceStation") && hasCassette) SitDown(targetObj.transform, true);
                 else if (receiver != null && hasCassette && !receiver.hasCassette)
                 {
