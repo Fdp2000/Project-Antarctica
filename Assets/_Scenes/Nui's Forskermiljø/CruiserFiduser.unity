@@ -655,6 +655,22 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Winch
       objectReference: {fileID: 0}
+    - target: {fileID: 5981258578522022773, guid: be31a63a9d0724e9982a2229463ec407, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.26723823
+      objectReference: {fileID: 0}
+    - target: {fileID: 5981258578522022773, guid: be31a63a9d0724e9982a2229463ec407, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.96363056
+      objectReference: {fileID: 0}
+    - target: {fileID: 5981258578522022773, guid: be31a63a9d0724e9982a2229463ec407, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5981258578522022773, guid: be31a63a9d0724e9982a2229463ec407, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -211
+      objectReference: {fileID: 0}
     - target: {fileID: 7770571820641689579, guid: be31a63a9d0724e9982a2229463ec407, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.46
