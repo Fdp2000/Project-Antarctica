@@ -72,6 +72,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleFPSController
   walkSpeed: 5
+  crouchSpeed: 2.5
+  gravity: 9.81
+  crouchKey: 306
+  crouchHeight: 1
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  standingCameraOffset: {x: 0, y: 0.6, z: 0}
+  crouchingCameraOffset: {x: 0, y: 0.2, z: 0}
   lookSensitivity: 2
   lookXLimit: 85
   interactRange: 2
