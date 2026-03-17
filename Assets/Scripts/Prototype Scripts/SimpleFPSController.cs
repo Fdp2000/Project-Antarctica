@@ -12,17 +12,22 @@ public class SimpleFPSController : MonoBehaviour
     [Header("Crouch Settings")]
     public KeyCode crouchKey = KeyCode.LeftControl;
     public float crouchHeight = 1.0f;
-    // --- NEW: Custom layer mask so we only check against solid walls, not triggers
     public LayerMask obstacleLayers = Physics.DefaultRaycastLayers;
 
     [Header("Camera Settings")]
-    // --- NEW: Easily adjust the exact camera height from the Inspector
     public Vector3 standingCameraOffset = new Vector3(0, 0.6f, 0);
     public Vector3 crouchingCameraOffset = new Vector3(0, 0.2f, 0);
+
+    // --- NEW: Full control over the exact starting camera angle when seated!
+    [Tooltip("Pitch: Positive looks DOWN, Negative looks UP")]
+    public float defaultSeatedRotationX = 15f; // Starts looking slightly down at the dash
+    [Tooltip("Yaw: Positive looks RIGHT, Negative looks LEFT")]
+    public float defaultSeatedRotationY = 0f;
 
     [Header("Look Settings")]
     public float lookSensitivity = 2.0f;
     public float lookXLimit = 85.0f;
+    public float seatedLookYLimit = 110.0f;
 
     [Header("Interaction Settings")]
     public float interactRange = 4.0f;
@@ -45,14 +50,15 @@ public class SimpleFPSController : MonoBehaviour
 
     private CharacterController characterController;
     private Vector3 moveDirection = Vector3.zero;
+
     private float rotationX = 0;
+    private float rotationY = 0;
 
     private bool isSeated = false;
     private Transform currentSeat;
     private Vector3 unseatLocalPosition;
     private VehicleController currentVehicle;
 
-    // --- Crouch State Variables ---
     private float standingHeight;
     private Vector3 standingCenter;
     private bool isCrouching = false;
@@ -64,21 +70,28 @@ public class SimpleFPSController : MonoBehaviour
         Cursor.visible = false;
         if (crosshairDot != null) crosshairDot.enabled = true;
 
-        // Memorize default standing data
         standingHeight = characterController.height;
         standingCenter = characterController.center;
 
-        // Force the camera to start at the exact standing offset you choose
         if (playerCamera != null) playerCamera.transform.localPosition = standingCameraOffset;
     }
 
     void Update()
     {
-        // Look logic
         rotationX += -Input.GetAxis("Mouse Y") * lookSensitivity;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-        playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-        transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * lookSensitivity);
+
+        if (!isSeated)
+        {
+            transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * lookSensitivity);
+            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+        }
+        else
+        {
+            rotationY += Input.GetAxis("Mouse X") * lookSensitivity;
+            rotationY = Mathf.Clamp(rotationY, -seatedLookYLimit, seatedLookYLimit);
+            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
+        }
 
         if (Input.GetKeyDown(interactKey) && isSeated)
         {
@@ -88,7 +101,6 @@ public class SimpleFPSController : MonoBehaviour
 
         HandleInteractions();
 
-        // --- CROUCH LOGIC (HOLD & CAPSULE CHECK) ---
         if (!isSeated)
         {
             bool isHoldingCrouch = Input.GetKey(crouchKey);
@@ -106,7 +118,6 @@ public class SimpleFPSController : MonoBehaviour
             }
         }
 
-        // --- MOVEMENT & GRAVITY LOGIC ---
         if (!isSeated)
         {
             float currentY = moveDirection.y;
@@ -132,19 +143,13 @@ public class SimpleFPSController : MonoBehaviour
         }
     }
 
-    // --- UPDATED: The Bulletproof Capsule Check ---
     private bool CanStandUp()
     {
-        // Math to figure out the top and bottom of the player's standing body
         Vector3 topPoint = transform.position + standingCenter + Vector3.up * (standingHeight / 2f - characterController.radius);
         Vector3 bottomPoint = transform.position + standingCenter - Vector3.up * (standingHeight / 2f - characterController.radius);
 
         characterController.enabled = false;
-
-        // Check if anything solid is sitting inside where our body wants to be
-        // QueryTriggerInteraction.Ignore ensures we don't get blocked by invisible trigger zones!
         bool isObstructed = Physics.CheckCapsule(bottomPoint, topPoint, characterController.radius * 0.95f, obstacleLayers, QueryTriggerInteraction.Ignore);
-
         characterController.enabled = true;
 
         return !isObstructed;
@@ -159,24 +164,17 @@ public class SimpleFPSController : MonoBehaviour
             characterController.height = crouchHeight;
             characterController.center = standingCenter - new Vector3(0, (standingHeight - crouchHeight) / 2f, 0);
 
-            if (playerCamera != null)
-            {
-                playerCamera.transform.localPosition = crouchingCameraOffset;
-            }
+            if (playerCamera != null) playerCamera.transform.localPosition = crouchingCameraOffset;
         }
         else
         {
             characterController.height = standingHeight;
             characterController.center = standingCenter;
 
-            if (playerCamera != null)
-            {
-                playerCamera.transform.localPosition = standingCameraOffset;
-            }
+            if (playerCamera != null) playerCamera.transform.localPosition = standingCameraOffset;
         }
     }
 
-    // ... [Interaction Code remains exactly the same below] ...
     public bool IsPunchcardInTray()
     {
         return FindObjectOfType<PunchcardInteractable>() != null;
@@ -184,29 +182,45 @@ public class SimpleFPSController : MonoBehaviour
 
     private void HandleInteractions()
     {
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        RaycastHit hit;
+        GameObject targetObj = null;
 
-        if (Physics.Raycast(ray, out hit, interactRange))
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
-            GameObject hitObj = hit.collider.gameObject;
+            targetObj = hit.collider.gameObject;
+        }
+        else
+        {
+            Collider[] overlaps = Physics.OverlapSphere(playerCamera.transform.position, 0.5f);
+            foreach (Collider col in overlaps)
+            {
+                if (col.CompareTag("Seat") || col.CompareTag("ScienceStation"))
+                {
+                    targetObj = col.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (targetObj != null)
+        {
             bool shouldHighlight = false;
 
-            if (hitObj.CompareTag("Winch") || hitObj.name.Contains("Knob")) shouldHighlight = true;
-            if (hitObj.GetComponent<CassetteInteractable>() != null) shouldHighlight = true;
+            if (targetObj.CompareTag("Winch") || targetObj.name.Contains("Knob")) shouldHighlight = true;
+            if (targetObj.GetComponent<CassetteInteractable>() != null) shouldHighlight = true;
 
-            PunchcardInteractable punchcard = hitObj.GetComponent<PunchcardInteractable>();
+            PunchcardInteractable punchcard = targetObj.GetComponent<PunchcardInteractable>();
             if (punchcard != null) shouldHighlight = true;
 
-            CassetteReceiver receiver = hitObj.GetComponent<CassetteReceiver>();
+            CassetteReceiver receiver = targetObj.GetComponent<CassetteReceiver>();
             if (receiver != null && hasCassette && !receiver.hasCassette) shouldHighlight = true;
 
-            if (shouldHighlight) ApplyHighlight(hitObj);
+            if (shouldHighlight) ApplyHighlight(targetObj);
             else ClearHighlight();
 
-            if (hitObj.CompareTag("Winch"))
+            if (targetObj.CompareTag("Winch"))
             {
-                WinchController winch = hitObj.GetComponent<WinchController>();
+                WinchController winch = targetObj.GetComponent<WinchController>();
                 if (winch != null && Input.GetKey(interactKey))
                 {
                     winch.InteractWinch();
@@ -218,22 +232,22 @@ public class SimpleFPSController : MonoBehaviour
                 if (punchcard != null)
                 {
                     if (punchcard.waveController != null) punchcard.waveController.NotifyPunchcardCollected();
-                    Destroy(hitObj);
+                    Destroy(targetObj);
                     return;
                 }
 
-                CassetteInteractable cassette = hitObj.GetComponent<CassetteInteractable>();
+                CassetteInteractable cassette = targetObj.GetComponent<CassetteInteractable>();
                 if (cassette != null)
                 {
                     hasCassette = true;
                     currentlyHeldTapeBeacon = cassette.sourceBeacon;
                     if (heldCassetteVisual != null) heldCassetteVisual.SetActive(true);
-                    Destroy(hitObj);
+                    Destroy(targetObj);
                     return;
                 }
 
-                if (hit.collider.CompareTag("Seat")) SitDown(hit.transform, false);
-                else if (hit.collider.CompareTag("ScienceStation") && hasCassette) SitDown(hit.transform, true);
+                if (targetObj.CompareTag("Seat") && !hasCassette) SitDown(targetObj.transform, false);
+                else if (targetObj.CompareTag("ScienceStation") && hasCassette) SitDown(targetObj.transform, true);
                 else if (receiver != null && hasCassette && !receiver.hasCassette)
                 {
                     hasCassette = false;
@@ -275,6 +289,11 @@ public class SimpleFPSController : MonoBehaviour
     {
         isSeated = false;
         isDoingScience = false;
+
+        // Reset Y rotation so you look straight ahead relative to your body
+        rotationY = 0f;
+        playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+
         if (currentVehicle != null)
         {
             currentVehicle.isPlayerDriving = false;
@@ -292,10 +311,16 @@ public class SimpleFPSController : MonoBehaviour
         isSeated = true;
         isDoingScience = scienceMode;
         currentSeat = seatTransform;
+
+        // --- UPDATED: Snap to BOTH your custom X and Y angles!
+        rotationX = defaultSeatedRotationX;
+        rotationY = defaultSeatedRotationY;
+
         unseatLocalPosition = seatTransform.InverseTransformPoint(transform.position);
         characterController.enabled = false;
         transform.SetParent(currentSeat);
         transform.localPosition = isDoingScience ? scienceSeatOffset : drivingSeatOffset;
+
         transform.localRotation = Quaternion.identity;
 
         if (!isDoingScience)

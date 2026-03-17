@@ -8,9 +8,9 @@ public class RadioTuner : MonoBehaviour
     public RadioBeacon[] availableBeacons;
 
     [Header("Tuning Settings")]
-    [Tooltip("VHF Telemetry Band")]
-    [Range(136f, 174f)]
-    public float currentFrequency = 155.0f;
+    [Tooltip("Standard FM Broadcast Band")]
+    [Range(88f, 108f)]
+    public float currentFrequency = 88.0f;
     public float tuningTolerance = 2.0f;
     public float jitterSpeed = 2.0f;
 
