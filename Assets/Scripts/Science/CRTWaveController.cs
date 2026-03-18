@@ -56,24 +56,31 @@ public class CRTWaveController : MonoBehaviour
     public float visualDensity = 5f;
 
     [Header("Player Knobs (Inputs)")]
-    [Range(0.01f, 0.4f)] public float playerAmplitude = 0.15f;
-    [Range(0.1f, 10f)] public float playerFrequency = 2f;
-    [Range(-10f, 10f)] public float playerPhase = 0f;
+    [Range(0.16f, 1.1f)] public float playerAmplitude = 0.5f;
+    [Range(6.2f, 10f)] public float playerFrequency = 8.0f;
+    [Range(0f, 12.56f)] public float playerPhase = 2.5f;
 
     [Header("Target Wave Settings (Amber)")]
-    public float baseTargetAmplitude = 0.15f;
-    public float baseTargetFrequency = 2f;
-    public float baseTargetPhase = 0f;
+    public float baseTargetAmplitude = 0.5f;
+    public float baseTargetFrequency = 8.0f;
+    public float baseTargetPhase = 2.5f;
 
-    [Header("Target Target Drift (Timer Based)")]
-    [Tooltip("How many seconds the target waves hold steady before moving again.")]
-    public float driftInterval = 4.0f;
-    [Tooltip("How long it takes to lerp from the old target to the new target.")]
+    [Header("Target Drift Settings (Unbound)")]
+    [Tooltip("The minimum time the wave holds steady before mutating.")]
+    public float minDriftInterval = 2.0f;
+    [Tooltip("The maximum time the wave holds steady before mutating.")]
+    public float maxDriftInterval = 6.0f;
+    [Tooltip("How long it takes to lerp to the new mutation.")]
     public float driftLerpDuration = 1.5f;
 
-    public float amplitudeDriftVariance = 0.1f;
+    [Tooltip("How much the Amplitude can randomly increase/decrease in a single jump.")]
+    public float amplitudeDriftVariance = 0.2f;
+    [Tooltip("How much the Frequency can randomly increase/decrease in a single jump.")]
     public float frequencyDriftVariance = 1.0f;
+    [Tooltip("How much the Phase can randomly increase/decrease in a single jump.")]
     public float phaseDriftVariance = 2.0f;
+
+    private float currentDriftInterval;
 
     // Internal variables
     private float currentTargetAmplitude;
@@ -116,29 +123,19 @@ public class CRTWaveController : MonoBehaviour
             if (i < progressPointLights.Length && progressPointLights[i] != null) progressPointLights[i].intensity = 0f;
         }
 
+        currentDriftInterval = Random.Range(minDriftInterval, maxDriftInterval);
         PickNewTargets();
-    }
-
-    void PickNewTargets()
-    {
-        oldTargetAmplitude = currentTargetAmplitude;
-        oldTargetFrequency = currentTargetFrequency;
-        oldTargetPhase = currentTargetPhase;
-
-        newTargetAmplitude = baseTargetAmplitude + Random.Range(-amplitudeDriftVariance, amplitudeDriftVariance);
-        newTargetFrequency = baseTargetFrequency + Random.Range(-frequencyDriftVariance, frequencyDriftVariance);
-        newTargetPhase = baseTargetPhase + Random.Range(-phaseDriftVariance, phaseDriftVariance);
-
-        lerpTimer = 0f;
     }
 
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= driftInterval)
+
+        if (timer >= currentDriftInterval)
         {
             PickNewTargets();
             timer = 0f;
+            currentDriftInterval = Random.Range(minDriftInterval, maxDriftInterval);
         }
 
         if (lerpTimer < driftLerpDuration)
@@ -155,6 +152,39 @@ public class CRTWaveController : MonoBehaviour
         if (playerLine) DrawWave(playerLine, playerAmplitude, playerFrequency, playerPhase);
 
         CheckSync();
+    }
+
+    void PickNewTargets()
+    {
+        oldTargetAmplitude = currentTargetAmplitude;
+        oldTargetFrequency = currentTargetFrequency;
+        oldTargetPhase = currentTargetPhase;
+
+        newTargetAmplitude = currentTargetAmplitude;
+        newTargetFrequency = currentTargetFrequency;
+        newTargetPhase = currentTargetPhase;
+
+        int propertyToMutate = Random.Range(0, 3);
+
+        switch (propertyToMutate)
+        {
+            case 0: // Mutate Amplitude
+                float rawNewAmp = currentTargetAmplitude + Random.Range(-amplitudeDriftVariance, amplitudeDriftVariance);
+                newTargetAmplitude = Mathf.Clamp(rawNewAmp, 0.16f, 1.1f);
+                break;
+
+            case 1: // Mutate Frequency
+                float rawNewFreq = currentTargetFrequency + Random.Range(-frequencyDriftVariance, frequencyDriftVariance);
+                newTargetFrequency = Mathf.Clamp(rawNewFreq, 6.2f, 10.0f);
+                break;
+
+            case 2: // Mutate Phase
+                float rawNewPhase = currentTargetPhase + Random.Range(-phaseDriftVariance, phaseDriftVariance);
+                newTargetPhase = Mathf.Clamp(rawNewPhase, 0f, 12.56f); // Locked to Golden Number
+                break;
+        }
+
+        lerpTimer = 0f;
     }
 
     void CheckSync()
@@ -181,7 +211,6 @@ public class CRTWaveController : MonoBehaviour
 
             if (punchcardPrefab != null && punchcardSpawnPoint != null)
             {
-                // NEW: Added punchcardSpawnPoint at the end of this Instantiate to parent it immediately!
                 GameObject spawnedCard = Instantiate(punchcardPrefab, punchcardSpawnPoint.position, punchcardSpawnPoint.rotation, punchcardSpawnPoint);
                 PunchcardInteractable interactable = spawnedCard.GetComponent<PunchcardInteractable>();
                 if (interactable != null) interactable.waveController = this;
@@ -287,10 +316,6 @@ public class CRTWaveController : MonoBehaviour
         {
             linkedBeacon.isCompleted = true;
             Debug.Log("<color=magenta>Beacon notified: Ready to fade signal upon departure.</color>");
-        }
-        else
-        {
-            Debug.LogWarning("CRT Wave Controller finished, but had no linked beacon to notify!");
         }
     }
 }

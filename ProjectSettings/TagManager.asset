@@ -9,18 +9,20 @@ TagManager:
   - ScienceStation
   - Winch
   - PushableObject
+  - ground
+  - inviswall
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - ground
   - Water
   - UI
   - Note
   - UI_Notes
   - CRT_Screen
-  - 
-  - 
+  - inviswall
+  - Interactable
   - 
   - 
   - 
