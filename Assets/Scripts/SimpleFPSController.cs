@@ -33,7 +33,6 @@ public class SimpleFPSController : MonoBehaviour
     public float seatedLookYLimit = 110.0f;
 
     [Header("Snapping Rotation")]
-    [Tooltip("Head pitch when entering the seat.")]
     public float enterRotationX = 20f;
 
     [Header("Player State")]
@@ -64,7 +63,6 @@ public class SimpleFPSController : MonoBehaviour
 
     void Update()
     {
-        // 1. Camera Look Logic
         rotationX += -Input.GetAxis("Mouse Y") * lookSensitivity;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
 
@@ -72,8 +70,6 @@ public class SimpleFPSController : MonoBehaviour
         {
             transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * lookSensitivity);
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-
-            // Handle Smooth Crouching
             HandleCrouch();
         }
         else
@@ -83,11 +79,9 @@ public class SimpleFPSController : MonoBehaviour
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
         }
 
-        // 2. Interaction Logic
         if (Input.GetKeyDown(interactKey) && isSeated) { GetUp(); return; }
         HandleInteractions();
 
-        // 3. Movement & Gravity
         if (!isSeated)
         {
             float currentSpeed = isCrouching ? crouchSpeed : walkSpeed;
@@ -105,7 +99,6 @@ public class SimpleFPSController : MonoBehaviour
 
     private void HandleCrouch()
     {
-        // Check if there is an obstacle above the player's head
         bool isBlockedAbove = false;
         if (!Input.GetKey(crouchKey))
         {
@@ -117,18 +110,13 @@ public class SimpleFPSController : MonoBehaviour
             }
         }
 
-        // Keep crouching if the key is held OR if we are blocked from standing up
         isCrouching = Input.GetKey(crouchKey) || isBlockedAbove;
 
-        // Smoothly interpolate height and camera position
         float targetHeight = isCrouching ? crouchHeight : standingHeight;
         Vector3 targetCameraOffset = isCrouching ? crouchingCameraOffset : standingCameraOffset;
 
         characterController.height = Mathf.Lerp(characterController.height, targetHeight, Time.deltaTime * crouchTransitionSpeed);
-
-        // Adjust center so the player's feet stay glued to the floor while shrinking
         characterController.center = new Vector3(0, characterController.height / 2f, 0);
-
         playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, targetCameraOffset, Time.deltaTime * crouchTransitionSpeed);
     }
 
@@ -154,9 +142,27 @@ public class SimpleFPSController : MonoBehaviour
                 return;
             }
 
+            var punchcard = target.GetComponent<PunchcardInteractable>();
+            if (punchcard != null)
+            {
+                if (distanceToTarget <= cassettePickupRange)
+                {
+                    HighlightObject(target);
+                    if (Input.GetKeyDown(interactKey)) PickUpPunchcard(punchcard);
+                }
+                else { ClearHighlight(); }
+                return;
+            }
+
             if (distanceToTarget <= interactRange)
             {
                 HighlightObject(target);
+
+                if (Input.GetKey(interactKey) || Input.GetMouseButton(0))
+                {
+                    if (target.CompareTag("Winch")) target.GetComponent<WinchController>()?.InteractWinch();
+                }
+
                 bool startInteraction = Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0);
 
                 if (startInteraction)
@@ -178,8 +184,6 @@ public class SimpleFPSController : MonoBehaviour
                             hasCassette = false;
                             if (heldCassetteVisual != null) heldCassetteVisual.SetActive(false);
                         }
-
-                        if (target.CompareTag("Winch")) target.GetComponent<WinchController>()?.InteractWinch();
                     }
                 }
             }
@@ -201,8 +205,6 @@ public class SimpleFPSController : MonoBehaviour
         rotationX = enterRotationX;
         rotationY = 0;
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
-
-        // Ensure camera goes to exactly 0 locally while seated
         playerCamera.transform.localPosition = Vector3.zero;
 
         currentVehicle = seat.GetComponentInParent<VehicleController>();
@@ -215,7 +217,6 @@ public class SimpleFPSController : MonoBehaviour
     {
         if (currentSeat == null) return;
 
-        // 1. Capture orientation for seamless transition
         Quaternion camWorldRot = playerCamera.transform.rotation;
         Vector3 camForward = camWorldRot * Vector3.forward;
         camForward.y = 0;
@@ -223,23 +224,19 @@ public class SimpleFPSController : MonoBehaviour
         isSeated = false;
         if (currentVehicle != null) currentVehicle.isPlayerDriving = false;
 
-        // 2. Unparent and position
         transform.SetParent(null);
         Vector3 worldExitOffset = currentSeat.TransformDirection(exitOffset);
         transform.position = currentSeat.position + worldExitOffset;
 
-        // 3. Re-apply rotation to body
         transform.rotation = Quaternion.LookRotation(camForward, Vector3.up);
         rotationY = 0;
 
-        // 4. Restore character camera position and sync
-        // We set it to the target offset directly to prevent a "lerp slide" on frame 1
         playerCamera.transform.localPosition = isCrouching ? crouchingCameraOffset : standingCameraOffset;
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
         Physics.SyncTransforms();
         characterController.enabled = true;
-        Physics.SyncTransforms(); // Double sync to kill the frame glitch
+        Physics.SyncTransforms();
     }
 
     private void PickUpTape(CassetteInteractable tape)
@@ -248,6 +245,19 @@ public class SimpleFPSController : MonoBehaviour
         currentlyHeldTapeBeacon = tape.sourceBeacon;
         if (heldCassetteVisual != null) heldCassetteVisual.SetActive(true);
         Destroy(tape.gameObject);
+    }
+
+    // --- UPDATED: PUNCHCARD LOGIC ---
+    private void PickUpPunchcard(PunchcardInteractable card)
+    {
+        if (card.waveController != null) card.waveController.NotifyPunchcardCollected();
+
+        // Find the receiver and consume the tape to unlock the car and alarm!
+        CassetteReceiver receiver = FindObjectOfType<CassetteReceiver>();
+        if (receiver != null) receiver.ConsumeTape();
+
+        Destroy(card.gameObject);
+        Debug.Log("Collected Punchcard!");
     }
 
     void HighlightObject(GameObject obj)

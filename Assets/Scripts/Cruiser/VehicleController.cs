@@ -9,13 +9,10 @@ public class VehicleController : MonoBehaviour
     public float deceleration = 4.0f;
     public float turnSpeed = 45.0f;
 
-    [Header("Obstacle Radar (BoxCast)")]
-    [Tooltip("Center of the radar box relative to the vehicle")]
-    public Vector3 radarOffset = new Vector3(0, 1f, 0); [Tooltip("Half-size of the radar box. Make this slightly larger than your vehicle's body")]
+    [Header("Obstacle Radar (OverlapBox)")]
+    public Vector3 radarOffset = new Vector3(0, 1f, 0);
     public Vector3 radarHalfExtents = new Vector3(2f, 1.5f, 3f);
-    [Tooltip("How far ahead to look before stopping")]
     public float stopBufferDistance = 0.5f;
-    [Tooltip("Only hit colliders on these layers to save performance")]
     public LayerMask obstacleLayer = ~0;
 
     [Header("Visuals")]
@@ -25,12 +22,11 @@ public class VehicleController : MonoBehaviour
 
     [Header("Safety Dependencies")]
     public WinchController winch;
-    public CRTWaveController scienceMachine;
+    public CassetteReceiver cassetteReceiver; // MUST DRAG MACHINE HERE IN INSPECTOR
     public SimpleFPSController player;
 
     [HideInInspector] public bool isPlayerDriving = false;
 
-    // State Variables
     private Rigidbody rb;
     private float currentMoveInput = 0f;
     private float currentTurnInput = 0f;
@@ -40,32 +36,29 @@ public class VehicleController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-
-        // Ensure Rigidbody is kinematic so we have zero physics jank
         rb.isKinematic = true;
         rb.useGravity = false;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-        if (steeringWheel != null)
-        {
-            initialSteeringRotation = steeringWheel.localRotation;
-        }
+        if (steeringWheel != null) initialSteeringRotation = steeringWheel.localRotation;
     }
 
     void Update()
     {
         if (isPlayerDriving)
         {
-            // --- SAFETY CHECK SYSTEM ---
             bool doorOpen = (winch != null && !winch.IsDoorClosed);
-            bool scienceActive = (scienceMachine != null && scienceMachine.enabled);
+
+            // If the tape is inside, the minigame is in progress (it gets consumed when done)
+            bool unfinishedTape = (cassetteReceiver != null && cassetteReceiver.hasCassette);
+
             bool cardWaiting = (player != null && player.IsPunchcardInTray());
             bool carryingTape = (player != null && player.hasCassette);
 
-            if (doorOpen || scienceActive || cardWaiting || carryingTape)
+            if (doorOpen || unfinishedTape || cardWaiting || carryingTape)
             {
                 if (doorOpen) Debug.LogWarning("Drive Locked: Rear door must be closed!");
-                if (scienceActive) Debug.LogWarning("Drive Locked: Science station is active!");
+                if (unfinishedTape) Debug.LogWarning("Drive Locked: Finish the science minigame!");
                 if (cardWaiting) Debug.LogWarning("Drive Locked: Collect the punchcard first!");
                 if (carryingTape) Debug.LogWarning("Drive Locked: Store the cassette tape before driving!");
 
@@ -76,12 +69,9 @@ public class VehicleController : MonoBehaviour
             }
 
             isMovementLocked = false;
-
-            // --- GATHER INPUTS ---
             currentMoveInput = Input.GetAxisRaw("Vertical");
             currentTurnInput = Input.GetAxisRaw("Horizontal");
 
-            // --- STEERING WHEEL ANIMATION ---
             if (steeringWheel != null)
             {
                 Quaternion steeringTarget = initialSteeringRotation * Quaternion.Euler(0, currentTurnInput * maxSteeringAngle, 0);
@@ -103,7 +93,6 @@ public class VehicleController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 1. Calculate Target Speed (Smooth acceleration)
         float targetSpeed = isMovementLocked ? 0f : currentMoveInput * maxSpeed;
 
         if (Mathf.Abs(targetSpeed) > 0.1f)
@@ -111,70 +100,40 @@ public class VehicleController : MonoBehaviour
         else
             currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, deceleration * Time.fixedDeltaTime);
 
-        // --- NEW: ROTATION RADAR CHECK ---
+        Vector3 checkExtents = radarHalfExtents * 0.98f;
+
         float turnAmount = currentTurnInput * turnSpeed * Time.fixedDeltaTime;
         bool canRotate = true;
 
         if (Mathf.Abs(turnAmount) > 0.01f)
         {
-            // Calculate what our rotation WOULD be if we turned
             Quaternion potentialRotation = rb.rotation * Quaternion.Euler(0, turnAmount, 0);
-            Vector3 radarCenter = transform.position + potentialRotation * radarOffset;
+            Vector3 rotRadarCenter = rb.position + potentialRotation * radarOffset;
 
-            // Check if this new rotation would cause a collision
-            if (Physics.CheckBox(radarCenter, radarHalfExtents, potentialRotation, obstacleLayer))
-            {
-                // We do a quick overlap check to see if we hit an inviswall
-                Collider[] hits = Physics.OverlapBox(radarCenter, radarHalfExtents, potentialRotation, obstacleLayer);
-                foreach (var hitCol in hits)
-                {
-                    if (hitCol.CompareTag("inviswall"))
-                    {
-                        canRotate = false; // Block the turn
-                        break;
-                    }
-                }
-            }
+            Collider[] rotHits = Physics.OverlapBox(rotRadarCenter, checkExtents, potentialRotation, obstacleLayer);
+            if (rotHits.Length > 0) canRotate = false;
         }
 
-        // Apply Rotation only if safe
-        if (!isMovementLocked && canRotate)
-        {
-            Quaternion turnRotation = Quaternion.Euler(0, turnAmount, 0);
-            rb.MoveRotation(rb.rotation * turnRotation);
-        }
+        if (!isMovementLocked && canRotate) rb.MoveRotation(rb.rotation * Quaternion.Euler(0, turnAmount, 0));
 
-        // --- MOVEMENT RADAR CHECK ---
         if (Mathf.Abs(currentSpeed) > 0.01f)
         {
-            Vector3 moveDirection = (currentSpeed > 0) ? transform.forward : -transform.forward;
-            Vector3 radarCenter = transform.position + transform.TransformDirection(radarOffset);
-            float lookAheadDistance = Mathf.Abs(currentSpeed * Time.fixedDeltaTime) + stopBufferDistance;
+            Vector3 moveOffset = transform.forward * currentSpeed * Time.fixedDeltaTime;
+            Vector3 bufferOffset = (currentSpeed > 0 ? transform.forward : -transform.forward) * stopBufferDistance;
+            Vector3 futureRadarCenter = rb.position + moveOffset + transform.TransformDirection(radarOffset) + bufferOffset;
 
-            RaycastHit hit;
-            if (Physics.BoxCast(radarCenter, radarHalfExtents, moveDirection, out hit, transform.rotation, lookAheadDistance, obstacleLayer))
-            {
-                if (hit.collider.CompareTag("inviswall"))
-                {
-                    currentSpeed = 0f; // Block forward/backward movement
-                }
-            }
+            Collider[] moveHits = Physics.OverlapBox(futureRadarCenter, checkExtents, transform.rotation, obstacleLayer);
+            if (moveHits.Length > 0) currentSpeed = 0f;
         }
 
-        // Final Position Update
         Vector3 newPosition = rb.position + (transform.forward * currentSpeed * Time.fixedDeltaTime);
         rb.MovePosition(newPosition);
     }
-    // --- VISUAL DEBUGGING ---
-    // This draws the invisible radar box in your Scene View so you can perfectly size it!
+
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(1, 0, 0, 0.3f); // Semi-transparent red
-
-        // Get the center point of the box
+        Gizmos.color = new Color(1, 0, 0, 0.3f);
         Vector3 radarCenter = transform.position + transform.TransformDirection(radarOffset);
-
-        // Draw a cube representing our BoxCast dimensions
         Gizmos.matrix = Matrix4x4.TRS(radarCenter, transform.rotation, Vector3.one);
         Gizmos.DrawCube(Vector3.zero, radarHalfExtents * 2f);
     }

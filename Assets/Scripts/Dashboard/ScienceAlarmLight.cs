@@ -25,17 +25,8 @@ public class ScienceAlarmLight : MonoBehaviour
     {
         if (receiver == null) return;
 
-        // The alarm should be ACTIVE if a tape is inside AND the POI is not fully completed yet
-        bool isAlarmActive = false;
-
-        if (receiver.hasCassette && receiver.currentlyInsertedBeacon != null)
-        {
-            // If the beacon isn't marked as complete (meaning the punchcard hasn't been collected)
-            if (!receiver.currentlyInsertedBeacon.isCompleted)
-            {
-                isAlarmActive = true;
-            }
-        }
+        // The alarm is ACTIVE simply if there is a tape in the machine!
+        bool isAlarmActive = receiver.hasCassette;
 
         if (!isAlarmActive)
         {

@@ -18,14 +18,14 @@ public class ScienceStationManager : MonoBehaviour
 
         if (cassetteReceiver != null)
         {
-            // Now listens for the new event signature that includes the beacon
             cassetteReceiver.OnCassetteInserted += HandleCassetteInserted;
         }
 
         if (winchController != null)
         {
             winchController.OnDoorFullyOpened += HandleDoorOpened;
-            winchController.OnDoorFullyClosed += HandleDoorClosed;
+            // Changed this line to listen for the door *starting* to close
+            winchController.OnDoorStartedClosing += HandleDoorStartedClosing;
         }
     }
 
@@ -35,7 +35,7 @@ public class ScienceStationManager : MonoBehaviour
         if (winchController != null)
         {
             winchController.OnDoorFullyOpened -= HandleDoorOpened;
-            winchController.OnDoorFullyClosed -= HandleDoorClosed;
+            winchController.OnDoorStartedClosing -= HandleDoorStartedClosing;
         }
     }
 
@@ -50,11 +50,11 @@ public class ScienceStationManager : MonoBehaviour
         TryBootMachine();
     }
 
-    void HandleDoorClosed()
+    void HandleDoorStartedClosing()
     {
         if (isMinigameActive)
         {
-            Debug.Log("<color=yellow>DOOR CLOSED: Suspending Science Station!</color>");
+            Debug.Log("<color=yellow>DOOR LEFT OPEN STATE: Suspending Science Station!</color>");
             isMinigameActive = false;
 
             if (crtWaveController != null)
