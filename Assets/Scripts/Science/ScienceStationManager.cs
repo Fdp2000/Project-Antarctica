@@ -38,6 +38,7 @@ public class ScienceStationManager : MonoBehaviour
         {
             winchController.OnDoorFullyOpened += HandleDoorOpened;
             winchController.OnDoorStartedClosing += HandleDoorStartedClosing;
+            // NEW: Listen for when the door actually locks!
         }
     }
 
@@ -56,8 +57,6 @@ public class ScienceStationManager : MonoBehaviour
 
     void HandleDoorStartedClosing()
     {
-        // --- NEW SAFETY CHECK ---
-        // If the punchcard is sitting there waiting to be collected, ignore the door!
         if (crtWaveController != null && crtWaveController.isMinigameComplete) return;
 
         bool hasTape = cassetteReceiver != null && cassetteReceiver.hasCassette;
@@ -72,16 +71,17 @@ public class ScienceStationManager : MonoBehaviour
             // Switch to Alert State immediately
             SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
             SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
-            if (monsterDirector != null) monsterDirector.EndEncounter(false);
+
+            // REMOVED: We no longer tell the monster to retreat here! 
+            // It is still outside and the door is still open!
         }
     }
+
 
     void TryBootMachine()
     {
         if (isMinigameActive) return;
 
-        // --- NEW SAFETY CHECK ---
-        // Do not try to reboot the machine if the minigame is already beaten
         if (crtWaveController != null && crtWaveController.isMinigameComplete) return;
 
         bool hasTape = cassetteReceiver != null && cassetteReceiver.hasCassette;

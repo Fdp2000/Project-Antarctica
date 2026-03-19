@@ -2,50 +2,114 @@ using UnityEngine;
 
 public class MonsterDirector : MonoBehaviour
 {
-    public enum EncounterState { Idle, GracePeriod, Approach, Silence, Strike, Retreat }
+    public enum EncounterState { Idle, GracePeriod, Approach, Silence, Strike, Siege, Retreat, ClutchStruggle }
 
-    [Header("Settings")]
+    [Header("Dependencies")]
     public DifficultyProfile currentDifficulty;
+    public WinchController winchController;
 
-    [Header("Live Debug (Watch these in Play Mode)")]
+    [Header("Monster Physical Spawning")]
+    public Transform monsterTransform;
+    public Transform rampEntryTarget;
+    public float spawnRadius = 25f;
+    public Vector2 spawnAngleClamp = new Vector2(-45f, 45f);
+
+    [Header("Clutch System Settings")]
+    public float clutchCutoffAngle = -150f;
+    public float siegePeekSilenceDuration = 0.8f;
+
+    [Header("Live Debug")]
     public EncounterState currentState = EncounterState.Idle;
     public float stateTimer = 0f;
     public bool isEncounterActive = false;
+
+    private float currentMaxApproachTime;
+    private float currentSprintSpeed;
+    private bool isShortSilenceMode = false;
 
     void Update()
     {
         if (!isEncounterActive) return;
 
-        // Tick down the timer for the current state
-        if (stateTimer > 0)
-        {
-            stateTimer -= Time.deltaTime;
-        }
-
-        // State Machine Logic
         switch (currentState)
         {
             case EncounterState.GracePeriod:
-                if (stateTimer <= 0) TransitionToState(EncounterState.Approach);
+                if (winchController != null && winchController.IsDoorClosed)
+                {
+                    stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
+                }
+                else
+                {
+                    stateTimer -= Time.deltaTime;
+                    if (stateTimer <= 0) TransitionToState(EncounterState.Approach);
+                }
                 break;
 
             case EncounterState.Approach:
-                // TODO later: Lerp radio static volume up based on stateTimer percentage
-                if (stateTimer <= 0) TransitionToState(EncounterState.Silence);
+                if (winchController != null && winchController.IsDoorClosed)
+                {
+                    stateTimer += Time.deltaTime;
+                    if (stateTimer >= currentMaxApproachTime) TransitionToState(EncounterState.GracePeriod);
+                }
+                else
+                {
+                    stateTimer -= Time.deltaTime;
+                    if (stateTimer <= 0) TransitionToState(EncounterState.Silence);
+                }
                 break;
 
             case EncounterState.Silence:
-                if (stateTimer <= 0) TransitionToState(EncounterState.Strike);
+                // Just wait invisibly!
+                stateTimer -= Time.deltaTime;
+
+                if (stateTimer <= 0)
+                {
+                    if (winchController != null && winchController.IsDoorClosed)
+                        TransitionToState(EncounterState.Siege);
+                    else if (winchController != null && winchController.CurrentAngle < clutchCutoffAngle)
+                        TransitionToState(EncounterState.Strike); // Gap is wide open
+                    else
+                        TransitionToState(EncounterState.ClutchStruggle); // Gap is small
+                }
                 break;
 
             case EncounterState.Strike:
-                // If we reach this state, the player failed to close the door in time.
-                TriggerJumpscare();
+                // The physical sprint!
+                stateTimer -= Time.deltaTime;
+
+                if (monsterTransform != null && rampEntryTarget != null)
+                {
+                    Vector3 flatTarget = new Vector3(rampEntryTarget.position.x, monsterTransform.position.y, rampEntryTarget.position.z);
+                    monsterTransform.position = Vector3.MoveTowards(monsterTransform.position, flatTarget, currentSprintSpeed * Time.deltaTime);
+                }
+
+                if (stateTimer <= 0)
+                {
+                    TriggerJumpscare();
+                }
+                break;
+
+            case EncounterState.Siege:
+                if (winchController != null && !winchController.IsDoorClosed)
+                {
+                    Debug.Log("<color=red>MONSTER: Player opened the door during Siege! FATAL PEEK!</color>");
+                    isShortSilenceMode = true;
+                    TransitionToState(EncounterState.Silence);
+                }
+                else
+                {
+                    stateTimer -= Time.deltaTime;
+                    if (stateTimer <= 0) TransitionToState(EncounterState.Retreat);
+                }
                 break;
 
             case EncounterState.Retreat:
-                // TODO later: Lerp radio static back to normal, run Siege Events
-                if (stateTimer <= 0) TransitionToState(EncounterState.Idle);
+                stateTimer -= Time.deltaTime;
+                if (stateTimer <= 0) TransitionToState(EncounterState.GracePeriod);
+                break;
+
+            case EncounterState.ClutchStruggle:
+                // Pauses here for the minigame
                 break;
         }
     }
@@ -53,33 +117,48 @@ public class MonsterDirector : MonoBehaviour
     private void TransitionToState(EncounterState newState)
     {
         currentState = newState;
-
-        if (currentDifficulty == null)
-        {
-            Debug.LogError("Monster Director is missing a Difficulty Profile!");
-            return;
-        }
+        if (currentDifficulty == null) return;
 
         switch (newState)
         {
             case EncounterState.Idle:
                 isEncounterActive = false;
-                Debug.Log("<color=grey>MONSTER: Idle. Waiting in the fog.</color>");
+                if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
                 break;
 
             case EncounterState.GracePeriod:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
-                Debug.Log($"<color=white>MONSTER: Spawned. Grace period started for {stateTimer:F1}s.</color>");
+                isShortSilenceMode = false;
+                if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                Debug.Log($"<color=white>MONSTER: Grace period active for {stateTimer:F1}s.</color>");
                 break;
 
             case EncounterState.Approach:
-                stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.approachDuration);
-                Debug.Log($"<color=yellow>MONSTER: Approaching! Radio static rising for {stateTimer:F1}s.</color>");
+                currentMaxApproachTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.approachDuration);
+                stateTimer = currentMaxApproachTime;
+                Debug.Log($"<color=yellow>MONSTER: Approaching! Radio static rising (Max Time: {stateTimer:F1}s).</color>");
                 break;
 
             case EncounterState.Silence:
-                stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.silenceDuration);
-                Debug.Log($"<color=orange>MONSTER: Threshold reached! Dead silence for {stateTimer:F1}s.</color>");
+                stateTimer = isShortSilenceMode ? currentDifficulty.GetRandomizedTimer(siegePeekSilenceDuration) : currentDifficulty.GetRandomizedTimer(currentDifficulty.silenceDuration);
+                Debug.Log($"<color=orange>MONSTER: Dead silence for {stateTimer:F1}s.</color>");
+                break;
+
+            case EncounterState.Strike:
+                stateTimer = currentDifficulty.strikeDuration;
+                SpawnAndCalculateMonsterSprint();
+                if (monsterTransform != null) monsterTransform.gameObject.SetActive(true);
+                Debug.Log($"<color=red>MONSTER: SPOTTED! Sprinting at player for {stateTimer:F1}s!</color>");
+                break;
+
+            case EncounterState.ClutchStruggle:
+                if (monsterTransform != null) monsterTransform.gameObject.SetActive(true);
+                Debug.Log("<color=purple>MONSTER: CLUTCH MOMENT! Monster jamming hands in gap!</color>");
+                break;
+
+            case EncounterState.Siege:
+                stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.patienceThreshold);
+                Debug.Log($"<color=magenta>MONSTER: SIEGE PHASE! Pacing outside for {stateTimer:F1}s.</color>");
                 break;
 
             case EncounterState.Retreat:
@@ -89,7 +168,29 @@ public class MonsterDirector : MonoBehaviour
         }
     }
 
-    // --- PUBLIC HOOKS FOR OTHER SCRIPTS ---
+    private void SpawnAndCalculateMonsterSprint()
+    {
+        if (monsterTransform == null || rampEntryTarget == null) return;
+
+        float randomAngle = Random.Range(spawnAngleClamp.x, spawnAngleClamp.y);
+        Vector3 direction = Quaternion.Euler(0, randomAngle, 0) * rampEntryTarget.forward;
+        direction.y = 0;
+
+        monsterTransform.position = rampEntryTarget.position + (direction.normalized * spawnRadius);
+
+        Vector3 lookTarget = new Vector3(rampEntryTarget.position.x, monsterTransform.position.y, rampEntryTarget.position.z);
+        monsterTransform.LookAt(lookTarget);
+
+        float flatDistance = Vector2.Distance(new Vector2(monsterTransform.position.x, monsterTransform.position.z), new Vector2(rampEntryTarget.position.x, rampEntryTarget.position.z));
+        currentSprintSpeed = flatDistance / stateTimer;
+    }
+
+    private void TriggerJumpscare()
+    {
+        isEncounterActive = false;
+        Debug.Log("<color=red><b>MONSTER: REACHED PLAYER! FATAL JUMPSCARE!</b></color>");
+        // TODO: Cut to black, freeze controls.
+    }
 
     public void StartEncounter()
     {
@@ -100,24 +201,11 @@ public class MonsterDirector : MonoBehaviour
 
     public void EndEncounter(bool playerWonMinigame)
     {
-        if (!isEncounterActive || currentState == EncounterState.Strike) return;
+        if (!isEncounterActive || currentState == EncounterState.Strike || currentState == EncounterState.ClutchStruggle) return;
 
         if (playerWonMinigame)
         {
-            Debug.Log("<color=green>MONSTER: Player finished science! Monster is leaving.</color>");
+            TransitionToState(EncounterState.Retreat);
         }
-        else
-        {
-            Debug.Log("<color=blue>MONSTER: Door slammed shut! Monster locked out.</color>");
-        }
-
-        TransitionToState(EncounterState.Retreat);
-    }
-
-    private void TriggerJumpscare()
-    {
-        isEncounterActive = false; // Stop the loop
-        Debug.Log("<color=red><b>MONSTER: STRIKE! PLAYER IS DEAD!</b></color>");
-        // TODO: Freeze player, spawn monster, play animation, cut to black.
     }
 }

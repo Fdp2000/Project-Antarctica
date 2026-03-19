@@ -58,6 +58,8 @@ public class WinchController : MonoBehaviour
     public bool IsDoorOpen => Mathf.Abs(currentAngle - openAngle) < 0.1f;
     public bool IsDoorClosed => Mathf.Abs(currentAngle - closedAngle) < 0.1f;
 
+    public float CurrentAngle => currentAngle;
+
     void Start()
     {
         Outline outline = GetComponent<Outline>();
