@@ -7,6 +7,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: InteriorCruiser
+    second: {fileID: 2100000, guid: 68f927ebda055414ea2a3613ad28c52a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: MainCruiser
     second: {fileID: 2100000, guid: 0fbf6eed967fe4e6a94cfd9d6213f3a5, type: 2}
   materials:
