@@ -7,24 +7,33 @@ public class ScienceStationManager : MonoBehaviour
     public WinchController winchController;
     public CRTWaveController crtWaveController;
 
+    [Header("Green Light (Active)")]
+    public MeshRenderer greenBulbRenderer;
+    public Light greenPointLight;
+    public Material greenOnMaterial;
+    public Material greenOffMaterial;
+
+    [Header("Red Light (Alert)")]
+    public MeshRenderer redBulbRenderer;
+    public Light redPointLight;
+    public Material redOnMaterial;
+    public Material redOffMaterial;
+
     private bool isMinigameActive = false;
 
     void Start()
     {
-        if (crtWaveController != null)
-        {
-            crtWaveController.TurnOffMachine();
-        }
+        SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
+        SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
+
+        if (crtWaveController != null) crtWaveController.TurnOffMachine();
 
         if (cassetteReceiver != null)
-        {
             cassetteReceiver.OnCassetteInserted += HandleCassetteInserted;
-        }
 
         if (winchController != null)
         {
             winchController.OnDoorFullyOpened += HandleDoorOpened;
-            // Changed this line to listen for the door *starting* to close
             winchController.OnDoorStartedClosing += HandleDoorStartedClosing;
         }
     }
@@ -39,28 +48,24 @@ public class ScienceStationManager : MonoBehaviour
         }
     }
 
-    // Receives the beacon from the event
-    void HandleCassetteInserted(RadioBeacon insertedBeacon)
-    {
-        TryBootMachine();
-    }
-
-    void HandleDoorOpened()
-    {
-        TryBootMachine();
-    }
+    void HandleCassetteInserted(RadioBeacon insertedBeacon) => TryBootMachine();
+    void HandleDoorOpened() => TryBootMachine();
 
     void HandleDoorStartedClosing()
     {
-        if (isMinigameActive)
-        {
-            Debug.Log("<color=yellow>DOOR LEFT OPEN STATE: Suspending Science Station!</color>");
-            isMinigameActive = false;
+        // Check if there is a tape inserted, regardless of if the machine is currently 'active'
+        bool hasTape = cassetteReceiver != null && cassetteReceiver.hasCassette;
 
-            if (crtWaveController != null)
-            {
-                crtWaveController.TurnOffMachine();
-            }
+        if (isMinigameActive || hasTape)
+        {
+            Debug.Log("<color=red>SIGNAL BLOCKED: Door closed while tape is present!</color>");
+
+            isMinigameActive = false;
+            if (crtWaveController != null) crtWaveController.TurnOffMachine();
+
+            // Switch to Alert State immediately
+            SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
+            SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
         }
     }
 
@@ -73,13 +78,35 @@ public class ScienceStationManager : MonoBehaviour
 
         if (hasTape && doorOpen)
         {
-            Debug.Log("<color=green>CONDITIONS MET: Booting Science Station!</color>");
+            Debug.Log("<color=green>SIGNAL ACQUIRED: Booting Science Station.</color>");
             isMinigameActive = true;
             if (crtWaveController != null)
-            {
-                // INJECT THE BEACON INTO THE MINIGAME
                 crtWaveController.TurnOnMachine(cassetteReceiver.currentlyInsertedBeacon);
-            }
+
+            SetLightState(greenBulbRenderer, greenPointLight, greenOnMaterial, true);
+            SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
         }
+        // NEW: If we have a tape but the door is closed, show the Red alert immediately
+        else if (hasTape && !doorOpen)
+        {
+            Debug.Log("<color=red>SIGNAL BLOCKED: Tape inserted but door is shut!</color>");
+            SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
+            SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
+        }
+    }
+    void Update()
+    {
+        if (isMinigameActive && crtWaveController != null && crtWaveController.isMinigameComplete)
+        {
+            isMinigameActive = false;
+            SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
+            SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
+        }
+    }
+
+    private void SetLightState(MeshRenderer renderer, Light pLight, Material mat, bool isOn)
+    {
+        if (renderer != null && mat != null) renderer.material = mat;
+        if (pLight != null) pLight.enabled = isOn;
     }
 }
