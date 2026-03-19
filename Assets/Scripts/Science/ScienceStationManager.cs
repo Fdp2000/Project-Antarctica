@@ -21,6 +21,9 @@ public class ScienceStationManager : MonoBehaviour
 
     private bool isMinigameActive = false;
 
+    [Header("Monster System")]
+    public MonsterDirector monsterDirector;
+
     void Start()
     {
         SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
@@ -53,7 +56,10 @@ public class ScienceStationManager : MonoBehaviour
 
     void HandleDoorStartedClosing()
     {
-        // Check if there is a tape inserted, regardless of if the machine is currently 'active'
+        // --- NEW SAFETY CHECK ---
+        // If the punchcard is sitting there waiting to be collected, ignore the door!
+        if (crtWaveController != null && crtWaveController.isMinigameComplete) return;
+
         bool hasTape = cassetteReceiver != null && cassetteReceiver.hasCassette;
 
         if (isMinigameActive || hasTape)
@@ -66,12 +72,17 @@ public class ScienceStationManager : MonoBehaviour
             // Switch to Alert State immediately
             SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
             SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
+            if (monsterDirector != null) monsterDirector.EndEncounter(false);
         }
     }
 
     void TryBootMachine()
     {
         if (isMinigameActive) return;
+
+        // --- NEW SAFETY CHECK ---
+        // Do not try to reboot the machine if the minigame is already beaten
+        if (crtWaveController != null && crtWaveController.isMinigameComplete) return;
 
         bool hasTape = cassetteReceiver != null && cassetteReceiver.hasCassette;
         bool doorOpen = winchController != null && winchController.IsDoorOpen;
@@ -80,13 +91,13 @@ public class ScienceStationManager : MonoBehaviour
         {
             Debug.Log("<color=green>SIGNAL ACQUIRED: Booting Science Station.</color>");
             isMinigameActive = true;
+            if (monsterDirector != null) monsterDirector.StartEncounter();
             if (crtWaveController != null)
                 crtWaveController.TurnOnMachine(cassetteReceiver.currentlyInsertedBeacon);
 
             SetLightState(greenBulbRenderer, greenPointLight, greenOnMaterial, true);
             SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
         }
-        // NEW: If we have a tape but the door is closed, show the Red alert immediately
         else if (hasTape && !doorOpen)
         {
             Debug.Log("<color=red>SIGNAL BLOCKED: Tape inserted but door is shut!</color>");
@@ -94,11 +105,13 @@ public class ScienceStationManager : MonoBehaviour
             SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
         }
     }
+
     void Update()
     {
         if (isMinigameActive && crtWaveController != null && crtWaveController.isMinigameComplete)
         {
             isMinigameActive = false;
+            if (monsterDirector != null) monsterDirector.EndEncounter(true);
             SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
             SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
         }
