@@ -9,7 +9,7 @@ public class DifficultyProfile : ScriptableObject
     public float silenceDuration = 3f;
 
     [Tooltip("How long it takes the monster to cross the fog and hit the ramp during the Strike.")]
-    public float strikeDuration = 1.0f; // <--- THE NEW VARIABLE
+    public float strikeDuration = 1.0f;
 
     public float retreatDuration = 8f;
 
@@ -21,6 +21,12 @@ public class DifficultyProfile : ScriptableObject
     public float patienceThreshold = 10f;
     public float minSiegeEventInterval = 2f;
     public float maxSiegeEventInterval = 6f;
+
+    [Header("Clutch Settings (Tug-of-War)")]
+    [Tooltip("The base strength the monster uses against the player's math score.")]
+    public float baseMonsterClutchStrength = 120f;
+    [Tooltip("Random variance added or subtracted to the monster's strength each encounter.")]
+    public float clutchStrengthVariance = 20f;
 
     public float GetRandomizedTimer(float baseTime)
     {
