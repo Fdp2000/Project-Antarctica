@@ -3,10 +3,12 @@ using UnityEngine;
 public class MonsterDirector : MonoBehaviour
 {
     public enum EncounterState { Idle, GracePeriod, Approach, Silence, Strike, Siege, Retreat, ClutchStruggle }
+    public enum StrikeType { Normal, PointBlank, Ambush, FogStrike }
 
     [Header("Dependencies")]
     public DifficultyProfile currentDifficulty;
     public WinchController winchController;
+    public JumpscareController jumpscareController; // <--- The new cinematic director
 
     [Header("Monster Physical Spawning")]
     public Transform monsterTransform;
@@ -20,12 +22,17 @@ public class MonsterDirector : MonoBehaviour
 
     [Header("Live Debug")]
     public EncounterState currentState = EncounterState.Idle;
+    public StrikeType activeStrikeType = StrikeType.Normal;
     public float stateTimer = 0f;
     public bool isEncounterActive = false;
-
     private float currentMaxApproachTime;
     private float currentSprintSpeed;
-    private bool isShortSilenceMode = false;
+
+    [Header("Strike Logic Funnel")]
+    public Transform playerCamera;
+    public float pointBlankThreshold = 2.0f;
+    public bool isPlayerInCabin = true;
+    public LayerMask obstacleLayers;
 
     void Update()
     {
@@ -59,7 +66,6 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.Silence:
-                // Just wait invisibly!
                 stateTimer -= Time.deltaTime;
 
                 if (stateTimer <= 0)
@@ -67,33 +73,32 @@ public class MonsterDirector : MonoBehaviour
                     if (winchController != null && winchController.IsDoorClosed)
                         TransitionToState(EncounterState.Siege);
                     else if (winchController != null && winchController.CurrentAngle < clutchCutoffAngle)
-                        TransitionToState(EncounterState.Strike); // Gap is wide open
+                        TransitionToState(EncounterState.Strike);
                     else
-                        TransitionToState(EncounterState.ClutchStruggle); // Gap is small
+                        TransitionToState(EncounterState.ClutchStruggle);
                 }
                 break;
 
             case EncounterState.Strike:
-                // The physical sprint!
                 stateTimer -= Time.deltaTime;
 
-                if (monsterTransform != null && rampEntryTarget != null)
+                if (monsterTransform != null)
                 {
-                    Vector3 flatTarget = new Vector3(rampEntryTarget.position.x, monsterTransform.position.y, rampEntryTarget.position.z);
+                    // Fog and PointBlank chase the player. Normal and Ambush chase the ramp.
+                    Transform currentTarget = (activeStrikeType == StrikeType.FogStrike || activeStrikeType == StrikeType.PointBlank) ? playerCamera : rampEntryTarget;
+
+                    Vector3 flatTarget = new Vector3(currentTarget.position.x, monsterTransform.position.y, currentTarget.position.z);
                     monsterTransform.position = Vector3.MoveTowards(monsterTransform.position, flatTarget, currentSprintSpeed * Time.deltaTime);
+                    monsterTransform.LookAt(flatTarget);
                 }
 
-                if (stateTimer <= 0)
-                {
-                    TriggerJumpscare();
-                }
+                // Hand off to the Jumpscare Controller!
+                if (stateTimer <= 0) TriggerJumpscare();
                 break;
 
             case EncounterState.Siege:
                 if (winchController != null && !winchController.IsDoorClosed)
                 {
-                    Debug.Log("<color=red>MONSTER: Player opened the door during Siege! FATAL PEEK!</color>");
-                    isShortSilenceMode = true;
                     TransitionToState(EncounterState.Silence);
                 }
                 else
@@ -106,10 +111,6 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Retreat:
                 stateTimer -= Time.deltaTime;
                 if (stateTimer <= 0) TransitionToState(EncounterState.GracePeriod);
-                break;
-
-            case EncounterState.ClutchStruggle:
-                // Pauses here for the minigame
                 break;
         }
     }
@@ -128,68 +129,98 @@ public class MonsterDirector : MonoBehaviour
 
             case EncounterState.GracePeriod:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
-                isShortSilenceMode = false;
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
-                Debug.Log($"<color=white>MONSTER: Grace period active for {stateTimer:F1}s.</color>");
                 break;
 
             case EncounterState.Approach:
                 currentMaxApproachTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.approachDuration);
                 stateTimer = currentMaxApproachTime;
-                Debug.Log($"<color=yellow>MONSTER: Approaching! Radio static rising (Max Time: {stateTimer:F1}s).</color>");
                 break;
 
             case EncounterState.Silence:
-                stateTimer = isShortSilenceMode ? currentDifficulty.GetRandomizedTimer(siegePeekSilenceDuration) : currentDifficulty.GetRandomizedTimer(currentDifficulty.silenceDuration);
-                Debug.Log($"<color=orange>MONSTER: Dead silence for {stateTimer:F1}s.</color>");
+                stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.silenceDuration);
                 break;
 
             case EncounterState.Strike:
                 stateTimer = currentDifficulty.strikeDuration;
-                SpawnAndCalculateMonsterSprint();
-                if (monsterTransform != null) monsterTransform.gameObject.SetActive(true);
-                Debug.Log($"<color=red>MONSTER: SPOTTED! Sprinting at player for {stateTimer:F1}s!</color>");
-                break;
 
-            case EncounterState.ClutchStruggle:
-                if (monsterTransform != null) monsterTransform.gameObject.SetActive(true);
-                Debug.Log("<color=purple>MONSTER: CLUTCH MOMENT! Monster jamming hands in gap!</color>");
+                // --- THE LOGIC FUNNEL (Evaluated BEFORE it starts sprinting) ---
+                float distanceToPlayer = Vector3.Distance(rampEntryTarget.position, playerCamera.position);
+                Vector3 rampChestLevel = rampEntryTarget.position + (Vector3.up * 1.0f);
+
+                if (distanceToPlayer < pointBlankThreshold)
+                {
+                    activeStrikeType = StrikeType.PointBlank;
+                    SpawnAndCalculateMonsterSprint(playerCamera);
+                }
+                else if (!isPlayerInCabin)
+                {
+                    activeStrikeType = StrikeType.FogStrike;
+                    SpawnAndCalculateMonsterSprint(playerCamera);
+                }
+                else if (Physics.Linecast(rampChestLevel, playerCamera.position, obstacleLayers))
+                {
+                    activeStrikeType = StrikeType.Ambush;
+                    SpawnAndCalculateMonsterSprint(rampEntryTarget);
+                }
+                else
+                {
+                    activeStrikeType = StrikeType.Normal;
+                    SpawnAndCalculateMonsterSprint(rampEntryTarget);
+                }
+
+                Debug.Log($"<color=red>MONSTER: SPOTTED! Sprinting for {stateTimer:F1}s! Type: {activeStrikeType}</color>");
                 break;
 
             case EncounterState.Siege:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.patienceThreshold);
-                Debug.Log($"<color=magenta>MONSTER: SIEGE PHASE! Pacing outside for {stateTimer:F1}s.</color>");
                 break;
 
             case EncounterState.Retreat:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.retreatDuration);
-                Debug.Log($"<color=cyan>MONSTER: Retreating. Normalizing audio for {stateTimer:F1}s.</color>");
                 break;
         }
     }
 
-    private void SpawnAndCalculateMonsterSprint()
+    private void SpawnAndCalculateMonsterSprint(Transform target)
     {
-        if (monsterTransform == null || rampEntryTarget == null) return;
+        if (monsterTransform == null || target == null) return;
 
         float randomAngle = Random.Range(spawnAngleClamp.x, spawnAngleClamp.y);
-        Vector3 direction = Quaternion.Euler(0, randomAngle, 0) * rampEntryTarget.forward;
+        Vector3 direction = Quaternion.Euler(0, randomAngle, 0) * target.forward;
         direction.y = 0;
 
-        monsterTransform.position = rampEntryTarget.position + (direction.normalized * spawnRadius);
+        // Calculate the raw spawn position
+        Vector3 spawnPos = target.position + (direction.normalized * spawnRadius);
 
-        Vector3 lookTarget = new Vector3(rampEntryTarget.position.x, monsterTransform.position.y, rampEntryTarget.position.z);
+        // Force the monster down to the snow level, regardless of who it is targeting
+        spawnPos.y = rampEntryTarget.position.y;
+
+        monsterTransform.position = spawnPos;
+
+        Vector3 lookTarget = new Vector3(target.position.x, monsterTransform.position.y, target.position.z);
         monsterTransform.LookAt(lookTarget);
 
-        float flatDistance = Vector2.Distance(new Vector2(monsterTransform.position.x, monsterTransform.position.z), new Vector2(rampEntryTarget.position.x, rampEntryTarget.position.z));
+        monsterTransform.gameObject.SetActive(true);
+
+        float flatDistance = Vector2.Distance(new Vector2(monsterTransform.position.x, monsterTransform.position.z), new Vector2(target.position.x, target.position.z));
         currentSprintSpeed = flatDistance / stateTimer;
     }
 
     private void TriggerJumpscare()
     {
         isEncounterActive = false;
-        Debug.Log("<color=red><b>MONSTER: REACHED PLAYER! FATAL JUMPSCARE!</b></color>");
-        // TODO: Cut to black, freeze controls.
+
+        // Hand off control to the new JumpscareController!
+        if (jumpscareController != null)
+        {
+            Debug.Log("<color=red><b>MONSTER: INITIATING FATAL STRIKE SEQUENCE!</b></color>");
+            jumpscareController.ExecuteJumpscare(activeStrikeType, monsterTransform, rampEntryTarget);
+        }
+        else
+        {
+            Debug.LogError("Missing JumpscareController reference!");
+        }
     }
 
     public void StartEncounter()
