@@ -5464,12 +5464,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 518404560}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.50000006, y: 0.49999997, z: -0.50000006, w: 0.49999997}
-  m_LocalPosition: {x: 0.25956434, y: 5.9139385, z: -4.5475454}
-  m_LocalScale: {x: 67.658905, y: 9.865532, z: 12.319861}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.00098, y: -0, z: 0}
+  m_LocalScale: {x: 0.2, y: 0.03, z: 0.08116975}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1300212992}
+  m_Father: {fileID: 992763026}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &518404562
 MeshRenderer:
@@ -5496,7 +5496,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 576842603648029439a9fdf3381d9964, type: 2}
+  - {fileID: 2100000, guid: 1f5bf71b595b2db45aab38bee24a15cf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5540,8 +5540,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2afba21b049d2ff4e9c5c73653ec0c67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardGlow
-  lightTransform: {fileID: 0}
-  beamWidth: 0.8
+  lightTransform: {fileID: 992763026}
+  beamWidth: 0.497
+  minDistance: 19.2
+  fullBrightnessDistance: 28
+  maxAlpha: 1
 --- !u!1001 &615868963
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6849,9 +6852,6 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 8595801633100195334, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
       insertIndex: 0
-      addedObject: {fileID: 518404561}
-    - targetCorrespondingSourceObject: {fileID: 8595801633100195334, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
-      insertIndex: 1
       addedObject: {fileID: 992763026}
     - targetCorrespondingSourceObject: {fileID: 364708037783664295, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
       insertIndex: -1
@@ -7008,7 +7008,8 @@ Transform:
   m_LocalPosition: {x: 0.25956434, y: 5.9139385, z: -4.5475454}
   m_LocalScale: {x: 67.658905, y: 9.865532, z: 12.319861}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 518404561}
   m_Father: {fileID: 1300212992}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &992763027
