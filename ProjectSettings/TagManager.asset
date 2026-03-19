@@ -23,8 +23,8 @@ TagManager:
   - CRT_Screen
   - inviswall
   - Interactable
-  - 
-  - 
+  - CruiserInterior
+  - AlwaysVisible
   - 
   - 
   - 
