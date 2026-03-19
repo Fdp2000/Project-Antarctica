@@ -38,7 +38,6 @@ public class ScienceStationManager : MonoBehaviour
         {
             winchController.OnDoorFullyOpened += HandleDoorOpened;
             winchController.OnDoorStartedClosing += HandleDoorStartedClosing;
-            // NEW: Listen for when the door actually locks!
         }
     }
 
@@ -65,18 +64,20 @@ public class ScienceStationManager : MonoBehaviour
         {
             Debug.Log("<color=red>SIGNAL BLOCKED: Door closed while tape is present!</color>");
 
+            // --- THE PENALTY TRIGGER ---
+            if (isMinigameActive && crtWaveController != null)
+            {
+                crtWaveController.ApplyInterruptionPenalty();
+            }
+
             isMinigameActive = false;
             if (crtWaveController != null) crtWaveController.TurnOffMachine();
 
             // Switch to Alert State immediately
             SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
             SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
-
-            // REMOVED: We no longer tell the monster to retreat here! 
-            // It is still outside and the door is still open!
         }
     }
-
 
     void TryBootMachine()
     {
