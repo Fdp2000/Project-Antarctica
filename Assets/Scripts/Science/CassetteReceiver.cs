@@ -25,6 +25,12 @@ public class CassetteReceiver : MonoBehaviour
 
         Debug.Log($"<color=yellow>Cassette Inserted! Source POI: {(beaconFromTape != null ? beaconFromTape.gameObject.name : "UNKNOWN")}</color>");
         OnCassetteInserted?.Invoke(currentlyInsertedBeacon);
+
+        // --- NEW: Trigger the Save Checkpoint! ---
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SaveCheckpoint(beaconFromTape);
+        }
     }
 
     // --- NEW: Resets the machine when the punchcard is collected ---

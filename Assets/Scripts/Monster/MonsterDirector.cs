@@ -6,10 +6,16 @@ public class MonsterDirector : MonoBehaviour
     public enum StrikeType { Normal, PointBlank, Ambush, FogStrike }
 
     [Header("Dependencies")]
+    [Tooltip("The active profile. (Will be auto-assigned from the Progression array)")]
     public DifficultyProfile currentDifficulty;
     public WinchController winchController;
     public JumpscareController jumpscareController;
     public ClutchController clutchController;
+
+    [Header("Difficulty Progression")]
+    [Tooltip("Place your difficulty profiles here in order (Easy to Hard).")]
+    public DifficultyProfile[] difficultyProgression;
+    public int currentProgressionIndex = 0;
 
     [Header("Monster Physical Spawning")]
     public Transform monsterTransform;
@@ -44,6 +50,13 @@ public class MonsterDirector : MonoBehaviour
 
     void Start()
     {
+        // --- NEW: Auto-load the first difficulty profile ---
+        if (difficultyProgression != null && difficultyProgression.Length > 0)
+        {
+            currentProgressionIndex = 0;
+            currentDifficulty = difficultyProgression[currentProgressionIndex];
+        }
+
         if (winchController != null) winchController.OnDoorStartedClosing += RecordPlayerReaction;
     }
 
@@ -256,7 +269,6 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.ClutchStruggle:
-                // --- THE FIX: Hide the monster exactly as the physical struggle begins! ---
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
 
                 if (clutchController != null)
@@ -324,6 +336,31 @@ public class MonsterDirector : MonoBehaviour
     {
         if (!isEncounterActive || currentState == EncounterState.ClutchStruggle) return;
 
-        if (playerWonMinigame) isMinigameComplete = true;
+        if (playerWonMinigame && !isMinigameComplete) // --- NEW: Prevent double-triggering
+        {
+            isMinigameComplete = true;
+            AdvanceDifficulty(); // --- NEW: Step up the difficulty!
+        }
+    }
+
+    // --- NEW: The Progression System ---
+    public void AdvanceDifficulty()
+    {
+        if (difficultyProgression == null || difficultyProgression.Length == 0) return;
+
+        currentProgressionIndex++;
+
+        // Cap it at the maximum index so we don't crash if they do more tapes than profiles
+        if (currentProgressionIndex >= difficultyProgression.Length)
+        {
+            currentProgressionIndex = difficultyProgression.Length - 1;
+            Debug.Log("<color=magenta>MONSTER PROGRESSION: Maximum difficulty reached!</color>");
+        }
+        else
+        {
+            Debug.Log($"<color=magenta>MONSTER PROGRESSION: Difficulty increased to Profile {currentProgressionIndex + 1}/{difficultyProgression.Length}</color>");
+        }
+
+        currentDifficulty = difficultyProgression[currentProgressionIndex];
     }
 }

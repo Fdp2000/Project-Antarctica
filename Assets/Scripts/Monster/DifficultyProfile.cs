@@ -28,6 +28,21 @@ public class DifficultyProfile : ScriptableObject
     [Tooltip("Random variance added or subtracted to the monster's strength each encounter.")]
     public float clutchStrengthVariance = 20f;
 
+    // --- NEW: Science Minigame Settings ---
+    [Header("Science Minigame (Target Wave)")]
+    public float baseTargetAmplitude = 0.7f;
+    public float baseTargetFrequency = 8.0f;
+    public float baseTargetPhase = 10.43f;
+
+    [Header("Science Minigame (Target Drift)")]
+    public float minDriftInterval = 4.0f;
+    public float maxDriftInterval = 6.0f;
+    public float driftLerpDuration = 3.0f;
+
+    public float amplitudeDriftVariance = 1.3f;
+    public float frequencyDriftVariance = 1.5f;
+    public float phaseDriftVariance = 1.5f;
+
     public float GetRandomizedTimer(float baseTime)
     {
         return Mathf.Max(0.1f, baseTime + Random.Range(-phaseVariance, phaseVariance));
