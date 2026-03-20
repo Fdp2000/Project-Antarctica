@@ -2649,6 +2649,63 @@ PrefabInstance:
       addedObject: {fileID: 1106583341}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: -5645937942226959685, guid: e9eed7f7b5f16dd4e9ee1ffbc8ed8d08, type: 3}
+--- !u!1001 &642748625
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -60.793186
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.4544437
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -23.77649
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
+      propertyPath: m_Name
+      value: FredesPOI
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 277b9ffbf3001d44c9aeea9a4d45cfbd, type: 3}
 --- !u!1001 &662882280
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2934,9 +2991,10 @@ MonoBehaviour:
   waveController: {fileID: 1087640865}
   playerController: {fileID: 7688690627581515244}
   function: 2
-  debugWithoutSeating: 1
   sensitivity: 0.2
-  rotationVisualSpeed: 500
+  rotationAxis: {x: 0, y: 0, z: 1}
+  minVisualAngle: -135
+  maxVisualAngle: 135
 --- !u!4 &740632943 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7848005467070469563, guid: 88826cee83944e34e95dd7575a3dc02f, type: 3}
@@ -3930,6 +3988,15 @@ MonoBehaviour:
   cassetteReceiver: {fileID: 5995215213050471123}
   winchController: {fileID: 7705456999674588268}
   crtWaveController: {fileID: 3905175010903867858}
+  greenBulbRenderer: {fileID: 0}
+  greenPointLight: {fileID: 0}
+  greenOnMaterial: {fileID: 0}
+  greenOffMaterial: {fileID: 0}
+  redBulbRenderer: {fileID: 0}
+  redPointLight: {fileID: 0}
+  redOnMaterial: {fileID: 0}
+  redOffMaterial: {fileID: 0}
+  monsterDirector: {fileID: 0}
 --- !u!4 &899888860
 Transform:
   m_ObjectHideFlags: 0
@@ -5344,25 +5411,28 @@ MonoBehaviour:
   lightOffMaterial: {fileID: 2100000, guid: 78d799da36a3b484795c8198d5c4dc3d, type: 2}
   lightOnMaterial: {fileID: 2100000, guid: 1e89bb2d95f645548be47e9043042270, type: 2}
   timeToComplete: 6
+  interruptionPenaltyPercent: 0.65
   punchcardPrefab: {fileID: 6909461535054092382, guid: 60a1c32369312314eb6d9fc308dd9591, type: 3}
   punchcardSpawnPoint: {fileID: 215636270}
-  matchTolerance: 0.2
   numPoints: 200
   waveWidth: 0.65
   runSpeed: -2
   visualDensity: 8
+  matchTolerance: 0.2
   playerAmplitude: 0.15
   playerFrequency: 2
   playerPhase: 3.4
   baseTargetAmplitude: 0.15
   baseTargetFrequency: 3.27
   baseTargetPhase: 0
-  driftInterval: 99999
+  minDriftInterval: 2
+  maxDriftInterval: 6
   driftLerpDuration: 2
   amplitudeDriftVariance: 0.1
   frequencyDriftVariance: 0.5
   phaseDriftVariance: 1
   currentProgress: 0
+  completionTimeExtension: 0
   isMinigameComplete: 0
 --- !u!136 &1087640866
 CapsuleCollider:
@@ -6478,9 +6548,10 @@ MonoBehaviour:
   waveController: {fileID: 1087640865}
   playerController: {fileID: 7688690627581515244}
   function: 1
-  debugWithoutSeating: 1
   sensitivity: 0.2
-  rotationVisualSpeed: 500
+  rotationAxis: {x: 0, y: 0, z: 1}
+  minVisualAngle: -135
+  maxVisualAngle: 135
 --- !u!4 &1335633976 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7848005467070469563, guid: 88826cee83944e34e95dd7575a3dc02f, type: 3}
@@ -6511,9 +6582,10 @@ MonoBehaviour:
   waveController: {fileID: 1087640865}
   playerController: {fileID: 7688690627581515244}
   function: 0
-  debugWithoutSeating: 1
   sensitivity: 0.2
-  rotationVisualSpeed: 500
+  rotationAxis: {x: 0, y: 0, z: 1}
+  minVisualAngle: -135
+  maxVisualAngle: 135
 --- !u!4 &1398184077 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7848005467070469563, guid: 88826cee83944e34e95dd7575a3dc02f, type: 3}
@@ -6987,8 +7059,9 @@ MonoBehaviour:
   radioScript: {fileID: 2067471631}
   playerController: {fileID: 7688690627581515244}
   sensitivity: 0.2
-  rotationSpeed: 1000
   rotationAxis: {x: 0, y: 0, z: 1}
+  minVisualAngle: -150
+  maxVisualAngle: 150
 --- !u!135 &1591934213
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -10585,3 +10658,4 @@ SceneRoots:
   - {fileID: 9007634846503726839}
   - {fileID: 7666503760977358564}
   - {fileID: 1104119663}
+  - {fileID: 642748625}
