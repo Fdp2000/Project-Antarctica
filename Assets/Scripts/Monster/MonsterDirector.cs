@@ -9,7 +9,7 @@ public class MonsterDirector : MonoBehaviour
     public DifficultyProfile currentDifficulty;
     public WinchController winchController;
     public JumpscareController jumpscareController;
-    public ClutchController clutchController; // <--- NEW: The system we will build next!
+    public ClutchController clutchController;
 
     [Header("Monster Physical Spawning")]
     public Transform monsterTransform;
@@ -18,7 +18,7 @@ public class MonsterDirector : MonoBehaviour
     public Vector2 spawnAngleClamp = new Vector2(-45f, 45f);
 
     [Header("Clutch System Settings")]
-    public float clutchCutoffAngle = -133.3f; // Updated to your specific angle
+    public float clutchCutoffAngle = -133.3f;
     public float siegePeekSilenceDuration = 0.8f;
 
     [Header("Live Debug")]
@@ -28,10 +28,9 @@ public class MonsterDirector : MonoBehaviour
     public bool isEncounterActive = false;
     public bool isMinigameComplete = false;
 
-    // --- NEW: Danger Zone Tracking ---
     [Header("Clutch Data (Live)")]
     public float reactionStopwatch = 0f;
-    public float playerReactionTime = -1f; // -1 means they haven't reacted yet
+    public float playerReactionTime = -1f;
 
     private float currentMaxApproachTime;
     private float currentMaxSilenceTime;
@@ -45,37 +44,25 @@ public class MonsterDirector : MonoBehaviour
 
     void Start()
     {
-        // Listen for the exact moment the player touches the winch
-        if (winchController != null)
-        {
-            winchController.OnDoorStartedClosing += RecordPlayerReaction;
-        }
+        if (winchController != null) winchController.OnDoorStartedClosing += RecordPlayerReaction;
     }
 
     void OnDestroy()
     {
-        if (winchController != null)
-        {
-            winchController.OnDoorStartedClosing -= RecordPlayerReaction;
-        }
+        if (winchController != null) winchController.OnDoorStartedClosing -= RecordPlayerReaction;
     }
 
-    // --- NEW: Captures the player's reflex speed ---
-    // --- UPDATED: Captures the player's reflex speed ---
     private void RecordPlayerReaction()
     {
-        // If we already recorded their reaction, ignore this
         if (playerReactionTime >= 0f) return;
 
         if (currentState == EncounterState.Approach || currentState == EncounterState.GracePeriod)
         {
-            // The player reacted before the Danger Zone even started! Give them a perfect 0.0s time.
             playerReactionTime = 0f;
             Debug.Log("<color=green>MONSTER: Player reacted early! Perfect reaction score locked in.</color>");
         }
         else if (currentState == EncounterState.Silence || currentState == EncounterState.Strike)
         {
-            // The player reacted during the Danger Zone. Record the exact stopwatch time.
             playerReactionTime = reactionStopwatch;
             Debug.Log($"<color=yellow>MONSTER: Player reaction locked in at {playerReactionTime:F2}s into the Danger Zone.</color>");
         }
@@ -111,7 +98,6 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.Silence:
-                // --- NEW: Tick the Danger Zone Stopwatch ---
                 reactionStopwatch += Time.deltaTime;
 
                 if (isMinigameComplete)
@@ -122,49 +108,64 @@ public class MonsterDirector : MonoBehaviour
                 else
                 {
                     stateTimer -= Time.deltaTime;
-
                     if (stateTimer <= 0)
                     {
                         if (winchController != null && winchController.IsDoorClosed)
                             TransitionToState(EncounterState.Siege);
                         else
-                            // The Silence is over. The monster ALWAYS strikes now.
                             TransitionToState(EncounterState.Strike);
                     }
                 }
                 break;
 
             case EncounterState.Strike:
-                // --- NEW: Continue ticking the Danger Zone Stopwatch ---
-                reactionStopwatch += Time.deltaTime;
-                stateTimer -= Time.deltaTime;
-
-                if (monsterTransform != null)
+                if (isMinigameComplete)
                 {
-                    Transform currentTarget = (activeStrikeType == StrikeType.FogStrike || activeStrikeType == StrikeType.PointBlank) ? playerCamera : rampEntryTarget;
-                    Vector3 flatTarget = new Vector3(currentTarget.position.x, monsterTransform.position.y, currentTarget.position.z);
-                    monsterTransform.position = Vector3.MoveTowards(monsterTransform.position, flatTarget, currentSprintSpeed * Time.deltaTime);
-                    monsterTransform.LookAt(flatTarget);
-                }
+                    stateTimer += Time.deltaTime;
 
-                if (stateTimer <= 0)
-                {
-                    // --- NEW: The Moment of Truth ---
-                    // The monster hit the ramp. Can it fit through the door?
-                    if (winchController != null && winchController.CurrentAngle > clutchCutoffAngle)
+                    if (monsterTransform != null)
                     {
-                        TransitionToState(EncounterState.ClutchStruggle);
+                        monsterTransform.position -= monsterTransform.forward * currentSprintSpeed * Time.deltaTime;
                     }
-                    else
+
+                    if (stateTimer >= currentDifficulty.strikeDuration)
                     {
-                        // Door was too wide open. Instant death.
-                        TriggerJumpscare();
+                        TransitionToState(EncounterState.Silence, true);
+                    }
+                }
+                else
+                {
+                    reactionStopwatch += Time.deltaTime;
+                    stateTimer -= Time.deltaTime;
+
+                    if (monsterTransform != null)
+                    {
+                        Transform currentTarget = (activeStrikeType == StrikeType.FogStrike || activeStrikeType == StrikeType.PointBlank) ? playerCamera : rampEntryTarget;
+                        Vector3 flatTarget = new Vector3(currentTarget.position.x, monsterTransform.position.y, currentTarget.position.z);
+                        monsterTransform.position = Vector3.MoveTowards(monsterTransform.position, flatTarget, currentSprintSpeed * Time.deltaTime);
+                        monsterTransform.LookAt(flatTarget);
+                    }
+
+                    if (stateTimer <= 0)
+                    {
+                        if (winchController != null && winchController.CurrentAngle > clutchCutoffAngle)
+                        {
+                            TransitionToState(EncounterState.ClutchStruggle);
+                        }
+                        else
+                        {
+                            TriggerJumpscare();
+                        }
                     }
                 }
                 break;
 
             case EncounterState.Siege:
-                if (winchController != null && !winchController.IsDoorClosed) TransitionToState(EncounterState.Silence);
+                if (winchController != null && winchController.CurrentAngle < winchController.closedAngle - 5f)
+                {
+                    Debug.Log("<color=red>MONSTER: SIEGE BREACHED! Player opened the door!</color>");
+                    TransitionToState(EncounterState.Strike);
+                }
                 else
                 {
                     stateTimer -= Time.deltaTime;
@@ -179,9 +180,11 @@ public class MonsterDirector : MonoBehaviour
         }
     }
 
-    private void TransitionToState(EncounterState newState, bool isReversing = false)
+    public void TransitionToState(EncounterState newState, bool isReversing = false)
     {
+        EncounterState previousState = currentState;
         currentState = newState;
+
         if (currentDifficulty == null) return;
 
         switch (newState)
@@ -210,15 +213,22 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.Silence:
-                currentMaxSilenceTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.silenceDuration);
-                stateTimer = currentMaxSilenceTime;
-
-                // --- NEW: Reset the Danger Zone variables when Silence begins ---
+                if (!isReversing)
+                {
+                    currentMaxSilenceTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.silenceDuration);
+                    stateTimer = currentMaxSilenceTime;
+                }
+                else
+                {
+                    stateTimer = 0f;
+                }
                 reactionStopwatch = 0f;
                 break;
 
             case EncounterState.Strike:
                 stateTimer = currentDifficulty.strikeDuration;
+
+                bool isSiegeBreach = (previousState == EncounterState.Siege);
 
                 float distanceToPlayer = Vector3.Distance(rampEntryTarget.position, playerCamera.position);
                 Vector3 rampChestLevel = rampEntryTarget.position + (Vector3.up * 1.0f);
@@ -226,37 +236,33 @@ public class MonsterDirector : MonoBehaviour
                 if (distanceToPlayer < pointBlankThreshold)
                 {
                     activeStrikeType = StrikeType.PointBlank;
-                    SpawnAndCalculateMonsterSprint(playerCamera);
+                    SpawnAndCalculateMonsterSprint(playerCamera, isSiegeBreach);
                 }
                 else if (!isPlayerInCabin)
                 {
                     activeStrikeType = StrikeType.FogStrike;
-                    SpawnAndCalculateMonsterSprint(playerCamera);
+                    SpawnAndCalculateMonsterSprint(playerCamera, isSiegeBreach);
                 }
                 else if (Physics.Linecast(rampChestLevel, playerCamera.position, obstacleLayers))
                 {
                     activeStrikeType = StrikeType.Ambush;
-                    SpawnAndCalculateMonsterSprint(rampEntryTarget);
+                    SpawnAndCalculateMonsterSprint(rampEntryTarget, isSiegeBreach);
                 }
                 else
                 {
                     activeStrikeType = StrikeType.Normal;
-                    SpawnAndCalculateMonsterSprint(rampEntryTarget);
+                    SpawnAndCalculateMonsterSprint(rampEntryTarget, isSiegeBreach);
                 }
                 break;
 
             case EncounterState.ClutchStruggle:
-                // --- NEW: Pass the data to the Clutch Controller to calculate the outcome ---
+                // --- THE FIX: Hide the monster exactly as the physical struggle begins! ---
+                if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+
                 if (clutchController != null)
                 {
-                    Debug.Log("<color=red><b>MONSTER: DOOR BLOCKED! INITIATING CLUTCH CALCULATION...</b></color>");
-
                     float maxDangerTime = currentMaxSilenceTime + currentDifficulty.strikeDuration;
                     clutchController.EvaluateStruggle(playerReactionTime, maxDangerTime, winchController.CurrentAngle, currentDifficulty);
-                }
-                else
-                {
-                    Debug.LogError("Missing ClutchController reference!");
                 }
                 break;
 
@@ -270,12 +276,21 @@ public class MonsterDirector : MonoBehaviour
         }
     }
 
-    private void SpawnAndCalculateMonsterSprint(Transform target)
+    private void SpawnAndCalculateMonsterSprint(Transform target, bool forceExtremeAngle = false)
     {
         if (monsterTransform == null || target == null) return;
 
-        float randomAngle = Random.Range(spawnAngleClamp.x, spawnAngleClamp.y);
-        Vector3 direction = Quaternion.Euler(0, randomAngle, 0) * target.forward;
+        float spawnAngle;
+        if (forceExtremeAngle)
+        {
+            spawnAngle = (Random.value > 0.5f) ? spawnAngleClamp.x : spawnAngleClamp.y;
+        }
+        else
+        {
+            spawnAngle = Random.Range(spawnAngleClamp.x, spawnAngleClamp.y);
+        }
+
+        Vector3 direction = Quaternion.Euler(0, spawnAngle, 0) * target.forward;
         direction.y = 0;
 
         Vector3 spawnPos = target.position + (direction.normalized * spawnRadius);
@@ -294,7 +309,6 @@ public class MonsterDirector : MonoBehaviour
     private void TriggerJumpscare()
     {
         isEncounterActive = false;
-
         if (jumpscareController != null) jumpscareController.ExecuteJumpscare(activeStrikeType, monsterTransform, rampEntryTarget);
     }
 
@@ -308,7 +322,8 @@ public class MonsterDirector : MonoBehaviour
 
     public void EndEncounter(bool playerWonMinigame)
     {
-        if (!isEncounterActive || currentState == EncounterState.Strike || currentState == EncounterState.ClutchStruggle) return;
+        if (!isEncounterActive || currentState == EncounterState.ClutchStruggle) return;
+
         if (playerWonMinigame) isMinigameComplete = true;
     }
 }

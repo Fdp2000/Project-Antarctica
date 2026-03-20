@@ -36,6 +36,9 @@ public class JumpscareController : MonoBehaviour
 
     private IEnumerator JumpscareRoutine(MonsterDirector.StrikeType activeStrikeType, Transform monsterTransform, Transform rampEntryTarget)
     {
+        // --- THE FIX: Guarantee the monster is visible for the jumpscare! ---
+        if (monsterTransform != null) monsterTransform.gameObject.SetActive(true);
+
         // 1. THE LOCK
         if (fpsController != null) fpsController.enabled = false;
 
@@ -161,7 +164,6 @@ public class JumpscareController : MonoBehaviour
         // 5. THE DEATH
         TriggerPlayerDeath();
     }
-
     private void TriggerPlayerDeath()
     {
         Debug.Log("<color=black><b>[ BLACK SCREEN - TRIGGERING DEATH SCREEN METHODS ]</b></color>");

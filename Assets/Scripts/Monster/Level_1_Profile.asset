@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cacba0e0bd3bad4a846f50480443b27, type: 3}
   m_Name: Level_1_Profile
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
-  baseGracePeriod: 300
-  approachDuration: 1
-  silenceDuration: 1
+  baseGracePeriod: 1
+  approachDuration: 5
+  silenceDuration: 5
   strikeDuration: 1
   retreatDuration: 5
   phaseVariance: 0
   patienceThreshold: 10
   minSiegeEventInterval: 2
   maxSiegeEventInterval: 6
+  baseMonsterClutchStrength: 120
+  clutchStrengthVariance: 20

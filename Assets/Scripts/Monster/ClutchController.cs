@@ -1,87 +1,183 @@
 using UnityEngine;
+using System.Collections;
 
 public class ClutchController : MonoBehaviour
 {
+    [Header("Dependencies")]
+    public MonsterDirector monsterDirector;
+    public WinchController winchController;
+
     [Header("Clutch Tuning (Base Mechanics)")]
-    [Tooltip("The angle where the clutch struggle is triggered. (Matches MonsterDirector)")]
     public float clutchCutoffAngle = -133.3f;
-    [Tooltip("The angle where the door is fully closed.")]
     public float closedAngle = -90f;
 
     [Header("Clutch Tuning (RNG Modifiers)")]
-    [Tooltip("Minimum penalty/bonus to the player's reaction score. (Negative = Penalty)")]
     public float minAdrenalineFumble = -15f;
-    [Tooltip("Maximum penalty/bonus to the player's reaction score. (Positive = Lucky save)")]
     public float maxAdrenalineFumble = 5f;
-
-    [Tooltip("Minimum multiplier applied to the monster's strength. (< 1.0 = Weaker)")]
     public float minMonsterSurge = 0.8f;
-    [Tooltip("Maximum multiplier applied to the monster's strength. (> 1.0 = Overpowering)")]
     public float maxMonsterSurge = 1.3f;
 
-    [Header("Live Debug (Last Struggle)")]
+    [Header("Physical Struggle Settings")]
+    public float winCloseSpeed = 15f;
+    public float minLoseResistTime = 2.0f;
+    public float maxLoseResistTime = 4.0f;
+    public float loseOpenSpeed = 35f;
+    public float jitterAmount = 1.8f;
+    public float jitterSpeed = 35f;
+
+    [Header("The 3-Strike Penalty")]
+    public int maxMistakes = 3;
+    public float penaltyJerkAngle = 6f;
+    public float inputForgivenessBuffer = 0.25f;
+
+    // --- NEW: Time between continuous strikes if the player never grabs the valve ---
+    [Tooltip("If the player continues to ignore the valve, how many seconds before they get another strike?")]
+    public float recurringPenaltyInterval = 1.0f;
+
+    [Header("Live Debug")]
     public float lastReactionScore;
     public float lastAngleScore;
     public float lastPlayerTotal;
     public float lastMonsterTotal;
     public bool lastResultWon;
 
-    // Called by the MonsterDirector the exact millisecond the Strike timer hits 0
     public void EvaluateStruggle(float playerReactionTime, float maxDangerTime, float currentDoorAngle, DifficultyProfile difficulty)
     {
         Debug.Log("<color=cyan>--- CLUTCH STRUGGLE INITIATED ---</color>");
 
-        // 1. THE REACTION SCORE
         float baseReactionScore = 0f;
-        if (playerReactionTime >= 0f)
-        {
-            // The faster they reacted, the closer to 100 they get.
-            baseReactionScore = Mathf.Lerp(100f, 0f, (playerReactionTime / maxDangerTime));
-        }
-        else
-        {
-            // They never touched the door during the Danger Zone!
-            Debug.Log("<color=red>Player never grabbed the door! Base Reaction Score: 0</color>");
-        }
+        if (playerReactionTime >= 0f) baseReactionScore = Mathf.Lerp(100f, 0f, (playerReactionTime / maxDangerTime));
 
-        // Apply the exposed "Adrenaline Fumble" 
         float adrenalineFumble = Random.Range(minAdrenalineFumble, maxAdrenalineFumble);
         lastReactionScore = Mathf.Clamp(baseReactionScore + adrenalineFumble, 0f, 100f);
 
-        // 2. THE ANGLE SCORE
-        // Maps the door's position to a 0-100 score. Closer to -90 = higher score.
         lastAngleScore = Mathf.InverseLerp(clutchCutoffAngle, closedAngle, currentDoorAngle) * 100f;
-
-        // 3. THE PLAYER TOTAL
         lastPlayerTotal = lastReactionScore + lastAngleScore;
 
-        // 4. THE MONSTER SURGE
         float baseRoll = difficulty.baseMonsterClutchStrength + Random.Range(-difficulty.clutchStrengthVariance, difficulty.clutchStrengthVariance);
-
-        // Apply the exposed monster multiplier
         float surgeMultiplier = Random.Range(minMonsterSurge, maxMonsterSurge);
         lastMonsterTotal = baseRoll * surgeMultiplier;
 
-        // 5. THE RESULT
         lastResultWon = lastPlayerTotal >= lastMonsterTotal;
 
-        // --- DETAILED LOGGING FOR BALANCING ---
         Debug.Log($"Door Angle: {currentDoorAngle:F1}° | Angle Score: {lastAngleScore:F1}/100");
-        Debug.Log($"Reaction Time: {playerReactionTime:F2}s / {maxDangerTime:F2}s | Reaction Score (w/ Fumble): {lastReactionScore:F1}/100");
-        Debug.Log($"<color=white><b>PLAYER TOTAL POWER: {lastPlayerTotal:F1}</b></color>");
-        Debug.Log($"<color=orange><b>MONSTER TOTAL POWER: {lastMonsterTotal:F1} (Surge: {surgeMultiplier:F2}x)</b></color>");
+        Debug.Log($"Reaction: {playerReactionTime:F2}s / {maxDangerTime:F2}s | Reaction Score: {lastReactionScore:F1}/100");
+        Debug.Log($"<color=white><b>PLAYER TOTAL: {lastPlayerTotal:F1}</b></color> vs <color=orange><b>MONSTER TOTAL: {lastMonsterTotal:F1} (Surge {surgeMultiplier:F2}x)</b></color>");
 
-        if (lastResultWon)
-        {
-            Debug.Log("<color=green><b>[CLUTCH CALCULATED: PLAYER WINS!]</b> The player overpowered the monster!</color>");
-            // TODO (Stage 2): Trigger Winch ForceSlamShut() & Monster Siege State
-        }
-        else
-        {
-            Debug.Log("<color=red><b>[CLUTCH CALCULATED: PLAYER LOSES!]</b> The monster broke through!</color>");
-            // TODO (Stage 2): Trigger the 3-Strike Struggle / Jumpscare Router
-        }
+        StartCoroutine(ActiveStruggleRoutine(lastResultWon, currentDoorAngle));
+    }
 
-        Debug.Log("<color=cyan>---------------------------------</color>");
+    private IEnumerator ActiveStruggleRoutine(bool playerWinning, float startAngle)
+    {
+        if (winchController != null) winchController.isStruggling = true;
+
+        float struggleBaseAngle = startAngle;
+        int currentMistakes = 0;
+        float timeSinceHeld = 0f;
+
+        // --- NEW: Tracks when the next strike should happen ---
+        float nextStrikeThreshold = inputForgivenessBuffer;
+
+        bool monsterBreached = false;
+
+        float falseHopeDuration = Random.Range(minLoseResistTime, maxLoseResistTime);
+        float falseHopeTimer = 0f;
+
+        while (true)
+        {
+            if (winchController != null && winchController.IsBeingHeld)
+            {
+                timeSinceHeld = 0f;
+                // Reset the threshold when they successfully grab it
+                nextStrikeThreshold = inputForgivenessBuffer;
+            }
+            else
+            {
+                timeSinceHeld += Time.deltaTime;
+            }
+
+            bool isHolding = timeSinceHeld <= inputForgivenessBuffer;
+
+            if (monsterBreached)
+            {
+                float ripSpeed = (winchController != null) ? winchController.openSlamSpeed * 1.5f : 300f;
+                struggleBaseAngle = Mathf.MoveTowards(struggleBaseAngle, winchController.openAngle, ripSpeed * Time.deltaTime);
+
+                if (Mathf.Abs(struggleBaseAngle - winchController.openAngle) < 0.5f)
+                {
+                    if (winchController != null) winchController.isStruggling = false;
+
+                    if (monsterDirector != null && monsterDirector.jumpscareController != null)
+                    {
+                        monsterDirector.jumpscareController.ExecuteJumpscare(MonsterDirector.StrikeType.PointBlank, monsterDirector.monsterTransform, monsterDirector.rampEntryTarget);
+                    }
+                    break;
+                }
+            }
+            else if (playerWinning)
+            {
+                if (isHolding)
+                {
+                    struggleBaseAngle = Mathf.MoveTowards(struggleBaseAngle, closedAngle, winCloseSpeed * Time.deltaTime);
+                }
+                else
+                {
+                    // --- THE FIX: Recurring Penalties if they continue to not hold the door ---
+                    if (timeSinceHeld >= nextStrikeThreshold)
+                    {
+                        currentMistakes++;
+                        nextStrikeThreshold += recurringPenaltyInterval; // Schedule the next strike 1 second from now
+
+                        struggleBaseAngle -= penaltyJerkAngle;
+                        Debug.Log($"<color=orange>CLUTCH PENALTY! Player dropped the winch! Strike {currentMistakes}/{maxMistakes}</color>");
+
+                        if (currentMistakes >= maxMistakes)
+                        {
+                            Debug.Log("<color=red>CLUTCH FAILED: Too many mistakes. The monster overpowers the player!</color>");
+                            monsterBreached = true;
+                        }
+                    }
+                }
+
+                if (struggleBaseAngle >= closedAngle - 2f)
+                {
+                    if (winchController != null) winchController.ForceSlamShut();
+                    if (monsterDirector != null) monsterDirector.TransitionToState(MonsterDirector.EncounterState.Siege);
+                    break;
+                }
+            }
+            else
+            {
+                if (isHolding)
+                {
+                    falseHopeTimer += Time.deltaTime;
+                    if (falseHopeTimer >= falseHopeDuration)
+                    {
+                        Debug.Log("<color=red>CLUTCH FAILED: Stalemate broken! Monster breaches the gap!</color>");
+                        monsterBreached = true;
+                    }
+                }
+                else
+                {
+                    struggleBaseAngle = Mathf.MoveTowards(struggleBaseAngle, winchController.openAngle, loseOpenSpeed * Time.deltaTime);
+
+                    if (struggleBaseAngle <= startAngle - 35f)
+                    {
+                        Debug.Log("<color=red>CLUTCH FAILED: Player let go! Monster breaches the gap!</color>");
+                        monsterBreached = true;
+                    }
+                }
+            }
+
+            if (winchController != null)
+            {
+                float noise = Mathf.PerlinNoise(Time.time * jitterSpeed, 0f) - 0.5f;
+                float jitter = noise * 2f * jitterAmount;
+
+                winchController.SetStruggleAngle(struggleBaseAngle + jitter);
+            }
+
+            yield return null;
+        }
     }
 }

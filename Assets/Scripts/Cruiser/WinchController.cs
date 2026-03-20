@@ -46,6 +46,7 @@ public class WinchController : MonoBehaviour
     private bool isBeingHeldThisFrame = false;
     private bool isAutoOpening = false;
     private bool isSlamming = false;
+    public bool IsBeingHeld => isBeingHeldThisFrame;
 
     private Quaternion baseValveRotation;
     private float currentValveSpin = 0f;
@@ -104,6 +105,7 @@ public class WinchController : MonoBehaviour
     {
         if (doorHinge == null || isAutoOpening || isSlamming) return;
 
+        // We MUST record that the player is clicking, regardless of struggle state!
         isBeingHeldThisFrame = true;
 
         if (IsDoorClosed)
@@ -122,6 +124,9 @@ public class WinchController : MonoBehaviour
         {
             if (currentCloseCooldown > 0f) return;
 
+            // --- THE FIX: Suspend normal physics BEFORE the threshold check ---
+            if (isStruggling) return;
+
             bool wasFullyOpenBeforeFrame = IsDoorOpen;
             bool wasClosedBeforeFrame = IsDoorClosed;
 
@@ -129,17 +134,12 @@ public class WinchController : MonoBehaviour
             float remainingTravel = Mathf.Abs(currentAngle - closedAngle);
             float percentLeft = remainingTravel / totalTravel;
 
-            // 2. Normal Threshold Slam
             if (percentLeft <= slamThresholdPercent && percentLeft > 0f)
             {
                 StartCoroutine(DoorSlamAndLockRoutine());
                 return;
             }
 
-            // --- THE FIX: Suspend normal physics if the monster is fighting the player ---
-            if (isStruggling) return;
-
-            // 3. Normal closing logic
             currentDynamicCloseSpeed = Mathf.MoveTowards(currentDynamicCloseSpeed, closeSpeedMax, closeAcceleration * Time.deltaTime);
             currentAngle = Mathf.MoveTowards(currentAngle, closedAngle, currentDynamicCloseSpeed * Time.deltaTime);
 
@@ -151,7 +151,6 @@ public class WinchController : MonoBehaviour
             }
         }
     }
-
     // --- NEW: Exposed method for the Clutch Win ---
     public void ForceSlamShut()
     {
@@ -215,5 +214,11 @@ public class WinchController : MonoBehaviour
         currentOpenCooldown = openCooldownTime;
         isSlamming = false;
         isStruggling = false; // Reset struggle state if it was active
+    }
+    // --- NEW: Lets the ClutchController physically override the door during the tug-of-war ---
+    public void SetStruggleAngle(float forcedAngle)
+    {
+        currentAngle = Mathf.Clamp(forcedAngle, openAngle, closedAngle);
+        SyncMechanics();
     }
 }
