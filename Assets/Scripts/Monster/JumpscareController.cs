@@ -17,6 +17,11 @@ public class JumpscareController : MonoBehaviour
     public AudioClip jumpscareScream;
     public float jumpscareZoomDuration = 0.6f;
     public float targetZoomFOV = 30f;
+
+    // --- NEW: Controls how long you stare at the monster before death ---
+    [Tooltip("How long the monster's face stays on screen after the zoom finishes before cutting to black.")]
+    public float jumpscareHoldDuration = 1.2f;
+
     public Transform monsterHead;
     public float playerCameraHeightOffset = 1.9f;
 
@@ -28,7 +33,6 @@ public class JumpscareController : MonoBehaviour
     public Transform shadowSpawnNode;
     public Transform doorwayLeapNode;
 
-    // Called by the MonsterDirector when the timer hits zero
     public void ExecuteJumpscare(MonsterDirector.StrikeType strikeType, Transform monsterTransform, Transform rampEntryTarget)
     {
         StartCoroutine(JumpscareRoutine(strikeType, monsterTransform, rampEntryTarget));
@@ -36,7 +40,6 @@ public class JumpscareController : MonoBehaviour
 
     private IEnumerator JumpscareRoutine(MonsterDirector.StrikeType activeStrikeType, Transform monsterTransform, Transform rampEntryTarget)
     {
-        // --- THE FIX: Guarantee the monster is visible for the jumpscare! ---
         if (monsterTransform != null) monsterTransform.gameObject.SetActive(true);
 
         // 1. THE LOCK
@@ -45,7 +48,7 @@ public class JumpscareController : MonoBehaviour
         Quaternion startCamRot = playerCamera.rotation;
         Vector3 startLeapPos = rampEntryTarget.position;
 
-        // 2. THE SNAP / BREACH (Getting into position)
+        // 2. THE SNAP / BREACH 
         if (activeStrikeType == MonsterDirector.StrikeType.FogStrike || activeStrikeType == MonsterDirector.StrikeType.PointBlank)
         {
             if (monsterTransform != null)
@@ -87,7 +90,7 @@ public class JumpscareController : MonoBehaviour
             }
             startLeapPos = doorwayLeapNode.position;
         }
-        else // Normal Snap
+        else
         {
             if (monsterTransform != null) monsterTransform.position = rampEntryTarget.position;
 
@@ -101,12 +104,10 @@ public class JumpscareController : MonoBehaviour
             }
         }
 
-        // 3. THE LEAP (Only for Ambush and Normal)
+        // 3. THE LEAP 
         if (activeStrikeType == MonsterDirector.StrikeType.Normal || activeStrikeType == MonsterDirector.StrikeType.Ambush)
         {
             float elapsed = 0f;
-
-            // Calculate where the leap ends based on camera position
             Vector3 finalFacePosition = playerCamera.position + (playerCamera.forward * 1.2f);
             finalFacePosition.y = playerCamera.position.y - playerCameraHeightOffset;
 
@@ -114,7 +115,6 @@ public class JumpscareController : MonoBehaviour
             {
                 elapsed += Time.deltaTime;
                 float percent = elapsed / monsterLeapDuration;
-
                 float currentHeight = Mathf.Sin(percent * Mathf.PI) * leapArcHeight;
                 Vector3 currentPos = Vector3.Lerp(startLeapPos, finalFacePosition, percent);
                 currentPos.y += currentHeight;
@@ -129,14 +129,12 @@ public class JumpscareController : MonoBehaviour
             }
         }
 
-        // 4. THE JUMPSCARE STUDIO CUT (Anti-Clip Zoom & Scream)
+        // 4. THE JUMPSCARE STUDIO CUT 
         if (jumpscareCamera != null && jumpscareStudioMonsterNode != null && monsterTransform != null)
         {
-            // Teleport monster to the hidden studio
             monsterTransform.position = jumpscareStudioMonsterNode.position;
             monsterTransform.rotation = jumpscareStudioMonsterNode.rotation;
 
-            // Switch cameras
             if (playerCameraLens != null) playerCameraLens.gameObject.SetActive(false);
             jumpscareCamera.gameObject.SetActive(true);
 
@@ -159,14 +157,27 @@ public class JumpscareController : MonoBehaviour
                 }
                 yield return null;
             }
+
+            // --- THE FIX: Hold the terrifying face on screen before cutting to black! ---
+            yield return new WaitForSeconds(jumpscareHoldDuration);
         }
 
         // 5. THE DEATH
         TriggerPlayerDeath();
     }
+
     private void TriggerPlayerDeath()
     {
         Debug.Log("<color=black><b>[ BLACK SCREEN - TRIGGERING DEATH SCREEN METHODS ]</b></color>");
-        // TODO: Game Over Logic
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.TriggerPlayerDeath();
+        }
+    }
+
+    public void ResetJumpscareState()
+    {
+        if (jumpscareCamera != null) jumpscareCamera.gameObject.SetActive(false);
+        if (playerCameraLens != null) playerCameraLens.gameObject.SetActive(true);
     }
 }

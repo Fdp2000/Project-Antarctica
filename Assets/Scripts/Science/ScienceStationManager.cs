@@ -134,4 +134,24 @@ public class ScienceStationManager : MonoBehaviour
         if (renderer != null && mat != null) renderer.material = mat;
         if (pLight != null) pLight.enabled = isOn;
     }
+    // --- NEW: Resets the station completely if the player dies ---
+    public void ResetStation()
+    {
+        isMinigameActive = false;
+
+        if (crtWaveController != null) crtWaveController.TurnOffMachine();
+        if (cassetteReceiver != null) cassetteReceiver.ConsumeTape(); // Ejects the tape internally
+
+        // Turn off all alarm lights
+        SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
+        SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
+
+        // Force the door to close if they left it open
+        if (winchController != null && winchController.IsDoorOpen)
+        {
+            winchController.ForceSlamShut();
+        }
+
+        Debug.Log("<color=cyan>SCIENCE STATION RESET FOR NEXT ATTEMPT.</color>");
+    }
 }
