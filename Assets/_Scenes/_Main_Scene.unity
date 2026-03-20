@@ -229,6 +229,11 @@ MonoBehaviour:
   winchController: {fileID: 1647956392}
   jumpscareController: {fileID: 178976305}
   clutchController: {fileID: 178976306}
+  difficultyProgression:
+  - {fileID: 11400000, guid: abf7f2bf400890a428e2e9462dadb42d, type: 2}
+  - {fileID: 11400000, guid: ce9ea7874e9b43e40be41bf35e694d78, type: 2}
+  - {fileID: 11400000, guid: 65824abdc18c6184bad2b9a3f117c19d, type: 2}
+  currentProgressionIndex: 0
   monsterTransform: {fileID: 1377644444}
   rampEntryTarget: {fileID: 79021470}
   spawnRadius: 25
@@ -6694,7 +6699,7 @@ Transform:
   m_GameObject: {fileID: 866597923}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.59187, y: -1.37349, z: -101.96213}
+  m_LocalPosition: {x: -7.49, y: 0.39, z: -11.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

@@ -56,7 +56,12 @@ public class ScienceStationManager : MonoBehaviour
 
     void HandleDoorStartedClosing()
     {
-        if (crtWaveController != null && crtWaveController.isMinigameComplete) return;
+        // --- THE FIX: Only ignore the door closing if the CURRENT tape is the one that finished ---
+        if (crtWaveController != null && crtWaveController.isMinigameComplete)
+        {
+            if (cassetteReceiver != null && cassetteReceiver.currentlyInsertedBeacon == crtWaveController.linkedBeacon)
+                return;
+        }
 
         bool hasTape = cassetteReceiver != null && cassetteReceiver.hasCassette;
 
@@ -83,7 +88,11 @@ public class ScienceStationManager : MonoBehaviour
     {
         if (isMinigameActive) return;
 
-        if (crtWaveController != null && crtWaveController.isMinigameComplete) return;
+        if (crtWaveController != null && crtWaveController.isMinigameComplete)
+        {
+            if (cassetteReceiver != null && cassetteReceiver.currentlyInsertedBeacon == crtWaveController.linkedBeacon)
+                return;
+        }
 
         bool hasTape = cassetteReceiver != null && cassetteReceiver.hasCassette;
         bool doorOpen = winchController != null && winchController.IsDoorOpen;
@@ -92,9 +101,12 @@ public class ScienceStationManager : MonoBehaviour
         {
             Debug.Log("<color=green>SIGNAL ACQUIRED: Booting Science Station.</color>");
             isMinigameActive = true;
+
             if (monsterDirector != null) monsterDirector.StartEncounter();
+
+            // --- THE FIX: Pass the difficulty profile to the CRT Controller! ---
             if (crtWaveController != null)
-                crtWaveController.TurnOnMachine(cassetteReceiver.currentlyInsertedBeacon);
+                crtWaveController.TurnOnMachine(cassetteReceiver.currentlyInsertedBeacon, monsterDirector.currentDifficulty);
 
             SetLightState(greenBulbRenderer, greenPointLight, greenOnMaterial, true);
             SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
@@ -106,7 +118,6 @@ public class ScienceStationManager : MonoBehaviour
             SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
         }
     }
-
     void Update()
     {
         if (isMinigameActive && crtWaveController != null && crtWaveController.isMinigameComplete)

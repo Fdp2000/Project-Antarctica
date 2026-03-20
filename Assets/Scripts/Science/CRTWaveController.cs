@@ -3,50 +3,39 @@ using UnityEngine;
 public class CRTWaveController : MonoBehaviour
 {
     [Header("Dependencies")]
-    [Tooltip("This is now assigned dynamically by the cassette tape!")]
-    [HideInInspector] public RadioBeacon linkedBeacon; [Header("Line Renderers")]
-    [Tooltip("The Amber target wave that the player tries to match.")]
+    [HideInInspector] public RadioBeacon linkedBeacon;
+
+    [Header("Line Renderers")]
     public LineRenderer targetLine;
-    [Tooltip("The Green player wave controlled by the physical knobs.")]
     public LineRenderer playerLine;
 
     [Header("Minigame Logic/Feedback")]
-    [Tooltip("Check this to force the bulb ON for testing purposes.")]
-    public bool debugForceSync = false; [Tooltip("The MeshRenderer of the physical light bulb model.")]
-    public MeshRenderer lightRenderer; [Tooltip("An actual Unity Light component GameObject to turn on/off.")]
+    public bool debugForceSync = false;
+    public MeshRenderer lightRenderer;
     public GameObject pointLightObject;
 
     [Header("Progress LEDs")]
-    [Tooltip("The 3 small progress LEDs. Order them Bottom (Index 0) to Top (Index 2).")]
-    public MeshRenderer[] progressLEDs = new MeshRenderer[3]; [Tooltip("The 3 Unity Point Lights accompanying the LEDs. Order them matching the renderers.")]
+    public MeshRenderer[] progressLEDs = new MeshRenderer[3];
     public Light[] progressPointLights = new Light[3];
-    [Tooltip("The maximum intensity the point light should reach when its chunk of progress is complete.")]
     public float maxProgressLightIntensity = 1.0f;
 
     [Header("Materials")]
-    [Tooltip("The material to use when the waves are OUT of sync (Off).")]
     public Material lightOffMaterial;
-    [Tooltip("The material to use when the waves are IN sync (Emissive/On).")]
     public Material lightOnMaterial;
 
     [Header("Time & Penalty Settings")]
-    [Tooltip("How long (in continuous seconds) the player must remain in sync to fully light all 3 LEDs and win.")]
-    public float timeToComplete = 6.0f; [Tooltip("How much of current progress is lost (added to total time) if interrupted (e.g., 0.65 = 65%).")]
+    public float timeToComplete = 6.0f;
     public float interruptionPenaltyPercent = 0.65f;
 
     [Header("Rewards")]
-    [Tooltip("The GameObject prefab to spawn when the player wins (the punchcard).")]
     public GameObject punchcardPrefab;
-    [Tooltip("Where the punchcard should physically appear on the machine.")]
     public Transform punchcardSpawnPoint;
 
     [Header("Wave Rendering Settings")]
-    [Tooltip("Number of points on the line. Higher = smoother curve.")]
-    public int numPoints = 200; [Tooltip("Total width of the wave rendered across the screen.")]
-    public float waveWidth = 0.65f; [Tooltip("How fast the wave 'crawls' horizontally across the screen.")]
-    public float runSpeed = -2f; [Tooltip("Visual multiplier for frequency to ensure multiple peaks fit on screen.")]
+    public int numPoints = 200;
+    public float waveWidth = 0.65f;
+    public float runSpeed = -2f;
     public float visualDensity = 5f;
-    [Tooltip("How close the player's knobs must be to the drifting target math.")]
     public float matchTolerance = 0.2f;
 
     [Header("Player Knobs (Inputs)")]
@@ -54,28 +43,13 @@ public class CRTWaveController : MonoBehaviour
     [Range(6.2f, 10f)] public float playerFrequency = 8.0f;
     [Range(0f, 12.56f)] public float playerPhase = 2.5f;
 
-    [Header("Target Wave Settings (Amber)")]
-    public float baseTargetAmplitude = 0.5f;
-    public float baseTargetFrequency = 8.0f;
-    public float baseTargetPhase = 2.5f; [Header("Target Drift Settings (Unbound)")]
-    [Tooltip("The minimum time the wave holds steady before mutating.")]
-    public float minDriftInterval = 2.0f;
-    [Tooltip("The maximum time the wave holds steady before mutating.")]
-    public float maxDriftInterval = 6.0f; [Tooltip("How long it takes to lerp to the new mutation.")]
-    public float driftLerpDuration = 1.5f;
-
-    public float amplitudeDriftVariance = 0.2f;
-    public float frequencyDriftVariance = 1.0f;
-    public float phaseDriftVariance = 2.0f;
-
     [Header("Live Debug (Watch in Play Mode)")]
-    [Tooltip("The current accumulated progress in seconds.")]
-    public float currentProgress = 0f; [Tooltip("The hidden 'Time Debt'. Final LED finishes when progress hits (timeToComplete + completionTimeExtension).")]
+    public float currentProgress = 0f;
     public float completionTimeExtension = 0f;
-    [Tooltip("Has the minigame completely finished?")]
     public bool isMinigameComplete = false;
 
     // Internal variables
+    private DifficultyProfile currentProfile; // <--- NEW: Stores the active profile
     private float currentDriftInterval;
     private float currentTargetAmplitude;
     private float currentTargetFrequency;
@@ -99,10 +73,6 @@ public class CRTWaveController : MonoBehaviour
         if (targetLine) targetLine.useWorldSpace = false;
         if (playerLine) playerLine.useWorldSpace = false;
 
-        currentTargetAmplitude = baseTargetAmplitude;
-        currentTargetFrequency = baseTargetFrequency;
-        currentTargetPhase = baseTargetPhase;
-
         if (lightRenderer != null && lightOffMaterial != null && !debugForceSync)
         {
             lightRenderer.material = lightOffMaterial;
@@ -113,26 +83,25 @@ public class CRTWaveController : MonoBehaviour
             if (progressLEDs[i] != null && lightOffMaterial != null) progressLEDs[i].material = lightOffMaterial;
             if (i < progressPointLights.Length && progressPointLights[i] != null) progressPointLights[i].intensity = 0f;
         }
-
-        currentDriftInterval = Random.Range(minDriftInterval, maxDriftInterval);
-        PickNewTargets();
     }
 
     void Update()
     {
+        if (currentProfile == null) return; // Wait until turned on!
+
         timer += Time.deltaTime;
 
         if (timer >= currentDriftInterval)
         {
             PickNewTargets();
             timer = 0f;
-            currentDriftInterval = Random.Range(minDriftInterval, maxDriftInterval);
+            currentDriftInterval = Random.Range(currentProfile.minDriftInterval, currentProfile.maxDriftInterval);
         }
 
-        if (lerpTimer < driftLerpDuration)
+        if (lerpTimer < currentProfile.driftLerpDuration)
         {
             lerpTimer += Time.deltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(lerpTimer / driftLerpDuration));
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(lerpTimer / currentProfile.driftLerpDuration));
 
             currentTargetAmplitude = Mathf.Lerp(oldTargetAmplitude, newTargetAmplitude, t);
             currentTargetFrequency = Mathf.Lerp(oldTargetFrequency, newTargetFrequency, t);
@@ -145,22 +114,18 @@ public class CRTWaveController : MonoBehaviour
         CheckSync();
     }
 
-    // --- PENALTY METHOD ---
     public void ApplyInterruptionPenalty()
     {
         if (isMinigameComplete || currentProgress <= 0) return;
-
-        // Calculate 65% of the progress they achieved so far
         float penaltyAmount = currentProgress * interruptionPenaltyPercent;
-
-        // Add it to the time debt
         completionTimeExtension += penaltyAmount;
-
         Debug.Log($"<color=orange>SCIENCE: Progress interrupted! {penaltyAmount:F1}s added to completion debt.</color>");
     }
 
     void PickNewTargets()
     {
+        if (currentProfile == null) return;
+
         oldTargetAmplitude = currentTargetAmplitude;
         oldTargetFrequency = currentTargetFrequency;
         oldTargetPhase = currentTargetPhase;
@@ -174,15 +139,15 @@ public class CRTWaveController : MonoBehaviour
         switch (propertyToMutate)
         {
             case 0:
-                float rawNewAmp = currentTargetAmplitude + Random.Range(-amplitudeDriftVariance, amplitudeDriftVariance);
+                float rawNewAmp = currentTargetAmplitude + Random.Range(-currentProfile.amplitudeDriftVariance, currentProfile.amplitudeDriftVariance);
                 newTargetAmplitude = Mathf.Clamp(rawNewAmp, 0.16f, 1.1f);
                 break;
             case 1:
-                float rawNewFreq = currentTargetFrequency + Random.Range(-frequencyDriftVariance, frequencyDriftVariance);
+                float rawNewFreq = currentTargetFrequency + Random.Range(-currentProfile.frequencyDriftVariance, currentProfile.frequencyDriftVariance);
                 newTargetFrequency = Mathf.Clamp(rawNewFreq, 6.2f, 10.0f);
                 break;
             case 2:
-                float rawNewPhase = currentTargetPhase + Random.Range(-phaseDriftVariance, phaseDriftVariance);
+                float rawNewPhase = currentTargetPhase + Random.Range(-currentProfile.phaseDriftVariance, currentProfile.phaseDriftVariance);
                 newTargetPhase = Mathf.Clamp(rawNewPhase, 0f, 12.56f);
                 break;
         }
@@ -206,7 +171,6 @@ public class CRTWaveController : MonoBehaviour
 
         if (isSynced) currentProgress += Time.deltaTime;
 
-        // The target required time is the standard 6 seconds + any penalty debt accrued
         float totalTargetTime = timeToComplete + completionTimeExtension;
         currentProgress = Mathf.Clamp(currentProgress, 0f, totalTargetTime);
 
@@ -249,7 +213,6 @@ public class CRTWaveController : MonoBehaviour
     {
         if (progressLEDs == null || progressLEDs.Length == 0) return;
 
-        // Visual mapping stays completely tied to the original 6 seconds so it doesn't drop backwards
         float timePerLED = timeToComplete / progressLEDs.Length;
 
         for (int i = 0; i < progressLEDs.Length; i++)
@@ -257,11 +220,7 @@ public class CRTWaveController : MonoBehaviour
             float startThreshold = i * timePerLED;
             float endThreshold = (i + 1) * timePerLED;
 
-            // ONLY the final LED absorbs the penalty debt, extending its threshold
-            if (i == progressLEDs.Length - 1)
-            {
-                endThreshold = timeToComplete + completionTimeExtension;
-            }
+            if (i == progressLEDs.Length - 1) endThreshold = timeToComplete + completionTimeExtension;
 
             Light currentLight = (i < progressPointLights.Length) ? progressPointLights[i] : null;
 
@@ -273,20 +232,12 @@ public class CRTWaveController : MonoBehaviour
             else if (currentProgress > startThreshold && currentProgress < endThreshold)
             {
                 float fractionFull = (currentProgress - startThreshold) / (endThreshold - startThreshold);
-
-                // Smooth, non-violent pulsing logic
                 float blinkRate = Mathf.Lerp(3f, 12f, fractionFull);
                 float sineValue = Mathf.Sin(Time.time * blinkRate);
-
                 bool isOn = sineValue > 0f;
 
                 if (progressLEDs[i] != null) progressLEDs[i].material = isOn ? lightOnMaterial : lightOffMaterial;
-
-                if (currentLight != null)
-                {
-                    float lightPulse = Mathf.Lerp(0.2f, 1f, (sineValue + 1f) / 2f);
-                    currentLight.intensity = maxProgressLightIntensity * fractionFull * lightPulse;
-                }
+                if (currentLight != null) currentLight.intensity = maxProgressLightIntensity * fractionFull * Mathf.Lerp(0.2f, 1f, (sineValue + 1f) / 2f);
             }
             else
             {
@@ -324,20 +275,33 @@ public class CRTWaveController : MonoBehaviour
         }
     }
 
-    public void TurnOnMachine(RadioBeacon sourceBeacon)
+    // --- UPDATED: Takes the Difficulty Profile as a parameter ---
+    public void TurnOnMachine(RadioBeacon sourceBeacon, DifficultyProfile profile)
     {
-        // If it is a completely new tape, reset everything. 
-        // If it's the SAME tape, keep the progress and the time debt!
+        currentProfile = profile;
+
         if (linkedBeacon != sourceBeacon)
         {
             currentProgress = 0f;
             completionTimeExtension = 0f;
             isMinigameComplete = false;
+
+            // Set up the new target base values based on the new profile
+            if (currentProfile != null)
+            {
+                currentTargetAmplitude = currentProfile.baseTargetAmplitude;
+                currentTargetFrequency = currentProfile.baseTargetFrequency;
+                currentTargetPhase = currentProfile.baseTargetPhase;
+            }
         }
 
         linkedBeacon = sourceBeacon;
-
         Debug.Log($"<color=cyan>CRT WAVE CONTROLLER ONLINE. Processing data for: {(linkedBeacon != null ? linkedBeacon.name : "Unknown POI")}</color>");
+
+        if (currentProfile != null)
+        {
+            currentDriftInterval = Random.Range(currentProfile.minDriftInterval, currentProfile.maxDriftInterval);
+        }
 
         PickNewTargets();
 
@@ -349,7 +313,6 @@ public class CRTWaveController : MonoBehaviour
     public void NotifyPunchcardCollected()
     {
         TurnOffMachine();
-
         if (linkedBeacon != null)
         {
             linkedBeacon.isCompleted = true;
