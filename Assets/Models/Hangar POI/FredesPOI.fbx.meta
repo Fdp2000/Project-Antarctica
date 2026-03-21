@@ -3,7 +3,22 @@ guid: 277b9ffbf3001d44c9aeea9a4d45cfbd
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FAtlas
+    second: {fileID: 2100000, guid: bea0bd2c76a79b742833795154267012, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ObjectAtlas
+    second: {fileID: 2100000, guid: acd6a8648d7d3724c9f9b73ce1ebde6d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SpeakerAtlas
+    second: {fileID: 2100000, guid: 1044342c593ab6941a8f77d32b3e6e2a, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
