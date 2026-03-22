@@ -5,6 +5,7 @@ public class CabinTrigger : MonoBehaviour
     [Header("Dependencies")]
     public MonsterDirector monsterDirector;
     public WinchController winchController;
+    public SimpleFPSController playerController; // <--- NEW: Added this link
 
     private void OnTriggerEnter(Collider other)
     {
@@ -20,6 +21,12 @@ public class CabinTrigger : MonoBehaviour
             if (winchController != null)
             {
                 winchController.isPlayerInside = true;
+            }
+
+            // --- NEW: Inform the Player Controller (for Engine Camera Shake) ---
+            if (playerController != null)
+            {
+                playerController.isInCabin = true;
             }
         }
     }
@@ -38,6 +45,12 @@ public class CabinTrigger : MonoBehaviour
             if (winchController != null)
             {
                 winchController.isPlayerInside = false;
+            }
+
+            // --- NEW: Inform the Player Controller ---
+            if (playerController != null)
+            {
+                playerController.isInCabin = false;
             }
         }
     }

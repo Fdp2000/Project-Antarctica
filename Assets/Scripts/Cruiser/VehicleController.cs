@@ -8,6 +8,18 @@ public class VehicleController : MonoBehaviour
     public float acceleration = 2.0f;
     public float deceleration = 4.0f;
     public float turnSpeed = 45.0f;
+    public float turnAcceleration = 90.0f;
+    public float turnDeceleration = 120.0f;
+
+    [Header("Engine Audio System")]
+    [Tooltip("The low, rumbling hum when the vehicle is locked down and ready to drive.")]
+    public AudioSource engineIdleSource;
+    [Tooltip("The aggressive mechanical grinding when actually moving the treads.")]
+    public AudioSource engineActiveSource;
+    public float maxIdleVolume = 0.5f;
+    public float maxActiveVolume = 1.0f;
+    public float activePitchMultiplier = 1.3f;
+    public float engineLerpSpeed = 5.0f;
 
     [Header("Obstacle Radar (OverlapBox)")]
     public Vector3 radarOffset = new Vector3(0, 1f, 0);
@@ -22,16 +34,19 @@ public class VehicleController : MonoBehaviour
 
     [Header("Safety Dependencies")]
     public WinchController winch;
-    public CassetteReceiver cassetteReceiver; // MUST DRAG MACHINE HERE IN INSPECTOR
+    public CassetteReceiver cassetteReceiver;
     public SimpleFPSController player;
 
     [HideInInspector] public bool isPlayerDriving = false;
+    [HideInInspector] public bool isEngineRunning = false;
 
     private Rigidbody rb;
     private float currentMoveInput = 0f;
     private float currentTurnInput = 0f;
     private bool isMovementLocked = false;
+
     private float currentSpeed = 0f;
+    private float currentTurnRate = 0f;
 
     void Start()
     {
@@ -41,21 +56,29 @@ public class VehicleController : MonoBehaviour
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         if (steeringWheel != null) initialSteeringRotation = steeringWheel.localRotation;
+
+        // Initialize Audio
+        if (engineIdleSource != null) { engineIdleSource.loop = true; engineIdleSource.volume = 0f; engineIdleSource.Play(); }
+        if (engineActiveSource != null) { engineActiveSource.loop = true; engineActiveSource.volume = 0f; engineActiveSource.Play(); }
     }
 
     void Update()
     {
+        // 1. Check Mechanical Locks (Are the alarms off?)
+        bool doorOpen = (winch != null && !winch.IsDoorClosed);
+        bool unfinishedTape = (cassetteReceiver != null && cassetteReceiver.hasCassette);
+        bool cardWaiting = (player != null && player.IsPunchcardInTray());
+        bool carryingTape = (player != null && player.hasCassette);
+
+        bool isMechanicallyLocked = doorOpen || unfinishedTape || cardWaiting || carryingTape;
+
+        // The engine fires up the second the locks are cleared!
+        isEngineRunning = !isMechanicallyLocked;
+
+        // 2. Player Input Logic
         if (isPlayerDriving)
         {
-            bool doorOpen = (winch != null && !winch.IsDoorClosed);
-
-            // If the tape is inside, the minigame is in progress (it gets consumed when done)
-            bool unfinishedTape = (cassetteReceiver != null && cassetteReceiver.hasCassette);
-
-            bool cardWaiting = (player != null && player.IsPunchcardInTray());
-            bool carryingTape = (player != null && player.hasCassette);
-
-            if (doorOpen || unfinishedTape || cardWaiting || carryingTape)
+            if (isMechanicallyLocked)
             {
                 if (doorOpen) Debug.LogWarning("Drive Locked: Rear door must be closed!");
                 if (unfinishedTape) Debug.LogWarning("Drive Locked: Finish the science minigame!");
@@ -65,12 +88,13 @@ public class VehicleController : MonoBehaviour
                 isMovementLocked = true;
                 currentMoveInput = 0f;
                 currentTurnInput = 0f;
-                return;
             }
-
-            isMovementLocked = false;
-            currentMoveInput = Input.GetAxisRaw("Vertical");
-            currentTurnInput = Input.GetAxisRaw("Horizontal");
+            else
+            {
+                isMovementLocked = false;
+                currentMoveInput = Input.GetAxisRaw("Vertical");
+                currentTurnInput = Input.GetAxisRaw("Horizontal");
+            }
 
             if (steeringWheel != null)
             {
@@ -89,6 +113,30 @@ public class VehicleController : MonoBehaviour
                 steeringWheel.localRotation = Quaternion.Lerp(steeringWheel.localRotation, initialSteeringRotation, Time.deltaTime * 8f);
             }
         }
+
+        // 3. Audio Mixing (Lerping)
+        if (isEngineRunning)
+        {
+            if (engineIdleSource) engineIdleSource.volume = Mathf.Lerp(engineIdleSource.volume, maxIdleVolume, Time.deltaTime * engineLerpSpeed);
+
+            // Calculate how hard the vehicle is currently working
+            float movementIntensity = Mathf.Clamp01((Mathf.Abs(currentSpeed) / maxSpeed) + (Mathf.Abs(currentTurnRate) / turnSpeed));
+
+            if (engineActiveSource)
+            {
+                float targetActiveVol = movementIntensity * maxActiveVolume;
+                engineActiveSource.volume = Mathf.Lerp(engineActiveSource.volume, targetActiveVol, Time.deltaTime * engineLerpSpeed);
+
+                float targetPitch = 1.0f + (movementIntensity * (activePitchMultiplier - 1.0f));
+                engineActiveSource.pitch = Mathf.Lerp(engineActiveSource.pitch, targetPitch, Time.deltaTime * engineLerpSpeed);
+            }
+        }
+        else
+        {
+            // Engine is off (alarms are on), fade everything to zero
+            if (engineIdleSource) engineIdleSource.volume = Mathf.Lerp(engineIdleSource.volume, 0f, Time.deltaTime * engineLerpSpeed * 2f);
+            if (engineActiveSource) engineActiveSource.volume = Mathf.Lerp(engineActiveSource.volume, 0f, Time.deltaTime * engineLerpSpeed * 2f);
+        }
     }
 
     void FixedUpdate()
@@ -100,9 +148,15 @@ public class VehicleController : MonoBehaviour
         else
             currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, deceleration * Time.fixedDeltaTime);
 
-        Vector3 checkExtents = radarHalfExtents * 0.98f;
+        float targetTurnRate = isMovementLocked ? 0f : currentTurnInput * turnSpeed;
 
-        float turnAmount = currentTurnInput * turnSpeed * Time.fixedDeltaTime;
+        if (Mathf.Abs(targetTurnRate) > 0.1f)
+            currentTurnRate = Mathf.MoveTowards(currentTurnRate, targetTurnRate, turnAcceleration * Time.fixedDeltaTime);
+        else
+            currentTurnRate = Mathf.MoveTowards(currentTurnRate, 0f, turnDeceleration * Time.fixedDeltaTime);
+
+        Vector3 checkExtents = radarHalfExtents * 0.98f;
+        float turnAmount = currentTurnRate * Time.fixedDeltaTime;
         bool canRotate = true;
 
         if (Mathf.Abs(turnAmount) > 0.01f)
@@ -128,13 +182,5 @@ public class VehicleController : MonoBehaviour
 
         Vector3 newPosition = rb.position + (transform.forward * currentSpeed * Time.fixedDeltaTime);
         rb.MovePosition(newPosition);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = new Color(1, 0, 0, 0.3f);
-        Vector3 radarCenter = transform.position + transform.TransformDirection(radarOffset);
-        Gizmos.matrix = Matrix4x4.TRS(radarCenter, transform.rotation, Vector3.one);
-        Gizmos.DrawCube(Vector3.zero, radarHalfExtents * 2f);
     }
 }
