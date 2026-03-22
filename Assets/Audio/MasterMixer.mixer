@@ -92,7 +92,7 @@ AudioMixerController:
     - 77b9d5d1623a5874c9cda598ec28d8c1
     name: View
   m_CurrentViewIndex: 0
-  m_TargetSnapshot: {fileID: 3766398300378165255}
+  m_TargetSnapshot: {fileID: 24500006}
 --- !u!243 &24300002
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
@@ -202,7 +202,10 @@ AudioMixerSnapshotController:
   m_Name: DeafeningSilence
   m_AudioMixer: {fileID: 24100000}
   m_SnapshotID: 7a207929de8c0ed48a00b21e193228ed
-  m_FloatValues: {}
+  m_FloatValues:
+    1767ffc7fba032a409ea2ea15514924b: -80
+    08edb2db8dfd8e44c886d90ba85e99d8: -80
+    7c467afc18d6c7841a4bb488061afd7a: -80
   m_TransitionOverrides: {}
 --- !u!244 &7464807420043158444
 AudioMixerEffectController:
