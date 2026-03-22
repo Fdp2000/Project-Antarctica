@@ -26,6 +26,7 @@ public class MonsterDirector : MonoBehaviour
 
     [Header("Monster Physical Spawning")]
     public Transform monsterTransform;
+    public Animator monsterAnimator; // <--- NEW: The Animation Bridge
     public Transform rampEntryTarget;
     public float spawnRadius = 25f;
     public Vector2 spawnAngleClamp = new Vector2(-45f, 45f);
@@ -107,8 +108,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Approach:
                 if (isMinigameComplete)
                 {
-                    stateTimer += Time.deltaTime;
-                    if (stateTimer >= currentMaxApproachTime) TransitionToState(EncounterState.Idle);
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
                 }
                 else
                 {
@@ -130,8 +130,7 @@ public class MonsterDirector : MonoBehaviour
 
                 if (isMinigameComplete)
                 {
-                    stateTimer += Time.deltaTime;
-                    if (stateTimer >= currentMaxSilenceTime) TransitionToState(EncounterState.Approach, true);
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
                 }
                 else
                 {
@@ -149,17 +148,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Strike:
                 if (isMinigameComplete)
                 {
-                    stateTimer += Time.deltaTime;
-
-                    if (monsterTransform != null)
-                    {
-                        monsterTransform.position -= monsterTransform.forward * currentSprintSpeed * Time.deltaTime;
-                    }
-
-                    if (stateTimer >= currentDifficulty.strikeDuration)
-                    {
-                        TransitionToState(EncounterState.Silence, true);
-                    }
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
                 }
                 else
                 {
@@ -176,7 +165,12 @@ public class MonsterDirector : MonoBehaviour
 
                     if (stateTimer <= 0)
                     {
-                        if (winchController != null && winchController.CurrentAngle > clutchCutoffAngle)
+                        // --- THE FIX: Check if it's fully closed FIRST! ---
+                        if (winchController != null && winchController.IsDoorClosed)
+                        {
+                            TransitionToState(EncounterState.Siege);
+                        }
+                        else if (winchController != null && winchController.CurrentAngle > clutchCutoffAngle)
                         {
                             TransitionToState(EncounterState.ClutchStruggle);
                         }
@@ -189,7 +183,11 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.Siege:
-                if (winchController != null && winchController.CurrentAngle < winchController.closedAngle - 5f)
+                if (isMinigameComplete)
+                {
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
+                }
+                else if (winchController != null && winchController.CurrentAngle < winchController.closedAngle - 5f)
                 {
                     Debug.Log("<color=red>MONSTER: SIEGE BREACHED! Player opened the door!</color>");
                     TransitionToState(EncounterState.Strike);
@@ -215,7 +213,6 @@ public class MonsterDirector : MonoBehaviour
                 break;
         }
     }
-
     public void TransitionToState(EncounterState newState, bool isReversing = false)
     {
         EncounterState previousState = currentState;
@@ -228,6 +225,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Idle:
                 isEncounterActive = false;
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false); // <--- NEW: Reset Animation
                 playerReactionTime = -1f;
                 reactionStopwatch = 0f;
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
@@ -238,6 +236,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.GracePeriod:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false); // <--- NEW: Reset Animation
                 playerReactionTime = -1f;
                 reactionStopwatch = 0f;
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
@@ -333,13 +332,17 @@ public class MonsterDirector : MonoBehaviour
                 currentMaxRetreatTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.retreatDuration);
                 stateTimer = currentMaxRetreatTime;
 
+                // --- VISUAL HOOK: Make the physical body vanish if banished mid-sprint ---
+                if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false); // <--- NEW: Reset Animation
+
                 // --- AUDIO HOOK: Turn the static back on to signify it leaving ---
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
                 if (radioAudio != null)
                 {
                     radioAudio.isMonsterApproaching = true;
-                    radioAudio.isMonsterRetreating = true; // <--- NEW: Force true during retreat
-                    radioAudio.approachProgress = 1f; // Start at max intensity, fade out in Update
+                    radioAudio.isMonsterRetreating = true;
+                    radioAudio.approachProgress = 1f;
                 }
                 break;
         }

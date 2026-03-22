@@ -134,20 +134,21 @@ public class ScienceStationManager : MonoBehaviour
         if (pLight != null) pLight.enabled = isOn;
     }
     // --- NEW: Resets the station completely if the player dies ---
-public void ResetStation()
+    public void ResetStation()
     {
         isMinigameActive = false;
 
         // Pass 'false' so it doesn't play a sound during the death/respawn fade
-        if (crtWaveController != null) crtWaveController.TurnOffMachine(false); 
-        if (cassetteReceiver != null) cassetteReceiver.ConsumeTape(); 
+        if (crtWaveController != null) crtWaveController.TurnOffMachine(false);
+        if (cassetteReceiver != null) cassetteReceiver.ConsumeTape();
 
         SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
         SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
 
-        if (winchController != null && winchController.IsDoorOpen)
+        // --- THE FIX: Close the door quietly on respawn ---
+        if (winchController != null && !winchController.IsDoorClosed)
         {
-            winchController.ForceSlamShut();
+            winchController.ForceSlamShut(false);
         }
 
         Debug.Log("<color=cyan>SCIENCE STATION RESET FOR NEXT ATTEMPT.</color>");

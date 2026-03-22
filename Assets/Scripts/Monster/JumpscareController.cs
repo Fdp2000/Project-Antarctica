@@ -7,6 +7,7 @@ public class JumpscareController : MonoBehaviour
     public Transform playerCamera;
     public Camera playerCameraLens;
     public MonoBehaviour fpsController;
+    public Animator monsterAnimator; // <--- NEW: The Animation Bridge
     public float cameraSnapDuration = 0.15f;
     public float ambushBreachDuration = 0.25f;
     public float monsterLeapDuration = 0.3f;
@@ -35,6 +36,9 @@ public class JumpscareController : MonoBehaviour
 
     public void ExecuteJumpscare(MonsterDirector.StrikeType strikeType, Transform monsterTransform, Transform rampEntryTarget)
     {
+        // --- NEW: Trigger the Leap animation the millisecond the jumpscare starts! ---
+        if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", true);
+
         StartCoroutine(JumpscareRoutine(strikeType, monsterTransform, rampEntryTarget));
     }
 

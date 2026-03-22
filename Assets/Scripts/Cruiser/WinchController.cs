@@ -232,9 +232,9 @@ public class WinchController : MonoBehaviour
         }
     }
 
-    public void ForceSlamShut()
+    public void ForceSlamShut(bool playSound = true)
     {
-        if (!isSlamming) StartCoroutine(DoorSlamAndLockRoutine());
+        if (!isSlamming) StartCoroutine(DoorSlamAndLockRoutine(playSound));
     }
 
     private void SyncMechanics()
@@ -250,7 +250,7 @@ public class WinchController : MonoBehaviour
         }
     }
 
-    private IEnumerator DoorSlamAndLockRoutine()
+    private IEnumerator DoorSlamAndLockRoutine(bool playSound = true)
     {
         isSlamming = true;
         float elapsed = 0f;
@@ -280,8 +280,8 @@ public class WinchController : MonoBehaviour
         Debug.Log("DOOR SLAMMED SHUT & LOCKED!");
         OnDoorFullyClosed?.Invoke();
 
-        // --- AUDIO: DOOR SLAM SHUT ---
-        if (impactSource != null && doorSlamShut != null)
+        // --- AUDIO: DOOR SLAM SHUT (Now with a mute option!) ---
+        if (playSound && impactSource != null && doorSlamShut != null)
         {
             impactSource.PlayOneShot(doorSlamShut);
         }
@@ -290,7 +290,6 @@ public class WinchController : MonoBehaviour
         isSlamming = false;
         isStruggling = false;
     }
-
     public void SetStruggleAngle(float forcedAngle)
     {
         currentAngle = Mathf.Clamp(forcedAngle, openAngle, closedAngle);
