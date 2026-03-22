@@ -35,7 +35,12 @@ public class WinchController : MonoBehaviour
 
     [Header("Clutch State")]
     [Tooltip("If true, normal closing physics are suspended for the tug-of-war.")]
-    public bool isStruggling = false; // <--- NEW
+    public bool isStruggling = false;
+
+    [Header("Environment Forces (Wind Slam)")]
+    public bool isPlayerInside = true;
+    public float autoOpenOutsideTimer = 4.0f;
+    private float currentOutsideTime = 0f;
 
     private float currentAngle;
     private float currentDynamicCloseSpeed;
@@ -43,10 +48,12 @@ public class WinchController : MonoBehaviour
     private float currentCloseCooldown = 0f;
     private float currentOpenCooldown = 0f;
 
-    private bool isBeingHeldThisFrame = false;
     private bool isAutoOpening = false;
     private bool isSlamming = false;
-    public bool IsBeingHeld => isBeingHeldThisFrame;
+
+    // --- THE FIX: Restored the bulletproof input timer ---
+    private float timeSinceLastInteract = 100f;
+    public bool IsBeingHeld => timeSinceLastInteract <= 0.15f;
 
     private Quaternion baseValveRotation;
     private float currentValveSpin = 0f;
@@ -71,10 +78,36 @@ public class WinchController : MonoBehaviour
 
     void Update()
     {
+        // Tick our input timer up every frame
+        timeSinceLastInteract += Time.deltaTime;
+
         if (currentCloseCooldown > 0f) currentCloseCooldown -= Time.deltaTime;
         if (currentOpenCooldown > 0f) currentOpenCooldown -= Time.deltaTime;
 
-        if (!isBeingHeldThisFrame && !isSlamming)
+        if (!isPlayerInside && !IsDoorOpen && !isSlamming && !isStruggling && !isAutoOpening)
+        {
+            if (!IsBeingHeld)
+            {
+                currentOutsideTime += Time.deltaTime;
+                if (currentOutsideTime >= autoOpenOutsideTimer)
+                {
+                    isAutoOpening = true;
+                    currentOutsideTime = 0f;
+                    Debug.Log("<color=orange>ENVIRONMENT: Wind slammed the unattended door open!</color>");
+                }
+            }
+            else
+            {
+                currentOutsideTime = 0f;
+            }
+        }
+        else
+        {
+            currentOutsideTime = 0f;
+        }
+
+        // Use the robust property here
+        if (!IsBeingHeld && !isSlamming)
         {
             currentOpenHold = 0f;
             currentDynamicCloseSpeed = closeSpeedMin;
@@ -92,21 +125,18 @@ public class WinchController : MonoBehaviour
                 currentCloseCooldown = closeCooldownTime;
 
                 SyncMechanics();
-
                 Debug.Log("DOOR SLAMMED OPEN!");
                 OnDoorFullyOpened?.Invoke();
             }
         }
-
-        isBeingHeldThisFrame = false;
     }
 
     public void InteractWinch()
     {
         if (doorHinge == null || isAutoOpening || isSlamming) return;
 
-        // We MUST record that the player is clicking, regardless of struggle state!
-        isBeingHeldThisFrame = true;
+        // --- THE FIX: Lock the timer to 0 every time the player clicks ---
+        timeSinceLastInteract = 0f;
 
         if (IsDoorClosed)
         {
@@ -123,12 +153,9 @@ public class WinchController : MonoBehaviour
         else
         {
             if (currentCloseCooldown > 0f) return;
-
-            // --- THE FIX: Suspend normal physics BEFORE the threshold check ---
             if (isStruggling) return;
 
             bool wasFullyOpenBeforeFrame = IsDoorOpen;
-            bool wasClosedBeforeFrame = IsDoorClosed;
 
             float totalTravel = Mathf.Abs(openAngle - closedAngle);
             float remainingTravel = Mathf.Abs(currentAngle - closedAngle);
@@ -151,7 +178,7 @@ public class WinchController : MonoBehaviour
             }
         }
     }
-    // --- NEW: Exposed method for the Clutch Win ---
+
     public void ForceSlamShut()
     {
         if (!isSlamming)
@@ -213,9 +240,9 @@ public class WinchController : MonoBehaviour
 
         currentOpenCooldown = openCooldownTime;
         isSlamming = false;
-        isStruggling = false; // Reset struggle state if it was active
+        isStruggling = false;
     }
-    // --- NEW: Lets the ClutchController physically override the door during the tug-of-war ---
+
     public void SetStruggleAngle(float forcedAngle)
     {
         currentAngle = Mathf.Clamp(forcedAngle, openAngle, closedAngle);

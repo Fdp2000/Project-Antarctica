@@ -20,9 +20,13 @@ public class SimpleFPSController : MonoBehaviour
     public LayerMask obstacleLayers = Physics.DefaultRaycastLayers;
     public float crouchTransitionSpeed = 10f;
 
-    [Header("Interaction")]
+    [Header("Interaction Ranges")]
     public float interactRange = 3.0f;
     public float cassettePickupRange = 2.0f;
+    [Tooltip("A wider range specifically for the door so it's easier to hold during a jittery struggle.")]
+    public float winchInteractRange = 4.0f; // <--- NEW: Dedicated Winch Range
+
+    [Header("Interaction Settings")]
     public KeyCode interactKey = KeyCode.E;
     public Image crosshairDot;
     public LayerMask interactionMask = ~0;
@@ -122,14 +126,16 @@ public class SimpleFPSController : MonoBehaviour
 
     private void HandleInteractions()
     {
+        // Compute the maximum distance required across all our interactable types
+        float maxRayRange = Mathf.Max(interactRange, Mathf.Max(cassettePickupRange, winchInteractRange));
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        float maxRayRange = Mathf.Max(interactRange, cassettePickupRange);
 
         if (Physics.Raycast(ray, out RaycastHit hit, maxRayRange, interactionMask))
         {
             GameObject target = hit.collider.gameObject;
             float distanceToTarget = hit.distance;
 
+            // 1. Tapes
             var cassette = target.GetComponent<CassetteInteractable>();
             if (cassette != null)
             {
@@ -142,6 +148,7 @@ public class SimpleFPSController : MonoBehaviour
                 return;
             }
 
+            // 2. Punchcards
             var punchcard = target.GetComponent<PunchcardInteractable>();
             if (punchcard != null)
             {
@@ -154,15 +161,25 @@ public class SimpleFPSController : MonoBehaviour
                 return;
             }
 
+            // --- THE FIX: Custom handling for the Winch ---
+            if (target.CompareTag("Winch"))
+            {
+                if (distanceToTarget <= winchInteractRange)
+                {
+                    HighlightObject(target);
+                    if (Input.GetKey(interactKey) || Input.GetMouseButton(0))
+                    {
+                        target.GetComponent<WinchController>()?.InteractWinch();
+                    }
+                }
+                else { ClearHighlight(); }
+                return; // Stop processing other interactions
+            }
+
+            // 4. Standard range interactions (Knobs, Seats, Receivers)
             if (distanceToTarget <= interactRange)
             {
                 HighlightObject(target);
-
-                if (Input.GetKey(interactKey) || Input.GetMouseButton(0))
-                {
-                    if (target.CompareTag("Winch")) target.GetComponent<WinchController>()?.InteractWinch();
-                }
-
                 bool startInteraction = Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0);
 
                 if (startInteraction)
@@ -247,12 +264,10 @@ public class SimpleFPSController : MonoBehaviour
         Destroy(tape.gameObject);
     }
 
-    // --- UPDATED: PUNCHCARD LOGIC ---
     private void PickUpPunchcard(PunchcardInteractable card)
     {
         if (card.waveController != null) card.waveController.NotifyPunchcardCollected();
 
-        // Find the receiver and consume the tape to unlock the car and alarm!
         CassetteReceiver receiver = FindObjectOfType<CassetteReceiver>();
         if (receiver != null) receiver.ConsumeTape();
 
