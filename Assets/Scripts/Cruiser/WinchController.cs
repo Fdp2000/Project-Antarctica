@@ -9,6 +9,23 @@ public class WinchController : MonoBehaviour
     public event Action OnDoorFullyClosed;
     public event Action OnDoorStartedClosing;
 
+    [Header("Audio System (Sources)")]
+    [Tooltip("Attach an AudioSource here for the looping ratchet sounds.")]
+    public AudioSource loopSource;
+    [Tooltip("Attach a second AudioSource here for the explosive one-shot impacts.")]
+    public AudioSource impactSource;
+
+    [Header("Audio System (Clips)")]
+    public AudioClip winchLoopNormal;
+    public AudioClip doorSwingSound;
+    public AudioClip doorSlamShut;
+    public AudioClip doorSnowImpact;
+
+    [Header("Audio Tuning")]
+    public float maxPitch = 1.3f;
+    public float minPitch = 0.8f;
+    public float audioFadeSpeed = 8f;
+
     [Header("Door Settings")]
     public Transform doorHinge;
     public float openAngle = -211f;
@@ -34,7 +51,6 @@ public class WinchController : MonoBehaviour
     public float openCooldownTime = 2.0f;
 
     [Header("Clutch State")]
-    [Tooltip("If true, normal closing physics are suspended for the tug-of-war.")]
     public bool isStruggling = false;
 
     [Header("Environment Forces (Wind Slam)")]
@@ -51,7 +67,6 @@ public class WinchController : MonoBehaviour
     private bool isAutoOpening = false;
     private bool isSlamming = false;
 
-    // --- THE FIX: Restored the bulletproof input timer ---
     private float timeSinceLastInteract = 100f;
     public bool IsBeingHeld => timeSinceLastInteract <= 0.15f;
 
@@ -78,7 +93,6 @@ public class WinchController : MonoBehaviour
 
     void Update()
     {
-        // Tick our input timer up every frame
         timeSinceLastInteract += Time.deltaTime;
 
         if (currentCloseCooldown > 0f) currentCloseCooldown -= Time.deltaTime;
@@ -96,17 +110,10 @@ public class WinchController : MonoBehaviour
                     Debug.Log("<color=orange>ENVIRONMENT: Wind slammed the unattended door open!</color>");
                 }
             }
-            else
-            {
-                currentOutsideTime = 0f;
-            }
+            else currentOutsideTime = 0f;
         }
-        else
-        {
-            currentOutsideTime = 0f;
-        }
+        else currentOutsideTime = 0f;
 
-        // Use the robust property here
         if (!IsBeingHeld && !isSlamming)
         {
             currentOpenHold = 0f;
@@ -123,27 +130,78 @@ public class WinchController : MonoBehaviour
                 currentAngle = openAngle;
                 isAutoOpening = false;
                 currentCloseCooldown = closeCooldownTime;
-
                 SyncMechanics();
                 Debug.Log("DOOR SLAMMED OPEN!");
                 OnDoorFullyOpened?.Invoke();
+
+                // --- AUDIO: SNOW IMPACT ---
+                if (impactSource != null && doorSnowImpact != null)
+                {
+                    impactSource.PlayOneShot(doorSnowImpact);
+                }
             }
+        }
+
+        UpdateAudio();
+    }
+
+    private void UpdateAudio()
+    {
+        if (loopSource == null) return;
+
+        if (isStruggling)
+        {
+            // The Clutch Controller handles the terrifying clip during struggle, 
+            // we just make sure the volume stays at 100% while it fights.
+            loopSource.volume = Mathf.Lerp(loopSource.volume, 1f, Time.deltaTime * audioFadeSpeed);
+            return;
+        }
+
+        if (isSlamming)
+        {
+            loopSource.volume = Mathf.Lerp(loopSource.volume, 0f, Time.deltaTime * 15f);
+            return;
+        }
+
+        if (isAutoOpening)
+        {
+            if (loopSource.clip != doorSwingSound)
+            {
+                loopSource.clip = doorSwingSound;
+                loopSource.Play();
+            }
+            loopSource.volume = Mathf.Lerp(loopSource.volume, 1f, Time.deltaTime * audioFadeSpeed);
+            loopSource.pitch = 1f;
+        }
+        else if (IsBeingHeld && !IsDoorClosed)
+        {
+            if (loopSource.clip != winchLoopNormal)
+            {
+                loopSource.clip = winchLoopNormal;
+                loopSource.Play();
+            }
+            loopSource.volume = Mathf.Lerp(loopSource.volume, 1f, Time.deltaTime * audioFadeSpeed);
+
+            // Dynamically pitch the sound up as the door closes faster
+            float speedPercent = Mathf.InverseLerp(closeSpeedMin, closeSpeedMax, currentDynamicCloseSpeed);
+            loopSource.pitch = Mathf.Lerp(minPitch, maxPitch, speedPercent);
+        }
+        else
+        {
+            // Player let go, slowly fade the ratchet out rather than cutting it instantly
+            loopSource.volume = Mathf.Lerp(loopSource.volume, 0f, Time.deltaTime * audioFadeSpeed);
         }
     }
 
     public void InteractWinch()
     {
         if (doorHinge == null || isAutoOpening || isSlamming) return;
-
-        // --- THE FIX: Lock the timer to 0 every time the player clicks ---
         timeSinceLastInteract = 0f;
 
         if (IsDoorClosed)
         {
             if (currentOpenCooldown > 0f) return;
-
             currentOpenHold += Time.deltaTime;
-
             if (currentOpenHold >= openHoldTime)
             {
                 isAutoOpening = true;
@@ -156,7 +214,6 @@ public class WinchController : MonoBehaviour
             if (isStruggling) return;
 
             bool wasFullyOpenBeforeFrame = IsDoorOpen;
-
             float totalTravel = Mathf.Abs(openAngle - closedAngle);
             float remainingTravel = Mathf.Abs(currentAngle - closedAngle);
             float percentLeft = remainingTravel / totalTravel;
@@ -169,39 +226,26 @@ public class WinchController : MonoBehaviour
 
             currentDynamicCloseSpeed = Mathf.MoveTowards(currentDynamicCloseSpeed, closeSpeedMax, closeAcceleration * Time.deltaTime);
             currentAngle = Mathf.MoveTowards(currentAngle, closedAngle, currentDynamicCloseSpeed * Time.deltaTime);
-
             SyncMechanics();
 
-            if (wasFullyOpenBeforeFrame && !IsDoorOpen)
-            {
-                OnDoorStartedClosing?.Invoke();
-            }
+            if (wasFullyOpenBeforeFrame && !IsDoorOpen) OnDoorStartedClosing?.Invoke();
         }
     }
 
     public void ForceSlamShut()
     {
-        if (!isSlamming)
-        {
-            StartCoroutine(DoorSlamAndLockRoutine());
-        }
+        if (!isSlamming) StartCoroutine(DoorSlamAndLockRoutine());
     }
 
     private void SyncMechanics()
     {
-        if (doorHinge != null)
-        {
-            doorHinge.localRotation = Quaternion.Euler(currentAngle, 0, 0);
-        }
-
+        if (doorHinge != null) doorHinge.localRotation = Quaternion.Euler(currentAngle, 0, 0);
         if (valveMesh != null)
         {
             float totalTargetSpin = valveFullSpins * 360f;
             float baseCloseSpin = totalTargetSpin - valveLockAngle;
-
             float t = Mathf.InverseLerp(openAngle, closedAngle, currentAngle);
             currentValveSpin = Mathf.Lerp(0f, baseCloseSpin, t);
-
             valveMesh.localRotation = baseValveRotation * Quaternion.AngleAxis(currentValveSpin, valveRotationAxis);
         }
     }
@@ -210,7 +254,6 @@ public class WinchController : MonoBehaviour
     {
         isSlamming = true;
         float elapsed = 0f;
-
         float startDoorAngle = currentAngle;
         float startValveSpin = currentValveSpin;
         float targetValveSpin = valveFullSpins * 360f;
@@ -219,7 +262,6 @@ public class WinchController : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float percent = elapsed / slamDuration;
-
             float curve = Mathf.Sin(percent * Mathf.PI * 0.5f);
 
             currentAngle = Mathf.Lerp(startDoorAngle, closedAngle, curve);
@@ -237,6 +279,12 @@ public class WinchController : MonoBehaviour
 
         Debug.Log("DOOR SLAMMED SHUT & LOCKED!");
         OnDoorFullyClosed?.Invoke();
+
+        // --- AUDIO: DOOR SLAM SHUT ---
+        if (impactSource != null && doorSlamShut != null)
+        {
+            impactSource.PlayOneShot(doorSlamShut);
+        }
 
         currentOpenCooldown = openCooldownTime;
         isSlamming = false;
