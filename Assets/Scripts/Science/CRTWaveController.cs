@@ -12,8 +12,19 @@ public class CRTWaveController : MonoBehaviour
     public AudioClip crtLoopSound;
     public AudioClip crtTurnOffSound;
 
+    [Header("Audio System (Minigame Events)")]
+    public AudioClip ledCompleteSound;
+    [Range(0f, 1f)] public float ledCompleteVolume = 1.0f;
+    [Tooltip("Minimum pitch for the LED complete sound to prevent repetitive audio.")]
+    [Range(0.5f, 1.5f)] public float ledMinPitch = 0.9f; // <--- NEW: Pitch Variance Min
+    [Tooltip("Maximum pitch for the LED complete sound.")]
+    [Range(0.5f, 1.5f)] public float ledMaxPitch = 1.15f; // <--- NEW: Pitch Variance Max
+
+    public AudioClip punchcardSpawnSound;
+    [Range(0f, 1f)] public float punchcardSpawnVolume = 1.0f;
+
     [Tooltip("Control how loud the constant CRT hum is.")]
-    [Range(0f, 1f)] public float crtLoopVolume = 0.5f; // <--- NEW: Volume Slider
+    [Range(0f, 1f)] public float crtLoopVolume = 0.5f;
 
     [Header("Line Renderers")]
     public LineRenderer targetLine;
@@ -76,6 +87,8 @@ public class CRTWaveController : MonoBehaviour
     private float timer = 0f;
     private float lerpTimer = 0f;
 
+    private int completedLEDCount = 0;
+
     void Start()
     {
         if (targetLine) targetLine.positionCount = numPoints;
@@ -97,7 +110,7 @@ public class CRTWaveController : MonoBehaviour
 
     void Update()
     {
-        if (currentProfile == null) return; // Wait until turned on!
+        if (currentProfile == null) return;
 
         timer += Time.deltaTime;
 
@@ -123,6 +136,7 @@ public class CRTWaveController : MonoBehaviour
 
         CheckSync();
     }
+
     void DrawWave(LineRenderer lr, float amp, float freq, float phase)
     {
         float timeOffset = Time.time * runSpeed;
@@ -201,6 +215,14 @@ public class CRTWaveController : MonoBehaviour
             isMinigameComplete = true;
             Debug.Log("<color=green>SCIENCE MINIGAME COMPLETED!</color>");
 
+            // --- THE FIX: Reset pitch to exactly 1.0 before playing the punchcard sound ---
+            if (crtOneShotSource != null) crtOneShotSource.pitch = 1f;
+
+            if (crtOneShotSource != null && punchcardSpawnSound != null)
+            {
+                crtOneShotSource.PlayOneShot(punchcardSpawnSound, punchcardSpawnVolume);
+            }
+
             if (punchcardPrefab != null && punchcardSpawnPoint != null)
             {
                 GameObject spawnedCard = Instantiate(punchcardPrefab, punchcardSpawnPoint);
@@ -236,6 +258,7 @@ public class CRTWaveController : MonoBehaviour
         if (progressLEDs == null || progressLEDs.Length == 0) return;
 
         float timePerLED = timeToComplete / progressLEDs.Length;
+        int ledsDoneThisFrame = 0;
 
         for (int i = 0; i < progressLEDs.Length; i++)
         {
@@ -250,6 +273,7 @@ public class CRTWaveController : MonoBehaviour
             {
                 if (progressLEDs[i] != null) progressLEDs[i].material = lightOnMaterial;
                 if (currentLight != null) currentLight.intensity = maxProgressLightIntensity;
+                ledsDoneThisFrame++;
             }
             else if (currentProgress > startThreshold && currentProgress < endThreshold)
             {
@@ -267,9 +291,19 @@ public class CRTWaveController : MonoBehaviour
                 if (currentLight != null) currentLight.intensity = 0f;
             }
         }
+
+        // --- NEW: Randomize the pitch right before the LED sound plays ---
+        if (ledsDoneThisFrame > completedLEDCount)
+        {
+            if (crtOneShotSource != null && ledCompleteSound != null)
+            {
+                crtOneShotSource.pitch = Random.Range(ledMinPitch, ledMaxPitch);
+                crtOneShotSource.PlayOneShot(ledCompleteSound, ledCompleteVolume);
+            }
+            completedLEDCount = ledsDoneThisFrame;
+        }
     }
 
-    // --- AUDIO HOOK ADDED HERE ---
     public void TurnOffMachine(bool playSound = true)
     {
         bool wasOn = this.enabled;
@@ -289,11 +323,14 @@ public class CRTWaveController : MonoBehaviour
         if (wasOn && playSound)
         {
             if (crtLoopSource != null) crtLoopSource.Stop();
+
+            // --- THE FIX: Reset pitch to exactly 1.0 before playing the turn-off sound ---
+            if (crtOneShotSource != null) crtOneShotSource.pitch = 1f;
+
             if (crtOneShotSource != null && crtTurnOffSound != null) crtOneShotSource.PlayOneShot(crtTurnOffSound);
         }
     }
 
-    // --- AUDIO HOOK ADDED HERE ---
     public void TurnOnMachine(RadioBeacon sourceBeacon, DifficultyProfile profile)
     {
         bool wasOff = !this.enabled;
@@ -304,6 +341,7 @@ public class CRTWaveController : MonoBehaviour
             currentProgress = 0f;
             completionTimeExtension = 0f;
             isMinigameComplete = false;
+            completedLEDCount = 0;
 
             if (currentProfile != null)
             {
@@ -329,14 +367,14 @@ public class CRTWaveController : MonoBehaviour
 
         if (wasOff)
         {
+            // --- THE FIX: Reset pitch to exactly 1.0 before playing the turn-on sound ---
+            if (crtOneShotSource != null) crtOneShotSource.pitch = 1f;
             if (crtOneShotSource != null && crtTurnOnSound != null) crtOneShotSource.PlayOneShot(crtTurnOnSound);
 
             if (crtLoopSource != null && crtLoopSound != null)
             {
                 crtLoopSource.clip = crtLoopSound;
                 crtLoopSource.loop = true;
-
-                // --- NEW: Apply the Inspector volume here! ---
                 crtLoopSource.volume = crtLoopVolume;
 
                 if (!crtLoopSource.isPlaying) crtLoopSource.Play();
@@ -346,7 +384,7 @@ public class CRTWaveController : MonoBehaviour
 
     public void NotifyPunchcardCollected()
     {
-        TurnOffMachine(true); // Play the shut down sound!
+        TurnOffMachine(true);
         if (linkedBeacon != null)
         {
             linkedBeacon.isCompleted = true;
