@@ -29,7 +29,8 @@ public class ScienceStationManager : MonoBehaviour
         SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
         SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
 
-        if (crtWaveController != null) crtWaveController.TurnOffMachine();
+        // Pass 'false' so it doesn't play a sound when the game starts
+        if (crtWaveController != null) crtWaveController.TurnOffMachine(false);
 
         if (cassetteReceiver != null)
             cassetteReceiver.OnCassetteInserted += HandleCassetteInserted;
@@ -56,7 +57,6 @@ public class ScienceStationManager : MonoBehaviour
 
     void HandleDoorStartedClosing()
     {
-        // --- THE FIX: Only ignore the door closing if the CURRENT tape is the one that finished ---
         if (crtWaveController != null && crtWaveController.isMinigameComplete)
         {
             if (cassetteReceiver != null && cassetteReceiver.currentlyInsertedBeacon == crtWaveController.linkedBeacon)
@@ -69,21 +69,20 @@ public class ScienceStationManager : MonoBehaviour
         {
             Debug.Log("<color=red>SIGNAL BLOCKED: Door closed while tape is present!</color>");
 
-            // --- THE PENALTY TRIGGER ---
             if (isMinigameActive && crtWaveController != null)
             {
                 crtWaveController.ApplyInterruptionPenalty();
             }
 
             isMinigameActive = false;
-            if (crtWaveController != null) crtWaveController.TurnOffMachine();
 
-            // Switch to Alert State immediately
+            // Pass 'true' because we actively want to hear it fail and turn off!
+            if (crtWaveController != null) crtWaveController.TurnOffMachine(true);
+
             SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
             SetLightState(redBulbRenderer, redPointLight, redOnMaterial, true);
         }
     }
-
     void TryBootMachine()
     {
         if (isMinigameActive) return;
@@ -135,18 +134,17 @@ public class ScienceStationManager : MonoBehaviour
         if (pLight != null) pLight.enabled = isOn;
     }
     // --- NEW: Resets the station completely if the player dies ---
-    public void ResetStation()
+public void ResetStation()
     {
         isMinigameActive = false;
 
-        if (crtWaveController != null) crtWaveController.TurnOffMachine();
-        if (cassetteReceiver != null) cassetteReceiver.ConsumeTape(); // Ejects the tape internally
+        // Pass 'false' so it doesn't play a sound during the death/respawn fade
+        if (crtWaveController != null) crtWaveController.TurnOffMachine(false); 
+        if (cassetteReceiver != null) cassetteReceiver.ConsumeTape(); 
 
-        // Turn off all alarm lights
         SetLightState(greenBulbRenderer, greenPointLight, greenOffMaterial, false);
         SetLightState(redBulbRenderer, redPointLight, redOffMaterial, false);
 
-        // Force the door to close if they left it open
         if (winchController != null && winchController.IsDoorOpen)
         {
             winchController.ForceSlamShut();

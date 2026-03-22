@@ -5,6 +5,16 @@ public class CRTWaveController : MonoBehaviour
     [Header("Dependencies")]
     [HideInInspector] public RadioBeacon linkedBeacon;
 
+    [Header("Audio System (CRT)")]
+    public AudioSource crtLoopSource;
+    public AudioSource crtOneShotSource;
+    public AudioClip crtTurnOnSound;
+    public AudioClip crtLoopSound;
+    public AudioClip crtTurnOffSound;
+
+    [Tooltip("Control how loud the constant CRT hum is.")]
+    [Range(0f, 1f)] public float crtLoopVolume = 0.5f; // <--- NEW: Volume Slider
+
     [Header("Line Renderers")]
     public LineRenderer targetLine;
     public LineRenderer playerLine;
@@ -49,7 +59,7 @@ public class CRTWaveController : MonoBehaviour
     public bool isMinigameComplete = false;
 
     // Internal variables
-    private DifficultyProfile currentProfile; // <--- NEW: Stores the active profile
+    private DifficultyProfile currentProfile;
     private float currentDriftInterval;
     private float currentTargetAmplitude;
     private float currentTargetFrequency;
@@ -112,6 +122,18 @@ public class CRTWaveController : MonoBehaviour
         if (playerLine) DrawWave(playerLine, playerAmplitude, playerFrequency, playerPhase);
 
         CheckSync();
+    }
+    void DrawWave(LineRenderer lr, float amp, float freq, float phase)
+    {
+        float timeOffset = Time.time * runSpeed;
+        for (int i = 0; i < numPoints; i++)
+        {
+            float progress = (float)i / (numPoints - 1);
+            float xPos = (progress * waveWidth) - (waveWidth / 2f);
+            float yPos = amp * Mathf.Sin((freq * xPos * visualDensity) + phase + timeOffset);
+            float zOffset = (lr == playerLine) ? -0.01f : 0f;
+            lr.SetPosition(i, new Vector3(xPos, yPos, zOffset));
+        }
     }
 
     public void ApplyInterruptionPenalty()
@@ -247,22 +269,12 @@ public class CRTWaveController : MonoBehaviour
         }
     }
 
-    void DrawWave(LineRenderer lr, float amp, float freq, float phase)
+    // --- AUDIO HOOK ADDED HERE ---
+    public void TurnOffMachine(bool playSound = true)
     {
-        float timeOffset = Time.time * runSpeed;
-        for (int i = 0; i < numPoints; i++)
-        {
-            float progress = (float)i / (numPoints - 1);
-            float xPos = (progress * waveWidth) - (waveWidth / 2f);
-            float yPos = amp * Mathf.Sin((freq * xPos * visualDensity) + phase + timeOffset);
-            float zOffset = (lr == playerLine) ? -0.01f : 0f;
-            lr.SetPosition(i, new Vector3(xPos, yPos, zOffset));
-        }
-    }
-
-    public void TurnOffMachine()
-    {
+        bool wasOn = this.enabled;
         this.enabled = false;
+
         if (targetLine) targetLine.gameObject.SetActive(false);
         if (playerLine) playerLine.gameObject.SetActive(false);
         if (lightRenderer != null && lightOffMaterial != null) lightRenderer.material = lightOffMaterial;
@@ -273,11 +285,18 @@ public class CRTWaveController : MonoBehaviour
             if (progressLEDs[i] != null && lightOffMaterial != null) progressLEDs[i].material = lightOffMaterial;
             if (i < progressPointLights.Length && progressPointLights[i] != null) progressPointLights[i].intensity = 0f;
         }
+
+        if (wasOn && playSound)
+        {
+            if (crtLoopSource != null) crtLoopSource.Stop();
+            if (crtOneShotSource != null && crtTurnOffSound != null) crtOneShotSource.PlayOneShot(crtTurnOffSound);
+        }
     }
 
-    // --- UPDATED: Takes the Difficulty Profile as a parameter ---
+    // --- AUDIO HOOK ADDED HERE ---
     public void TurnOnMachine(RadioBeacon sourceBeacon, DifficultyProfile profile)
     {
+        bool wasOff = !this.enabled;
         currentProfile = profile;
 
         if (linkedBeacon != sourceBeacon)
@@ -286,7 +305,6 @@ public class CRTWaveController : MonoBehaviour
             completionTimeExtension = 0f;
             isMinigameComplete = false;
 
-            // Set up the new target base values based on the new profile
             if (currentProfile != null)
             {
                 currentTargetAmplitude = currentProfile.baseTargetAmplitude;
@@ -308,11 +326,27 @@ public class CRTWaveController : MonoBehaviour
         if (targetLine) targetLine.gameObject.SetActive(true);
         if (playerLine) playerLine.gameObject.SetActive(true);
         this.enabled = true;
+
+        if (wasOff)
+        {
+            if (crtOneShotSource != null && crtTurnOnSound != null) crtOneShotSource.PlayOneShot(crtTurnOnSound);
+
+            if (crtLoopSource != null && crtLoopSound != null)
+            {
+                crtLoopSource.clip = crtLoopSound;
+                crtLoopSource.loop = true;
+
+                // --- NEW: Apply the Inspector volume here! ---
+                crtLoopSource.volume = crtLoopVolume;
+
+                if (!crtLoopSource.isPlaying) crtLoopSource.Play();
+            }
+        }
     }
 
     public void NotifyPunchcardCollected()
     {
-        TurnOffMachine();
+        TurnOffMachine(true); // Play the shut down sound!
         if (linkedBeacon != null)
         {
             linkedBeacon.isCompleted = true;
