@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Level_1_Profile
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
   baseGracePeriod: 1
-  approachDuration: 99
-  silenceDuration: 99
+  approachDuration: 999
+  silenceDuration: 999
   strikeDuration: 1
   retreatDuration: 5
   phaseVariance: 0

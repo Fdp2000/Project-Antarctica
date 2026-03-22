@@ -14,6 +14,20 @@ public class RadioAudioController : MonoBehaviour
     public AnimationCurve staticVolumeCurve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(0.8f, 0.4f), new Keyframe(1f, 0.4f));
     public AnimationCurve staticCutoffCurve = new AnimationCurve(new Keyframe(0f, 4000f), new Keyframe(1f, 800f));
 
+    [Header("Monster Interference (Driven by Director)")]
+    public AudioClip distortedStaticClip;
+    public float maxMonsterVolume = 1.0f;
+    public float retreatMonsterVolume = 0.4f; // <--- NEW: Dedicated retreat volume
+    [Tooltip("How far the static can be heard when the monster is right outside.")]
+    public float maxMonsterDistance = 30f;
+
+    [HideInInspector] public bool isMonsterApproaching = false;
+    [HideInInspector] public bool isMonsterRetreating = false; // <--- NEW: Retreat toggle
+    [HideInInspector] public float approachProgress = 0f;
+
+    private AudioClip normalStaticClip;
+    private float normalMaxDistance;
+
     [Header("Broadcast Channel Components")]
     public AudioSource broadcastSource;
     public AudioLowPassFilter broadcastLowPass;
@@ -21,6 +35,16 @@ public class RadioAudioController : MonoBehaviour
     public AudioDistortionFilter broadcastDistortion;
     public AudioChorusFilter broadcastChorus;
     public AudioEchoFilter broadcastEcho;
+
+    void Start()
+    {
+        // Remember the default settings so we can return to them later
+        if (staticSource != null)
+        {
+            normalStaticClip = staticSource.clip;
+            normalMaxDistance = staticSource.maxDistance;
+        }
+    }
 
     void Update()
     {
@@ -31,11 +55,42 @@ public class RadioAudioController : MonoBehaviour
         // Ensure we are pointing to the Tuner's updated array winner
         RadioBeacon activeBeacon = tuner.activeBeacon;
 
-        // --- 1. THE STATIC (Always runs based on hardware) ---
+        // --- 1. THE STATIC (With Monster Hijack Logic) ---
         if (staticSource != null)
-            staticSource.volume = staticVolumeCurve.Evaluate(signal) * maxStaticVolume;
-        if (staticLowPass != null)
-            staticLowPass.cutoffFrequency = staticCutoffCurve.Evaluate(signal);
+        {
+            if (isMonsterApproaching && distortedStaticClip != null)
+            {
+                // Swap to terrifying static
+                if (staticSource.clip != distortedStaticClip)
+                {
+                    staticSource.clip = distortedStaticClip;
+                    staticSource.Play();
+                }
+
+                // Lerp volume and distance up as the monster approaches
+                float baseVolume = staticVolumeCurve.Evaluate(signal) * maxStaticVolume;
+
+                // --- NEW: Choose which volume ceiling to use ---
+                float currentTargetVol = isMonsterRetreating ? retreatMonsterVolume : maxMonsterVolume;
+
+                staticSource.volume = Mathf.Lerp(baseVolume, currentTargetVol, approachProgress);
+                staticSource.maxDistance = Mathf.Lerp(normalMaxDistance, maxMonsterDistance, approachProgress);
+            }
+            else
+            {
+                // Return to normal static
+                if (staticSource.clip != normalStaticClip && normalStaticClip != null)
+                {
+                    staticSource.clip = normalStaticClip;
+                    staticSource.Play();
+                }
+                staticSource.volume = staticVolumeCurve.Evaluate(signal) * maxStaticVolume;
+                staticSource.maxDistance = normalMaxDistance;
+            }
+
+            if (staticLowPass != null)
+                staticLowPass.cutoffFrequency = staticCutoffCurve.Evaluate(signal);
+        }
 
         // --- 2. NO BEACON FOUND ---
         if (activeBeacon == null)

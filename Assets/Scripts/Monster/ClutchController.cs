@@ -29,10 +29,12 @@ public class ClutchController : MonoBehaviour
     public int maxMistakes = 3;
     public float penaltyJerkAngle = 6f;
     public float inputForgivenessBuffer = 0.25f;
-
-    // --- NEW: Time between continuous strikes if the player never grabs the valve ---
-    [Tooltip("If the player continues to ignore the valve, how many seconds before they get another strike?")]
     public float recurringPenaltyInterval = 1.0f;
+
+    [Header("Audio (Struggle Sounds)")]
+    public AudioClip winchLoopStruggle;
+    public AudioClip penaltyJerk;
+    public AudioClip doorRipOpen;
 
     [Header("Live Debug")]
     public float lastReactionScore;
@@ -60,10 +62,6 @@ public class ClutchController : MonoBehaviour
 
         lastResultWon = lastPlayerTotal >= lastMonsterTotal;
 
-        Debug.Log($"Door Angle: {currentDoorAngle:F1}° | Angle Score: {lastAngleScore:F1}/100");
-        Debug.Log($"Reaction: {playerReactionTime:F2}s / {maxDangerTime:F2}s | Reaction Score: {lastReactionScore:F1}/100");
-        Debug.Log($"<color=white><b>PLAYER TOTAL: {lastPlayerTotal:F1}</b></color> vs <color=orange><b>MONSTER TOTAL: {lastMonsterTotal:F1} (Surge {surgeMultiplier:F2}x)</b></color>");
-
         StartCoroutine(ActiveStruggleRoutine(lastResultWon, currentDoorAngle));
     }
 
@@ -71,15 +69,19 @@ public class ClutchController : MonoBehaviour
     {
         if (winchController != null) winchController.isStruggling = true;
 
+        // --- AUDIO HOOK: Hijack the normal ratchet with the struggling metal loop ---
+        if (winchController != null && winchController.loopSource != null && winchLoopStruggle != null)
+        {
+            winchController.loopSource.clip = winchLoopStruggle;
+            winchController.loopSource.pitch = 1f; // Lock pitch so the squeal sounds natural
+            winchController.loopSource.Play();
+        }
+
         float struggleBaseAngle = startAngle;
         int currentMistakes = 0;
         float timeSinceHeld = 0f;
-
-        // --- NEW: Tracks when the next strike should happen ---
         float nextStrikeThreshold = inputForgivenessBuffer;
-
         bool monsterBreached = false;
-
         float falseHopeDuration = Random.Range(minLoseResistTime, maxLoseResistTime);
         float falseHopeTimer = 0f;
 
@@ -88,7 +90,6 @@ public class ClutchController : MonoBehaviour
             if (winchController != null && winchController.IsBeingHeld)
             {
                 timeSinceHeld = 0f;
-                // Reset the threshold when they successfully grab it
                 nextStrikeThreshold = inputForgivenessBuffer;
             }
             else
@@ -100,19 +101,27 @@ public class ClutchController : MonoBehaviour
 
             if (monsterBreached)
             {
-                float ripSpeed = (winchController != null) ? winchController.openSlamSpeed * 1.5f : 300f;
-                struggleBaseAngle = Mathf.MoveTowards(struggleBaseAngle, winchController.openAngle, ripSpeed * Time.deltaTime);
-
-                if (Mathf.Abs(struggleBaseAngle - winchController.openAngle) < 0.5f)
+                // --- AUDIO HOOK: Silence the struggle loop instantly, and trigger the explosive Rip Open! ---
+                if (winchController != null && winchController.impactSource != null && doorRipOpen != null)
                 {
-                    if (winchController != null) winchController.isStruggling = false;
-
-                    if (monsterDirector != null && monsterDirector.jumpscareController != null)
-                    {
-                        monsterDirector.jumpscareController.ExecuteJumpscare(MonsterDirector.StrikeType.PointBlank, monsterDirector.monsterTransform, monsterDirector.rampEntryTarget);
-                    }
-                    break;
+                    winchController.loopSource.Stop();
+                    winchController.impactSource.PlayOneShot(doorRipOpen);
                 }
+
+                float ripSpeed = (winchController != null) ? winchController.openSlamSpeed * 1.5f : 300f;
+                while (Mathf.Abs(struggleBaseAngle - winchController.openAngle) > 0.5f)
+                {
+                    struggleBaseAngle = Mathf.MoveTowards(struggleBaseAngle, winchController.openAngle, ripSpeed * Time.deltaTime);
+                    if (winchController != null) winchController.SetStruggleAngle(struggleBaseAngle);
+                    yield return null;
+                }
+
+                if (winchController != null) winchController.isStruggling = false;
+                if (monsterDirector != null && monsterDirector.jumpscareController != null)
+                {
+                    monsterDirector.jumpscareController.ExecuteJumpscare(MonsterDirector.StrikeType.PointBlank, monsterDirector.monsterTransform, monsterDirector.rampEntryTarget);
+                }
+                break;
             }
             else if (playerWinning)
             {
@@ -122,20 +131,21 @@ public class ClutchController : MonoBehaviour
                 }
                 else
                 {
-                    // --- THE FIX: Recurring Penalties if they continue to not hold the door ---
                     if (timeSinceHeld >= nextStrikeThreshold)
                     {
                         currentMistakes++;
-                        nextStrikeThreshold += recurringPenaltyInterval; // Schedule the next strike 1 second from now
+                        nextStrikeThreshold += recurringPenaltyInterval;
 
                         struggleBaseAngle -= penaltyJerkAngle;
                         Debug.Log($"<color=orange>CLUTCH PENALTY! Player dropped the winch! Strike {currentMistakes}/{maxMistakes}</color>");
 
-                        if (currentMistakes >= maxMistakes)
+                        // --- AUDIO HOOK: Play the heavy chain-slip penalty jerk! ---
+                        if (winchController != null && winchController.impactSource != null && penaltyJerk != null)
                         {
-                            Debug.Log("<color=red>CLUTCH FAILED: Too many mistakes. The monster overpowers the player!</color>");
-                            monsterBreached = true;
+                            winchController.impactSource.PlayOneShot(penaltyJerk);
                         }
+
+                        if (currentMistakes >= maxMistakes) monsterBreached = true;
                     }
                 }
 
@@ -151,21 +161,12 @@ public class ClutchController : MonoBehaviour
                 if (isHolding)
                 {
                     falseHopeTimer += Time.deltaTime;
-                    if (falseHopeTimer >= falseHopeDuration)
-                    {
-                        Debug.Log("<color=red>CLUTCH FAILED: Stalemate broken! Monster breaches the gap!</color>");
-                        monsterBreached = true;
-                    }
+                    if (falseHopeTimer >= falseHopeDuration) monsterBreached = true;
                 }
                 else
                 {
                     struggleBaseAngle = Mathf.MoveTowards(struggleBaseAngle, winchController.openAngle, loseOpenSpeed * Time.deltaTime);
-
-                    if (struggleBaseAngle <= startAngle - 35f)
-                    {
-                        Debug.Log("<color=red>CLUTCH FAILED: Player let go! Monster breaches the gap!</color>");
-                        monsterBreached = true;
-                    }
+                    if (struggleBaseAngle <= startAngle - 35f) monsterBreached = true;
                 }
             }
 
@@ -173,7 +174,6 @@ public class ClutchController : MonoBehaviour
             {
                 float noise = Mathf.PerlinNoise(Time.time * jitterSpeed, 0f) - 0.5f;
                 float jitter = noise * 2f * jitterAmount;
-
                 winchController.SetStruggleAngle(struggleBaseAngle + jitter);
             }
 

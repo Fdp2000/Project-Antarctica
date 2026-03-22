@@ -20,9 +20,12 @@ public class SimpleFPSController : MonoBehaviour
     public LayerMask obstacleLayers = Physics.DefaultRaycastLayers;
     public float crouchTransitionSpeed = 10f;
 
-    [Header("Interaction")]
+    [Header("Interaction Ranges")]
     public float interactRange = 3.0f;
     public float cassettePickupRange = 2.0f;
+    public float winchInteractRange = 4.0f;
+
+    [Header("Interaction Settings")]
     public KeyCode interactKey = KeyCode.E;
     public Image crosshairDot;
     public LayerMask interactionMask = ~0;
@@ -34,6 +37,12 @@ public class SimpleFPSController : MonoBehaviour
 
     [Header("Snapping Rotation")]
     public float enterRotationX = 20f;
+
+    [Header("Cabin & Engine Shake System")]
+    public bool isInCabin = false;
+    public VehicleController vehicleController;
+    public float engineShakeAmount = 0.003f;
+    public float engineShakeSpeed = 25f;
 
     [Header("Player State")]
     public bool hasCassette = false;
@@ -47,9 +56,10 @@ public class SimpleFPSController : MonoBehaviour
     private bool isSeated = false;
     private bool isCrouching = false;
     private Transform currentSeat;
-    private VehicleController currentVehicle;
     private float verticalVelocity = 0f;
     private Outline currentOutline;
+
+    private Vector3 smoothCameraOffset;
 
     void Start()
     {
@@ -58,7 +68,8 @@ public class SimpleFPSController : MonoBehaviour
         Cursor.visible = false;
 
         if (heldCassetteVisual != null) heldCassetteVisual.SetActive(false);
-        playerCamera.transform.localPosition = standingCameraOffset;
+        smoothCameraOffset = standingCameraOffset;
+        playerCamera.transform.localPosition = smoothCameraOffset;
     }
 
     void Update()
@@ -95,6 +106,24 @@ public class SimpleFPSController : MonoBehaviour
             move.y = verticalVelocity;
             characterController.Move(move * Time.deltaTime);
         }
+
+        // --- NEW: Apply the Engine Camera Shake ---
+        Vector3 finalShake = Vector3.zero;
+        if (isInCabin && vehicleController != null && vehicleController.isEngineRunning)
+        {
+            float noiseX = (Mathf.PerlinNoise(Time.time * engineShakeSpeed, 0f) - 0.5f) * engineShakeAmount;
+            float noiseY = (Mathf.PerlinNoise(0f, Time.time * engineShakeSpeed) - 0.5f) * engineShakeAmount;
+            finalShake = new Vector3(noiseX, noiseY, 0f);
+        }
+
+        if (isSeated)
+        {
+            playerCamera.transform.localPosition = finalShake; // Base offset is zero when seated
+        }
+        else
+        {
+            playerCamera.transform.localPosition = smoothCameraOffset + finalShake;
+        }
     }
 
     private void HandleCrouch()
@@ -117,13 +146,15 @@ public class SimpleFPSController : MonoBehaviour
 
         characterController.height = Mathf.Lerp(characterController.height, targetHeight, Time.deltaTime * crouchTransitionSpeed);
         characterController.center = new Vector3(0, characterController.height / 2f, 0);
-        playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, targetCameraOffset, Time.deltaTime * crouchTransitionSpeed);
+
+        // Track the smooth offset rather than applying it instantly so we can add shake to it
+        smoothCameraOffset = Vector3.Lerp(smoothCameraOffset, targetCameraOffset, Time.deltaTime * crouchTransitionSpeed);
     }
 
     private void HandleInteractions()
     {
+        float maxRayRange = Mathf.Max(interactRange, Mathf.Max(cassettePickupRange, winchInteractRange));
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        float maxRayRange = Mathf.Max(interactRange, cassettePickupRange);
 
         if (Physics.Raycast(ray, out RaycastHit hit, maxRayRange, interactionMask))
         {
@@ -154,15 +185,23 @@ public class SimpleFPSController : MonoBehaviour
                 return;
             }
 
+            if (target.CompareTag("Winch"))
+            {
+                if (distanceToTarget <= winchInteractRange)
+                {
+                    HighlightObject(target);
+                    if (Input.GetKey(interactKey) || Input.GetMouseButton(0))
+                    {
+                        target.GetComponent<WinchController>()?.InteractWinch();
+                    }
+                }
+                else { ClearHighlight(); }
+                return;
+            }
+
             if (distanceToTarget <= interactRange)
             {
                 HighlightObject(target);
-
-                if (Input.GetKey(interactKey) || Input.GetMouseButton(0))
-                {
-                    if (target.CompareTag("Winch")) target.GetComponent<WinchController>()?.InteractWinch();
-                }
-
                 bool startInteraction = Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0);
 
                 if (startInteraction)
@@ -205,10 +244,8 @@ public class SimpleFPSController : MonoBehaviour
         rotationX = enterRotationX;
         rotationY = 0;
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
-        playerCamera.transform.localPosition = Vector3.zero;
 
-        currentVehicle = seat.GetComponentInParent<VehicleController>();
-        if (currentVehicle != null) currentVehicle.isPlayerDriving = true;
+        if (vehicleController != null) vehicleController.isPlayerDriving = true;
 
         Physics.SyncTransforms();
     }
@@ -222,7 +259,7 @@ public class SimpleFPSController : MonoBehaviour
         camForward.y = 0;
 
         isSeated = false;
-        if (currentVehicle != null) currentVehicle.isPlayerDriving = false;
+        if (vehicleController != null) vehicleController.isPlayerDriving = false;
 
         transform.SetParent(null);
         Vector3 worldExitOffset = currentSeat.TransformDirection(exitOffset);
@@ -231,7 +268,7 @@ public class SimpleFPSController : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(camForward, Vector3.up);
         rotationY = 0;
 
-        playerCamera.transform.localPosition = isCrouching ? crouchingCameraOffset : standingCameraOffset;
+        smoothCameraOffset = isCrouching ? crouchingCameraOffset : standingCameraOffset;
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
         Physics.SyncTransforms();
@@ -247,12 +284,10 @@ public class SimpleFPSController : MonoBehaviour
         Destroy(tape.gameObject);
     }
 
-    // --- UPDATED: PUNCHCARD LOGIC ---
     private void PickUpPunchcard(PunchcardInteractable card)
     {
         if (card.waveController != null) card.waveController.NotifyPunchcardCollected();
 
-        // Find the receiver and consume the tape to unlock the car and alarm!
         CassetteReceiver receiver = FindObjectOfType<CassetteReceiver>();
         if (receiver != null) receiver.ConsumeTape();
 

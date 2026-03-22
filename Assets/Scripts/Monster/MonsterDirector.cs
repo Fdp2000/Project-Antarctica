@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio; // <-- REQUIRED FOR AUDIO SNAPSHOTS
 
 public class MonsterDirector : MonoBehaviour
 {
@@ -11,6 +12,12 @@ public class MonsterDirector : MonoBehaviour
     public WinchController winchController;
     public JumpscareController jumpscareController;
     public ClutchController clutchController;
+    public RadioAudioController radioAudio; // <-- AUDIO LINK
+
+    [Header("Audio System (The Deafening Silence)")]
+    public AudioMixerSnapshot normalAudioSnapshot;
+    public AudioMixerSnapshot silenceAudioSnapshot;
+    public float silenceFadeTime = 1.5f;
 
     [Header("Difficulty Progression")]
     [Tooltip("Place your difficulty profiles here in order (Easy to Hard).")]
@@ -19,6 +26,7 @@ public class MonsterDirector : MonoBehaviour
 
     [Header("Monster Physical Spawning")]
     public Transform monsterTransform;
+    public Animator monsterAnimator; // <--- NEW: The Animation Bridge
     public Transform rampEntryTarget;
     public float spawnRadius = 25f;
     public Vector2 spawnAngleClamp = new Vector2(-45f, 45f);
@@ -40,7 +48,8 @@ public class MonsterDirector : MonoBehaviour
 
     private float currentMaxApproachTime;
     private float currentMaxSilenceTime;
-    private float currentSprintSpeed;
+    private float currentMaxRetreatTime;
+    private float currentSprintSpeed; // <--- ADD THIS LINE BACK HERE
 
     [Header("Strike Logic Funnel")]
     public Transform playerCamera;
@@ -50,7 +59,6 @@ public class MonsterDirector : MonoBehaviour
 
     void Start()
     {
-        // --- NEW: Auto-load the first difficulty profile ---
         if (difficultyProgression != null && difficultyProgression.Length > 0)
         {
             currentProgressionIndex = 0;
@@ -100,12 +108,19 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Approach:
                 if (isMinigameComplete)
                 {
-                    stateTimer += Time.deltaTime;
-                    if (stateTimer >= currentMaxApproachTime) TransitionToState(EncounterState.Idle);
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
                 }
                 else
                 {
                     stateTimer -= Time.deltaTime;
+
+                    // --- AUDIO HOOK: Fading static IN ---
+                    if (radioAudio != null)
+                    {
+                        float progress = 1f - (stateTimer / currentMaxApproachTime);
+                        radioAudio.approachProgress = progress;
+                    }
+
                     if (stateTimer <= 0) TransitionToState(EncounterState.Silence);
                 }
                 break;
@@ -115,8 +130,7 @@ public class MonsterDirector : MonoBehaviour
 
                 if (isMinigameComplete)
                 {
-                    stateTimer += Time.deltaTime;
-                    if (stateTimer >= currentMaxSilenceTime) TransitionToState(EncounterState.Approach, true);
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
                 }
                 else
                 {
@@ -134,17 +148,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Strike:
                 if (isMinigameComplete)
                 {
-                    stateTimer += Time.deltaTime;
-
-                    if (monsterTransform != null)
-                    {
-                        monsterTransform.position -= monsterTransform.forward * currentSprintSpeed * Time.deltaTime;
-                    }
-
-                    if (stateTimer >= currentDifficulty.strikeDuration)
-                    {
-                        TransitionToState(EncounterState.Silence, true);
-                    }
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
                 }
                 else
                 {
@@ -161,7 +165,12 @@ public class MonsterDirector : MonoBehaviour
 
                     if (stateTimer <= 0)
                     {
-                        if (winchController != null && winchController.CurrentAngle > clutchCutoffAngle)
+                        // --- THE FIX: Check if it's fully closed FIRST! ---
+                        if (winchController != null && winchController.IsDoorClosed)
+                        {
+                            TransitionToState(EncounterState.Siege);
+                        }
+                        else if (winchController != null && winchController.CurrentAngle > clutchCutoffAngle)
                         {
                             TransitionToState(EncounterState.ClutchStruggle);
                         }
@@ -174,7 +183,11 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.Siege:
-                if (winchController != null && winchController.CurrentAngle < winchController.closedAngle - 5f)
+                if (isMinigameComplete)
+                {
+                    TransitionToState(EncounterState.Retreat); // <--- FAST TRACK TO RETREAT
+                }
+                else if (winchController != null && winchController.CurrentAngle < winchController.closedAngle - 5f)
                 {
                     Debug.Log("<color=red>MONSTER: SIEGE BREACHED! Player opened the door!</color>");
                     TransitionToState(EncounterState.Strike);
@@ -188,11 +201,18 @@ public class MonsterDirector : MonoBehaviour
 
             case EncounterState.Retreat:
                 stateTimer -= Time.deltaTime;
+
+                // --- AUDIO HOOK: Fading static OUT as it retreats ---
+                if (radioAudio != null && currentMaxRetreatTime > 0f)
+                {
+                    float progress = stateTimer / currentMaxRetreatTime; // Goes from 1.0 down to 0.0
+                    radioAudio.approachProgress = Mathf.Clamp01(progress);
+                }
+
                 if (stateTimer <= 0) TransitionToState(EncounterState.GracePeriod);
                 break;
         }
     }
-
     public void TransitionToState(EncounterState newState, bool isReversing = false)
     {
         EncounterState previousState = currentState;
@@ -205,15 +225,23 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Idle:
                 isEncounterActive = false;
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false); // <--- NEW: Reset Animation
                 playerReactionTime = -1f;
                 reactionStopwatch = 0f;
+                if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
+                if (radioAudio != null) radioAudio.isMonsterApproaching = false;
+                radioAudio.isMonsterRetreating = false;
                 break;
 
             case EncounterState.GracePeriod:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false); // <--- NEW: Reset Animation
                 playerReactionTime = -1f;
                 reactionStopwatch = 0f;
+                if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
+                if (radioAudio != null) radioAudio.isMonsterApproaching = false;
+                radioAudio.isMonsterRetreating = false;
                 break;
 
             case EncounterState.Approach:
@@ -223,6 +251,14 @@ public class MonsterDirector : MonoBehaviour
                     stateTimer = currentMaxApproachTime;
                 }
                 else stateTimer = 0f;
+
+                if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
+                if (radioAudio != null)
+                {
+                    radioAudio.isMonsterApproaching = true;
+                    radioAudio.isMonsterRetreating = false;
+                    radioAudio.approachProgress = 0f;
+                }
                 break;
 
             case EncounterState.Silence:
@@ -236,6 +272,11 @@ public class MonsterDirector : MonoBehaviour
                     stateTimer = 0f;
                 }
                 reactionStopwatch = 0f;
+
+                // --- THE SUCK: Audio goes totally dead ---
+                if (silenceAudioSnapshot != null) silenceAudioSnapshot.TransitionTo(silenceFadeTime);
+                if (radioAudio != null) radioAudio.isMonsterApproaching = false;
+                radioAudio.isMonsterRetreating = false;
                 break;
 
             case EncounterState.Strike:
@@ -266,6 +307,8 @@ public class MonsterDirector : MonoBehaviour
                     activeStrikeType = StrikeType.Normal;
                     SpawnAndCalculateMonsterSprint(rampEntryTarget, isSiegeBreach);
                 }
+
+                // Removed the normalAudioSnapshot.TransitionTo() here so it stays silent!
                 break;
 
             case EncounterState.ClutchStruggle:
@@ -280,10 +323,27 @@ public class MonsterDirector : MonoBehaviour
 
             case EncounterState.Siege:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.patienceThreshold);
+
+                // --- AUDIO HOOK: Bring the room tone back while it waits outside ---
+                if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
                 break;
 
             case EncounterState.Retreat:
-                stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.retreatDuration);
+                currentMaxRetreatTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.retreatDuration);
+                stateTimer = currentMaxRetreatTime;
+
+                // --- VISUAL HOOK: Make the physical body vanish if banished mid-sprint ---
+                if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false); // <--- NEW: Reset Animation
+
+                // --- AUDIO HOOK: Turn the static back on to signify it leaving ---
+                if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
+                if (radioAudio != null)
+                {
+                    radioAudio.isMonsterApproaching = true;
+                    radioAudio.isMonsterRetreating = true;
+                    radioAudio.approachProgress = 1f;
+                }
                 break;
         }
     }
@@ -336,21 +396,19 @@ public class MonsterDirector : MonoBehaviour
     {
         if (!isEncounterActive || currentState == EncounterState.ClutchStruggle) return;
 
-        if (playerWonMinigame && !isMinigameComplete) // --- NEW: Prevent double-triggering
+        if (playerWonMinigame && !isMinigameComplete)
         {
             isMinigameComplete = true;
-            AdvanceDifficulty(); // --- NEW: Step up the difficulty!
+            AdvanceDifficulty();
         }
     }
 
-    // --- NEW: The Progression System ---
     public void AdvanceDifficulty()
     {
         if (difficultyProgression == null || difficultyProgression.Length == 0) return;
 
         currentProgressionIndex++;
 
-        // Cap it at the maximum index so we don't crash if they do more tapes than profiles
         if (currentProgressionIndex >= difficultyProgression.Length)
         {
             currentProgressionIndex = difficultyProgression.Length - 1;
