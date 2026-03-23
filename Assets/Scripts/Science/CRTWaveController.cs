@@ -225,18 +225,15 @@ public class CRTWaveController : MonoBehaviour
 
             if (punchcardPrefab != null && punchcardSpawnPoint != null)
             {
+                // 1. Spawn the card as a child of the spawn point
                 GameObject spawnedCard = Instantiate(punchcardPrefab, punchcardSpawnPoint);
+
+                // 2. Snap it exactly to the spawn point's center and rotation
                 spawnedCard.transform.localPosition = Vector3.zero;
                 spawnedCard.transform.localRotation = Quaternion.identity;
 
-                Vector3 parentScale = punchcardSpawnPoint.lossyScale;
-                Vector3 prefabScale = punchcardPrefab.transform.localScale;
-
-                spawnedCard.transform.localScale = new Vector3(
-                    prefabScale.x / parentScale.x,
-                    prefabScale.y / parentScale.y,
-                    prefabScale.z / parentScale.z
-                );
+                // 3. Force it to use the exact scale you saved on the prefab!
+                spawnedCard.transform.localScale = punchcardPrefab.transform.localScale;
 
                 PunchcardInteractable interactable = spawnedCard.GetComponent<PunchcardInteractable>();
                 if (interactable != null) interactable.waveController = this;
