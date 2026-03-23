@@ -7,6 +7,16 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: 08_-_Default
+    second: {fileID: 2100000, guid: b285bef3f19da5c46a325ece18442963, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 09_-_Default
+    second: {fileID: 2100000, guid: 1b72a25ed7de120449ea637f87d4075e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Broken Glass
     second: {fileID: 2100000, guid: 2e3b07ff845e0d841bf0e0f3ca496676, type: 2}
   - first:
@@ -27,6 +37,16 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: File cabinet_2 drawer
+    second: {fileID: 2100000, guid: 8a6924cfff4f2a24dbdd92184ff1873a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: File cabinet_3 drawer
+    second: {fileID: 2100000, guid: 64f08a3227c354b44b49ed3c1d9ba8b0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Fuel_tank_2_
     second: {fileID: 2100000, guid: 1176abd2ddaea244f979a20f6252440b, type: 2}
   - first:
@@ -42,8 +62,23 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Funnel3
+    second: {fileID: 2100000, guid: 82775a94ae0fd71419cbdfe8d9b5f372, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Glass.001
     second: {fileID: 2100000, guid: 522539a0bd4be114495fe39888c42ea7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MagnetCard
+    second: {fileID: 2100000, guid: 1add80f8df1a93e45ad575e8872d4d01, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mat
+    second: {fileID: 2100000, guid: 6a53dd9ac6899804c9ede18eb0bf71c4, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -82,6 +117,36 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Material.007
+    second: {fileID: 2100000, guid: b93ebcb3b88913e43923aa83f60e6b3e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.008
+    second: {fileID: 2100000, guid: cd559941e45d6c94882b9d32ee88897f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.009
+    second: {fileID: 2100000, guid: 19e0958a7b1686043b086692ef8b57c9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.010
+    second: {fileID: 2100000, guid: 1d59f3c68a225864a9b220da69a7d836, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.011
+    second: {fileID: 2100000, guid: 2a1c62694af3d81409bd96c3561abf2b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.014
+    second: {fileID: 2100000, guid: e364cfd771da0b145ac0a9df961fedc6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Material.015
     second: {fileID: 2100000, guid: 194476baf018f874493c55d6c5946065, type: 2}
   - first:
@@ -112,6 +177,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: TexSheet8
+    second: {fileID: 2100000, guid: 1ff4aac1c869b194c9d9d42a872c411b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Welded Metal Blue.001
     second: {fileID: 2100000, guid: 584abbc43c78a714ebfb84a993b384f3, type: 2}
   - first:
@@ -129,6 +199,26 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: _Pipe_
     second: {fileID: 2100000, guid: 700795fea8523d84caacd075bacf3829, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bed.001
+    second: {fileID: 2100000, guid: 229bc6a714749ce41b7aa3fb78e9ee97, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: table_mat
+    second: {fileID: 2100000, guid: 8d1864c0aeda79e4d9ad801da5db8a43, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "\u30DE\u30C6\u30EA\u30A2\u30EB"
+    second: {fileID: 2100000, guid: 6c3452600720d1e4498b2e10c243b850, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "\u30DE\u30C6\u30EA\u30A2\u30EB.004"
+    second: {fileID: 2100000, guid: 638aa3b548c606548b2d5499c2040900, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
