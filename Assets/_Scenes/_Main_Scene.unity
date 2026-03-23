@@ -496,8 +496,8 @@ MonoBehaviour:
   scrapeLeftEnd: {fileID: 2051580947}
   scrapeRightStart: {fileID: 1434538903}
   scrapeRightEnd: {fileID: 267092591}
-  shakeMagnitude: 0.11
-  shakeDuration: 0.25
+  shakeMagnitude: 0.05
+  shakeDuration: 0.2
   debugForceAmbush: 0
   debugForceDoorBang: 0
   debugForceRoofRoar: 0
