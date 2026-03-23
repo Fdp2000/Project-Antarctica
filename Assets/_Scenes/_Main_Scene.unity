@@ -6995,11 +6995,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4366253478784489293, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
       propertyPath: debugForceSync
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4366253478784489293, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
       propertyPath: timeToComplete
-      value: 1
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4366253478784489293, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
       propertyPath: punchcardPrefab
@@ -7039,7 +7039,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4401196807565994921, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.00606
+      value: -0.00543
       objectReference: {fileID: 0}
     - target: {fileID: 4401196807565994921, guid: 777c1e6b8585a634e8edd946af1d4dd8, type: 3}
       propertyPath: m_LocalPosition.z
