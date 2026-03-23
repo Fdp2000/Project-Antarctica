@@ -1621,6 +1621,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 354d7fb3c556748a986e8dae53d68b16, type: 3}
+--- !u!1001 &44251124264211638
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -33.685486
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.00000023788243
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 19.918232
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071067
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3708956082266275659, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4049592908594095601, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
+      propertyPath: m_Name
+      value: RadioTower
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 131a758c6871e40988219911ef0d17ba, type: 3}
 --- !u!1001 &1691713854054472174
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2332,3 +2389,4 @@ SceneRoots:
   - {fileID: 134975817}
   - {fileID: 7984980142637087363}
   - {fileID: 6870581746593789023}
+  - {fileID: 44251124264211638}
