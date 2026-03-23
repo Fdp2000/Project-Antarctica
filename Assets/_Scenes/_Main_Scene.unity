@@ -482,8 +482,9 @@ MonoBehaviour:
   monsterTransform: {fileID: 1377644444}
   monsterAnimator: {fileID: 1377644445}
   rampEntryTarget: {fileID: 79021470}
-  spawnRadius: 25
+  spawnRadius: 35
   spawnAngleClamp: {x: -90, y: 90}
+  footstepAudio: {fileID: 1730981309}
   clutchCutoffAngle: -174.53
   siegePeekSilenceDuration: 0.8
   doorAudioSource: {fileID: 1426023217}
@@ -9549,7 +9550,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 24
+  MaxDistance: 25
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0

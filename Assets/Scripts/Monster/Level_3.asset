@@ -15,7 +15,7 @@ MonoBehaviour:
   baseGracePeriod: 1
   approachDuration: 5
   silenceDuration: 5
-  strikeDuration: 1
+  strikeDuration: 1.2
   retreatDuration: 5
   phaseVariance: 0
   patienceThreshold: 10
@@ -23,3 +23,12 @@ MonoBehaviour:
   maxSiegeEventInterval: 6
   baseMonsterClutchStrength: 120
   clutchStrengthVariance: 20
+  baseTargetAmplitude: 0.7
+  baseTargetFrequency: 8
+  baseTargetPhase: 10.43
+  minDriftInterval: 4
+  maxDriftInterval: 6
+  driftLerpDuration: 3
+  amplitudeDriftVariance: 1.3
+  frequencyDriftVariance: 1.5
+  phaseDriftVariance: 1.5
