@@ -3,7 +3,132 @@ guid: cb366335250a5024f9d6d056527c0536
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Broken Glass
+    second: {fileID: 2100000, guid: 2e3b07ff845e0d841bf0e0f3ca496676, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cream Scratched Porcelain
+    second: {fileID: 2100000, guid: 3ed693dc98f1e854188ef00723da6348, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DOME
+    second: {fileID: 2100000, guid: 4cd3ea32e439dd84083ed7c948202151, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Damaged Pearl
+    second: {fileID: 2100000, guid: 16a34ce6c2b6e394a9741a092ce5e4cc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fuel_tank_2_
+    second: {fileID: 2100000, guid: 1176abd2ddaea244f979a20f6252440b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fuel_tank_3_
+    second: {fileID: 2100000, guid: bb6124d6b8b75ab4eae70eadb801c32d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fuel_tank_4_
+    second: {fileID: 2100000, guid: 668710fc65fae2b48880a0c931493c0e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Glass.001
+    second: {fileID: 2100000, guid: 522539a0bd4be114495fe39888c42ea7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: fc42b6155f36af94788a7b9cdd76d9e3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.001
+    second: {fileID: 2100000, guid: fc98c90d09f7ce34f9b4aa753bcaa561, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.002
+    second: {fileID: 2100000, guid: 292ca4a01844cfb4bb0e4251159b9f88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.003
+    second: {fileID: 2100000, guid: 349ab966b8b1bf54cae0d2d7cd29001b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.004
+    second: {fileID: 2100000, guid: 79bab36f6af1b814083a90a80e559719, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.005
+    second: {fileID: 2100000, guid: 9041d6c8cc1100e4eaa7f8620689b9e0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.006
+    second: {fileID: 2100000, guid: 27636e5ab2aef504e94666b8d8906047, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.015
+    second: {fileID: 2100000, guid: 194476baf018f874493c55d6c5946065, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Nature Pearl
+    second: {fileID: 2100000, guid: 9b56add758d1c8542a6fadfbeee713f9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Roller shutter
+    second: {fileID: 2100000, guid: 7fddd9b6d3c7d1b4f9916fc1fc1617c0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Rusty black metal
+    second: {fileID: 2100000, guid: da1ac79ceb0648d4ea87eadb5d6fff01, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SciFi Pressure Door
+    second: {fileID: 2100000, guid: 30ab66a163bf2534780e119e07bf7787, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Stainless steel
+    second: {fileID: 2100000, guid: 1aac6f9d8443fb042977eda74a1abe3f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Welded Metal Blue.001
+    second: {fileID: 2100000, guid: 584abbc43c78a714ebfb84a993b384f3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: White painted metal.001
+    second: {fileID: 2100000, guid: 493c5928f4357b14abc2094aa2e3f971, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _Fuel_Tank_1
+    second: {fileID: 2100000, guid: e9231b70d44662247ad074a142cef765, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _Pipe_
+    second: {fileID: 2100000, guid: 700795fea8523d84caacd075bacf3829, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
