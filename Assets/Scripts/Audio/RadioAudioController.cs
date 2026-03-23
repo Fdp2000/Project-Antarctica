@@ -16,13 +16,18 @@ public class RadioAudioController : MonoBehaviour
 
     [Header("Monster Interference (Driven by Director)")]
     public AudioClip distortedStaticClip;
-    public float maxMonsterVolume = 1.0f;
-    public float retreatMonsterVolume = 0.4f; // <--- NEW: Dedicated retreat volume
+
+    [Tooltip("How loud the static gets when the monster is actively approaching.")]
+    public float approachVolume = 1.0f;
+
+    [Tooltip("How loud the static gets when the monster gives up and retreats.")]
+    public float retreatVolume = 0.4f;
+
     [Tooltip("How far the static can be heard when the monster is right outside.")]
     public float maxMonsterDistance = 30f;
 
     [HideInInspector] public bool isMonsterApproaching = false;
-    [HideInInspector] public bool isMonsterRetreating = false; // <--- NEW: Retreat toggle
+    [HideInInspector] public bool isMonsterRetreating = false;
     [HideInInspector] public float approachProgress = 0f;
 
     private AudioClip normalStaticClip;
@@ -38,7 +43,6 @@ public class RadioAudioController : MonoBehaviour
 
     void Start()
     {
-        // Remember the default settings so we can return to them later
         if (staticSource != null)
         {
             normalStaticClip = staticSource.clip;
@@ -51,8 +55,6 @@ public class RadioAudioController : MonoBehaviour
         if (tuner == null) return;
 
         float signal = tuner.finalSignalClarity;
-
-        // Ensure we are pointing to the Tuner's updated array winner
         RadioBeacon activeBeacon = tuner.activeBeacon;
 
         // --- 1. THE STATIC (With Monster Hijack Logic) ---
@@ -60,20 +62,23 @@ public class RadioAudioController : MonoBehaviour
         {
             if (isMonsterApproaching && distortedStaticClip != null)
             {
-                // Swap to terrifying static
                 if (staticSource.clip != distortedStaticClip)
                 {
                     staticSource.clip = distortedStaticClip;
                     staticSource.Play();
                 }
 
-                // Lerp volume and distance up as the monster approaches
                 float baseVolume = staticVolumeCurve.Evaluate(signal) * maxStaticVolume;
 
-                // --- NEW: Choose which volume ceiling to use ---
-                float currentTargetVol = isMonsterRetreating ? retreatMonsterVolume : maxMonsterVolume;
+                if (isMonsterRetreating)
+                {
+                    staticSource.volume = Mathf.Lerp(baseVolume, retreatVolume, approachProgress);
+                }
+                else
+                {
+                    staticSource.volume = Mathf.Lerp(baseVolume, approachVolume, approachProgress);
+                }
 
-                staticSource.volume = Mathf.Lerp(baseVolume, currentTargetVol, approachProgress);
                 staticSource.maxDistance = Mathf.Lerp(normalMaxDistance, maxMonsterDistance, approachProgress);
             }
             else
@@ -82,8 +87,14 @@ public class RadioAudioController : MonoBehaviour
                 if (staticSource.clip != normalStaticClip && normalStaticClip != null)
                 {
                     staticSource.clip = normalStaticClip;
+                }
+
+                // --- THE BULLETPROOF FIX: Force it to play if it ever stopped! ---
+                if (!staticSource.isPlaying && staticSource.clip != null)
+                {
                     staticSource.Play();
                 }
+
                 staticSource.volume = staticVolumeCurve.Evaluate(signal) * maxStaticVolume;
                 staticSource.maxDistance = normalMaxDistance;
             }
@@ -106,7 +117,6 @@ public class RadioAudioController : MonoBehaviour
 
             if (broadcastSource.clip != null)
             {
-                // Instantly sync the audio to the game's run time
                 float simulatedLiveTime = Time.time % broadcastSource.clip.length;
                 broadcastSource.time = simulatedLiveTime;
             }
@@ -117,7 +127,6 @@ public class RadioAudioController : MonoBehaviour
         // --- 4. APPLY BEACON INSTRUCTIONS ---
         if (broadcastSource != null)
         {
-            // Volume & Stutter
             float currentVolume = activeBeacon.broadcastVolumeCurve.Evaluate(signal) * activeBeacon.maxBroadcastVolume;
 
             if (activeBeacon.useStutter)
@@ -128,7 +137,6 @@ public class RadioAudioController : MonoBehaviour
             }
             broadcastSource.volume = currentVolume;
 
-            // Pitch & Flutter
             if (activeBeacon.usePitchFlutter)
             {
                 float basePitch = activeBeacon.broadcastBasePitchCurve.Evaluate(signal);

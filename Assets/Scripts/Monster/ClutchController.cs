@@ -6,32 +6,37 @@ public class ClutchController : MonoBehaviour
     [Header("Dependencies")]
     public MonsterDirector monsterDirector;
     public WinchController winchController;
-    public ClutchMonsterVisuals clutchVisuals; // <--- NEW: Link to our visuals!
+    public ClutchMonsterVisuals clutchVisuals;
 
     [Header("Clutch Tuning (Base Mechanics)")]
     public float clutchCutoffAngle = -133.3f;
-    public float closedAngle = -90f; [Header("Clutch Tuning (RNG Modifiers)")]
+    public float closedAngle = -90f;
+
+    [Header("Clutch Tuning (RNG Modifiers)")]
     public float minAdrenalineFumble = -15f;
     public float maxAdrenalineFumble = 5f;
     public float minMonsterSurge = 0.8f;
-    public float maxMonsterSurge = 1.3f; [Header("Physical Struggle Settings")]
+    public float maxMonsterSurge = 1.3f;
+
+    [Header("Physical Struggle Settings")]
     public float winCloseSpeed = 15f;
     public float minLoseResistTime = 2.0f;
     public float maxLoseResistTime = 4.0f;
     public float loseOpenSpeed = 35f;
     public float jitterAmount = 1.8f;
-    public float jitterSpeed = 35f; [Header("The 3-Strike Penalty")]
+    public float jitterSpeed = 35f;
+
+    [Header("The 3-Strike Penalty")]
     public int maxMistakes = 3;
     public float penaltyJerkAngle = 6f;
     public float inputForgivenessBuffer = 0.25f;
-    public float recurringPenaltyInterval = 1.0f;
-
-    [Header("Audio (Struggle Sounds)")]
+    public float recurringPenaltyInterval = 1.0f; [Header("Audio (Struggle Sounds)")]
     public AudioClip winchLoopStruggle;
     public AudioClip penaltyJerk;
     public AudioClip doorRipOpen;
 
     [Header("Live Debug")]
+    public bool debugForceStalkBehind = false; // <--- NEW: Force Stalk Behind Loss
     public float lastReactionScore;
     public float lastAngleScore;
     public float lastPlayerTotal;
@@ -57,7 +62,6 @@ public class ClutchController : MonoBehaviour
 
         lastResultWon = lastPlayerTotal >= lastMonsterTotal;
 
-        // --- NEW: Instantly spawn the face and play the roar! ---
         if (clutchVisuals != null) clutchVisuals.ShowMonster();
 
         StartCoroutine(ActiveStruggleRoutine(lastResultWon, currentDoorAngle));
@@ -65,6 +69,7 @@ public class ClutchController : MonoBehaviour
 
     private IEnumerator ActiveStruggleRoutine(bool playerWinning, float startAngle)
     {
+        Debug.Log($"Player Total: {lastPlayerTotal:F1} vs Monster Total: {lastMonsterTotal:F1} --> Player Winning: {playerWinning}");
         if (winchController != null) winchController.isStruggling = true;
 
         if (winchController != null && winchController.loopSource != null && winchLoopStruggle != null)
@@ -73,6 +78,7 @@ public class ClutchController : MonoBehaviour
             winchController.loopSource.pitch = 1f;
             winchController.loopSource.Play();
         }
+
 
         float struggleBaseAngle = startAngle;
         int currentMistakes = 0;
@@ -98,7 +104,6 @@ public class ClutchController : MonoBehaviour
 
             if (monsterBreached)
             {
-                // --- NEW: Hide the monster exactly before the door rips open! ---
                 if (clutchVisuals != null) clutchVisuals.HideMonsterInstantly();
 
                 if (winchController != null && winchController.impactSource != null && doorRipOpen != null)
@@ -116,9 +121,24 @@ public class ClutchController : MonoBehaviour
                 }
 
                 if (winchController != null) winchController.isStruggling = false;
+
                 if (monsterDirector != null && monsterDirector.jumpscareController != null)
                 {
-                    monsterDirector.jumpscareController.ExecuteJumpscare(MonsterDirector.StrikeType.PointBlank, monsterDirector.monsterTransform, monsterDirector.rampEntryTarget);
+                    // --- THE NEW 50/50 ROLL WITH DEBUG OVERRIDE ---
+                    MonsterDirector.StrikeType finalStrike;
+
+                    if (debugForceStalkBehind)
+                    {
+                        finalStrike = MonsterDirector.StrikeType.StalkBehind;
+                    }
+                    else
+                    {
+                        finalStrike = (Random.value > 0.5f) ?
+                            MonsterDirector.StrikeType.PointBlank :
+                            MonsterDirector.StrikeType.StalkBehind;
+                    }
+
+                    monsterDirector.jumpscareController.ExecuteJumpscare(finalStrike, monsterDirector.monsterTransform, monsterDirector.rampEntryTarget);
                 }
                 break;
             }
@@ -134,14 +154,10 @@ public class ClutchController : MonoBehaviour
                     {
                         currentMistakes++;
                         nextStrikeThreshold += recurringPenaltyInterval;
-
                         struggleBaseAngle -= penaltyJerkAngle;
-                        Debug.Log($"<color=orange>CLUTCH PENALTY! Player dropped the winch! Strike {currentMistakes}/{maxMistakes}</color>");
 
                         if (winchController != null && winchController.impactSource != null && penaltyJerk != null)
-                        {
                             winchController.impactSource.PlayOneShot(penaltyJerk);
-                        }
 
                         if (currentMistakes >= maxMistakes) monsterBreached = true;
                     }
@@ -149,9 +165,7 @@ public class ClutchController : MonoBehaviour
 
                 if (struggleBaseAngle >= closedAngle - 2f)
                 {
-                    // --- NEW: Hide the monster if the player successfully slams the door shut! ---
                     if (clutchVisuals != null) clutchVisuals.HideMonsterInstantly();
-
                     if (winchController != null) winchController.ForceSlamShut();
                     if (monsterDirector != null) monsterDirector.TransitionToState(MonsterDirector.EncounterState.Siege);
                     break;

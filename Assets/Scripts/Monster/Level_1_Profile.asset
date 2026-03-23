@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cacba0e0bd3bad4a846f50480443b27, type: 3}
   m_Name: Level_1_Profile
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
-  baseGracePeriod: 88888
-  approachDuration: 0
+  baseGracePeriod: 2
+  approachDuration: 12
   silenceDuration: 3
   strikeDuration: 1
   retreatDuration: 5
