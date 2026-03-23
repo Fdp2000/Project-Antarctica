@@ -15,7 +15,7 @@ MonoBehaviour:
   baseGracePeriod: 1
   approachDuration: 1
   silenceDuration: 1
-  strikeDuration: 1
+  strikeDuration: 1.2
   retreatDuration: 5
   phaseVariance: 0
   patienceThreshold: 10
