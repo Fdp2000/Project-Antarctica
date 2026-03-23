@@ -491,7 +491,7 @@ MonoBehaviour:
   roofAudioSource: {fileID: 1148442743}
   roofRoarClip: {fileID: 8300000, guid: f9a3f7a251f0e444c9427afa4f58ca21, type: 3}
   sideScrapeAudioSource: {fileID: 1654179740}
-  metalScrapeClip: {fileID: 8300000, guid: a16c25139b4d14b48bfb89b00c86fd4f, type: 3}
+  metalScrapeClip: {fileID: 8300000, guid: da830a5232746df4194bc86e6158b045, type: 3}
   scrapeLeftStart: {fileID: 150319234}
   scrapeLeftEnd: {fileID: 2051580947}
   scrapeRightStart: {fileID: 1434538903}
@@ -501,7 +501,7 @@ MonoBehaviour:
   debugForceAmbush: 0
   debugForceDoorBang: 0
   debugForceRoofRoar: 0
-  debugForceMetalScrape: 0
+  debugForceMetalScrape: 1
   currentState: 0
   activeStrikeType: 0
   stateTimer: 0
@@ -8411,7 +8411,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.41
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -8419,8 +8419,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 9
-  MaxDistance: 500
+  MinDistance: 1
+  MaxDistance: 5
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -8955,8 +8955,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 9
-  MaxDistance: 500
+  MinDistance: 1
+  MaxDistance: 8
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -9404,7 +9404,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.41
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -9412,8 +9412,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 9
-  MaxDistance: 500
+  MinDistance: 1
+  MaxDistance: 5
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -9542,7 +9542,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
