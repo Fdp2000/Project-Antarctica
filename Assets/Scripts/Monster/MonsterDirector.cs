@@ -29,6 +29,7 @@ public class MonsterDirector : MonoBehaviour
     public Transform rampEntryTarget;
     public float spawnRadius = 25f;
     public Vector2 spawnAngleClamp = new Vector2(-45f, 45f);
+    public AudioSource footstepAudio; // <--- NEW: Footstep Audio Link
 
     [Header("Clutch System Settings")]
     public float clutchCutoffAngle = -133.3f;
@@ -61,14 +62,11 @@ public class MonsterDirector : MonoBehaviour
     private Coroutine scrapeCoroutine;
     private Coroutine shakeCoroutine;
 
-    // ==========================================
-    // --- NEW: DEBUG TOGGLES ADDED HERE ---
-    // ==========================================
     [Header("Live Debug")]
     public bool debugForceAmbush = false;
-    public bool debugForceDoorBang = false;    // <--- NEW
-    public bool debugForceRoofRoar = false;    // <--- NEW
-    public bool debugForceMetalScrape = false; // <--- NEW
+    public bool debugForceDoorBang = false;
+    public bool debugForceRoofRoar = false;
+    public bool debugForceMetalScrape = false;
 
     public EncounterState currentState = EncounterState.Idle;
     public StrikeType activeStrikeType = StrikeType.Normal;
@@ -239,7 +237,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Idle:
                 isEncounterActive = false;
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
-                if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false);
+                if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps
                 playerReactionTime = -1f;
                 reactionStopwatch = 0f;
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
@@ -250,6 +248,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.GracePeriod:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps
                 if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false);
                 playerReactionTime = -1f;
                 reactionStopwatch = 0f;
@@ -323,6 +322,7 @@ public class MonsterDirector : MonoBehaviour
 
             case EncounterState.ClutchStruggle:
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps for Clutch
                 if (clutchController != null)
                 {
                     float maxDangerTime = currentMaxSilenceTime + currentDifficulty.strikeDuration;
@@ -333,8 +333,6 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Siege:
                 stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.patienceThreshold);
                 siegeEventTimer = Random.Range(currentDifficulty.minSiegeEventInterval, currentDifficulty.maxSiegeEventInterval);
-
-                // --- THE FIX: Swapped normalAudioSnapshot to silenceAudioSnapshot! ---
                 if (silenceAudioSnapshot != null) silenceAudioSnapshot.TransitionTo(silenceFadeTime);
                 break;
 
@@ -342,6 +340,7 @@ public class MonsterDirector : MonoBehaviour
                 currentMaxRetreatTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.retreatDuration);
                 stateTimer = currentMaxRetreatTime;
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
+                if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps
                 if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false);
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
                 if (radioAudio != null)
@@ -356,16 +355,14 @@ public class MonsterDirector : MonoBehaviour
 
     private void TriggerRandomSiegeEvent()
     {
-        int rand = Random.Range(0, 3); // Picks 0, 1, or 2
+        int rand = Random.Range(0, 3);
 
-        // --- NEW: Apply the debug overrides here! ---
         if (debugForceDoorBang) rand = 0;
         else if (debugForceRoofRoar) rand = 1;
         else if (debugForceMetalScrape) rand = 2;
 
         if (rand == 0)
         {
-            // Event 1: Door Bang + Shake
             Debug.Log("<color=red>SIEGE EVENT: DOOR BANG</color>");
             if (doorAudioSource != null && doorBangClip != null) doorAudioSource.PlayOneShot(doorBangClip);
             if (shakeCoroutine != null) StopCoroutine(shakeCoroutine);
@@ -373,7 +370,6 @@ public class MonsterDirector : MonoBehaviour
         }
         else if (rand == 1)
         {
-            // Event 2: Roof Roar + Shake
             Debug.Log("<color=red>SIEGE EVENT: ROOF ROAR</color>");
             if (roofAudioSource != null && roofRoarClip != null) roofAudioSource.PlayOneShot(roofRoarClip);
             if (shakeCoroutine != null) StopCoroutine(shakeCoroutine);
@@ -381,7 +377,6 @@ public class MonsterDirector : MonoBehaviour
         }
         else
         {
-            // Event 3: Side Scrape (Moves along hull randomly left or right)
             Debug.Log("<color=red>SIEGE EVENT: METAL SCRAPE</color>");
             if (sideScrapeAudioSource != null && metalScrapeClip != null)
             {
@@ -449,6 +444,7 @@ public class MonsterDirector : MonoBehaviour
         monsterTransform.LookAt(lookTarget);
 
         monsterTransform.gameObject.SetActive(true);
+        if (footstepAudio != null) footstepAudio.Play(); // <--- NEW: Start Footsteps!
 
         float flatDistance = Vector2.Distance(new Vector2(monsterTransform.position.x, monsterTransform.position.z), new Vector2(target.position.x, target.position.z));
         currentSprintSpeed = flatDistance / stateTimer;
@@ -457,6 +453,7 @@ public class MonsterDirector : MonoBehaviour
     private void TriggerJumpscare()
     {
         isEncounterActive = false;
+        if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps exactly when leap/stalk begins!
         if (jumpscareController != null) jumpscareController.ExecuteJumpscare(activeStrikeType, monsterTransform, rampEntryTarget);
     }
 
