@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: 5241e240d69184709985dd9769f41abc
+guid: 7c4d28a2e8133fd4fb4de47df2b376bc
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Punchcard
-    second: {fileID: 2100000, guid: 8d32b74ecf3cd457a96f3d7b04175a0f, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -35,7 +30,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages: []
     globalScale: 1
