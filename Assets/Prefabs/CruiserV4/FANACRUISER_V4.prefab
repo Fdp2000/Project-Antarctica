@@ -443,6 +443,68 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.16090584, y: 0.23388743, z: 0.5766754}
   m_Center: {x: -0.5493917, y: 0.091964364, z: -0.2356453}
+--- !u!1001 &947029855899679030
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1825216532699284433}
+    m_Modifications:
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.284
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.269
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.413
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.72821146
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.68515897
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.011161347
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.011862676
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -86.511
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -1.867
+      objectReference: {fileID: 0}
+    - target: {fileID: 6513124935187722964, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+      propertyPath: m_Name
+      value: NavOnboard
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+--- !u!4 &6632696763742212440 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5848087059703146606, guid: 585b37845b7be487c985afc110e110a0, type: 3}
+  m_PrefabInstance: {fileID: 947029855899679030}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2224428267942405178
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -532,6 +594,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2914d6223fec542d19a89c73b8f91914, type: 3}
       insertIndex: 29
       addedObject: {fileID: 7732335366412208083}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2914d6223fec542d19a89c73b8f91914, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6632696763742212440}
     - targetCorrespondingSourceObject: {fileID: -42805825569825737, guid: 2914d6223fec542d19a89c73b8f91914, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7034268459867216464}
@@ -539,6 +604,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2914d6223fec542d19a89c73b8f91914, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5565250334546206271}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2914d6223fec542d19a89c73b8f91914, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2286973518416771326}
     - targetCorrespondingSourceObject: {fileID: 8863367434314212803, guid: 2914d6223fec542d19a89c73b8f91914, type: 3}
       insertIndex: 1
       addedObject: {fileID: 8803833498609153518}
@@ -563,12 +631,58 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdb3bb307e9fd114fb53a7aaec6dfaaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VehicleController
-  moveSpeed: 5
+  maxSpeed: 5
+  acceleration: 2
+  deceleration: 4
   turnSpeed: 45
+  turnAcceleration: 90
+  turnDeceleration: 120
+  engineIdleSource: {fileID: 0}
+  engineActiveSource: {fileID: 0}
+  maxIdleVolume: 0.5
+  maxActiveVolume: 1
+  activePitchMultiplier: 1.3
+  engineLerpSpeed: 5
+  radarOffset: {x: 0, y: 1, z: 0}
+  radarHalfExtents: {x: 2, y: 1.5, z: 3}
+  stopBufferDistance: 0.5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  steeringWheel: {fileID: 0}
+  maxSteeringAngle: 120
   winch: {fileID: 0}
-  scienceMachine: {fileID: 0}
+  cassetteReceiver: {fileID: 0}
   player: {fileID: 0}
   isPlayerDriving: 0
+  isEngineRunning: 0
+--- !u!54 &2286973518416771326
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305947583856138603}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!4 &1825216532699284433 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2914d6223fec542d19a89c73b8f91914, type: 3}
@@ -596,13 +710,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b459dbba8aa731646b1a9bd91331faed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinchController
+  loopSource: {fileID: 0}
+  impactSource: {fileID: 0}
+  winchLoopNormal: {fileID: 0}
+  doorSwingSound: {fileID: 0}
+  doorSlamShut: {fileID: 0}
+  doorSnowImpact: {fileID: 0}
+  maxPitch: 1.3
+  minPitch: 0.8
+  audioFadeSpeed: 8
   doorHinge: {fileID: 8805481929527673493}
   openAngle: -211
   closedAngle: -90
-  closeSpeed: 45
+  valveMesh: {fileID: 0}
+  valveRotationAxis: {x: 0, y: 0, z: 1}
+  valveFullSpins: 3
+  valveLockAngle: 50
+  openSlamSpeed: 350
+  closeSpeedMin: 5
+  closeSpeedMax: 40
+  closeAcceleration: 20
+  slamThresholdPercent: 0.07
+  slamDuration: 0.15
   openHoldTime: 0.25
   closeCooldownTime: 1.2
   openCooldownTime: 2
+  isStruggling: 0
+  isPlayerInside: 1
+  autoOpenOutsideTimer: 4
 --- !u!114 &724680571741230011
 MonoBehaviour:
   m_ObjectHideFlags: 0
