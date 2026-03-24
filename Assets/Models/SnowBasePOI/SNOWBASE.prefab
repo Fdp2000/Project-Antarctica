@@ -277,6 +277,37 @@ Transform:
   - {fileID: 7594622737354239801}
   m_Father: {fileID: 2717712883295836468}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 85.514}
+--- !u!1 &717954626602697739
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2705557033396098464}
+  m_Layer: 0
+  m_Name: SnowbaseFog the fog parent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2705557033396098464
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717954626602697739}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8299727000681289190}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &874127935279638884
 GameObject:
   m_ObjectHideFlags: 0
@@ -14478,6 +14509,10 @@ PrefabInstance:
       value: 2147483647
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: cb366335250a5024f9d6d056527c0536, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cb366335250a5024f9d6d056527c0536, type: 3}
       propertyPath: m_Name
       value: SNOWBASE
       objectReference: {fileID: 0}
@@ -14935,28 +14970,31 @@ PrefabInstance:
     - {fileID: 6680080315648421879, guid: cb366335250a5024f9d6d056527c0536, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 2623821141068277682}
+      insertIndex: 0
+      addedObject: {fileID: 2705557033396098464}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
       insertIndex: 4
-      addedObject: {fileID: 7100577544016544794}
+      addedObject: {fileID: 2623821141068277682}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
       insertIndex: 5
-      addedObject: {fileID: 2717712883295836468}
+      addedObject: {fileID: 7100577544016544794}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
       insertIndex: 6
+      addedObject: {fileID: 2717712883295836468}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
+      insertIndex: 7
       addedObject: {fileID: 1705331173995817303}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
-      insertIndex: 22
+      insertIndex: 23
       addedObject: {fileID: 305917045527894194}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
-      insertIndex: 36
+      insertIndex: 37
       addedObject: {fileID: 9028284951722176469}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
-      insertIndex: 67
+      insertIndex: 68
       addedObject: {fileID: 8534469752689645753}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
-      insertIndex: 83
+      insertIndex: 84
       addedObject: {fileID: 3913534625580482086}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: cb366335250a5024f9d6d056527c0536, type: 3}
       insertIndex: -1
