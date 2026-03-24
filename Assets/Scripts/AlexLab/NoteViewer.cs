@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI; // <--- ADD THIS LINE
 
 public class NoteViewer : MonoBehaviour
 {
@@ -52,7 +53,8 @@ public class NoteViewer : MonoBehaviour
     }
     }
 
-    public void ShowNote(NoteData note)
+    // Update this line!
+    public void ShowNote(NoteData note, Material noteMaterial = null)
     {
     if (currentNote != null) return;
 
@@ -75,7 +77,16 @@ public class NoteViewer : MonoBehaviour
 
     currentNote.transform.SetParent(mainCamera.transform);
 
-    TMP_Text text = currentNote.GetComponentInChildren<TMP_Text>();
+        if (noteMaterial != null)
+        {
+            Image paperImage = currentNote.GetComponentInChildren<Image>();
+            if (paperImage != null)
+            {
+                paperImage.material = noteMaterial;
+            }
+        }
+
+        TMP_Text text = currentNote.GetComponentInChildren<TMP_Text>();
     if (text != null)
         text.text = note.noteText;
 
