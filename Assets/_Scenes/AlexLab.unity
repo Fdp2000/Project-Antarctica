@@ -5314,6 +5314,7 @@ MonoBehaviour:
   rotationSpeed: 50
   smoothFaceSpeed: 10
   interactionPrompt: {fileID: 1117050980}
+  crosshair: {fileID: 0}
   openNoteSFX: {fileID: 8300000, guid: b8378993ca42c064c8f23365bfbb2db8, type: 3}
   closeNoteSFX: {fileID: 8300000, guid: b8378993ca42c064c8f23365bfbb2db8, type: 3}
   isReading: 0
