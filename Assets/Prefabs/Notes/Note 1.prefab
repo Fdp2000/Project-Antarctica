@@ -308,7 +308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 915164e64320ddd43a8369eaebeae522, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoteInteract
-  noteData: {fileID: 11400000, guid: 12d4b0bb5ee32334380247c46778dab7, type: 2}
+  noteData: {fileID: 11400000, guid: 1bde96f962367704a91e6ae5cd71c3c9, type: 2}
   promptText: '[E] Read'
 --- !u!65 &1051320086572023055
 BoxCollider:

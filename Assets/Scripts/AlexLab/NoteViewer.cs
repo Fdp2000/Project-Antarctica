@@ -42,13 +42,6 @@ public class NoteViewer : MonoBehaviour
     return;
     }
 
-    // Close note
-    if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Escape))
-    {
-        CloseNote();
-        return;
-    }
-
     // Rotate note slightly with mouse
     if (currentNote != null)
     {
