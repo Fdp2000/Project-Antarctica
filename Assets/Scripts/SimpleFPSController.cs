@@ -315,7 +315,19 @@ public class SimpleFPSController : MonoBehaviour
     {
         hasCassette = true;
         currentlyHeldTapeBeacon = tape.sourceBeacon;
-        if (heldCassetteVisual != null) heldCassetteVisual.SetActive(true);
+
+        if (heldCassetteVisual != null)
+        {
+            heldCassetteVisual.SetActive(true);
+
+            // --- NEW: Swap the material based on the beacon data ---
+            CassetteMaterialSwapper swapper = heldCassetteVisual.GetComponent<CassetteMaterialSwapper>();
+            if (swapper != null && tape.sourceBeacon != null)
+            {
+                swapper.SetTapeMaterial(tape.sourceBeacon.uniqueTapeMaterial);
+            }
+        }
+
         Destroy(tape.gameObject);
     }
 

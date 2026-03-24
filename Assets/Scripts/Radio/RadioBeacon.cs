@@ -17,6 +17,10 @@ public class RadioBeacon : MonoBehaviour
 
     [HideInInspector] public bool isFadingOut = false;
 
+    [Header("Visuals")]
+    [Tooltip("The specific texture/material for this POI's cassette tape.")]
+    public Material uniqueTapeMaterial;
+
     [Tooltip("Drag the player's vehicle here to track distance.")]
     public Transform playerVehicle;
 

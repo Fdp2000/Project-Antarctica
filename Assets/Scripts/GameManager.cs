@@ -179,7 +179,18 @@ public class GameManager : MonoBehaviour
             {
                 player.hasCassette = true;
                 player.currentlyHeldTapeBeacon = foundBeacon;
-                if (player.heldCassetteVisual != null) player.heldCassetteVisual.SetActive(true);
+
+                if (player.heldCassetteVisual != null)
+                {
+                    player.heldCassetteVisual.SetActive(true);
+
+                    // --- NEW: Restore the correct material on respawn ---
+                    CassetteMaterialSwapper swapper = player.heldCassetteVisual.GetComponent<CassetteMaterialSwapper>();
+                    if (swapper != null)
+                    {
+                        swapper.SetTapeMaterial(foundBeacon.uniqueTapeMaterial);
+                    }
+                }
                 Debug.Log($"<color=cyan>Restored Tape to Player Hand: {tapeName}</color>");
             }
         }
