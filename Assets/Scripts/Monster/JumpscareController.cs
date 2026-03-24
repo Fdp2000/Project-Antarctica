@@ -39,6 +39,7 @@ public class JumpscareController : MonoBehaviour
     public float ambushBreachDuration = 0.25f;
     public float monsterLeapDuration = 0.3f;
     public float leapArcHeight = 1.2f;
+    public GameObject CrossHair;
 
     [Header("Stalk Behind Settings (50/50 Loss)")]
     public float stalkDuration = 4.0f;
@@ -254,6 +255,7 @@ public class JumpscareController : MonoBehaviour
         // ==========================================
         if (scenarios.Count > 0 && jumpscareCamera != null && playerCameraLens != null)
         {
+            CrossHair.SetActive(false);
             playerCameraLens.gameObject.SetActive(false);
             jumpscareCamera.gameObject.SetActive(true);
 
@@ -348,6 +350,8 @@ public class JumpscareController : MonoBehaviour
 
     public void ResetJumpscareState()
     {
+        CrossHair.SetActive(true);
+
         if (jumpscareCamera != null) jumpscareCamera.gameObject.SetActive(false);
         if (playerCameraLens != null) playerCameraLens.gameObject.SetActive(true);
         if (stalkCollider != null) stalkCollider.enabled = false;

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_1_Profile
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
   baseGracePeriod: 0
-  approachDuration: 0
+  approachDuration: 2
   silenceDuration: 1
   strikeDuration: 1.2
   retreatDuration: 5

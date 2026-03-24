@@ -24,6 +24,7 @@ public class SimpleFPSController : MonoBehaviour
     public float interactRange = 3.0f;
     public float cassettePickupRange = 2.0f;
     public float winchInteractRange = 4.0f;
+    public float noteReadRange = 4.0f;
 
     [Header("Interaction Settings")]
     public KeyCode interactKey = KeyCode.E;
@@ -76,8 +77,12 @@ public class SimpleFPSController : MonoBehaviour
     {
         if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
         {
-        // Don't rotate camera, move player, or highlight objects
-        return;
+            if (Input.GetKeyDown(interactKey) || Input.GetKeyDown(KeyCode.Escape))
+            {
+                NoteViewer.Instance.CloseNote();
+            }
+            // Don't rotate camera, move player, or highlight objects
+            return;
         }
         rotationX += -Input.GetAxis("Mouse Y") * lookSensitivity;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
@@ -172,6 +177,22 @@ public class SimpleFPSController : MonoBehaviour
         {
             GameObject target = hit.collider.gameObject;
             float distanceToTarget = hit.distance;
+
+            var note = target.GetComponent<NoteInteract>();
+            if (note != null)
+            {
+                if (distanceToTarget <= noteReadRange)
+                {
+                    HighlightObject(target);
+                    if (Input.GetKeyDown(interactKey))
+                    {
+                        ClearHighlight();
+                        note.Interact();
+                    }
+                }
+                else { ClearHighlight(); }
+                return;
+            }
 
             var cassette = target.GetComponent<CassetteInteractable>();
             if (cassette != null)
@@ -312,7 +333,7 @@ public class SimpleFPSController : MonoBehaviour
         Outline outline = obj.GetComponent<Outline>() ?? obj.GetComponentInParent<Outline>();
         if (outline != null)
         {
-            if (currentOutline != null && currentOutline != outline) currentOutline.enabled = false;
+            if (currentOutline != null && currentOutline != outline) currentOutline.enabled = true;
             currentOutline = outline;
             currentOutline.enabled = true;
             if (crosshairDot != null) crosshairDot.color = Color.green;

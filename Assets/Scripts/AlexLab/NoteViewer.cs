@@ -14,6 +14,7 @@ public class NoteViewer : MonoBehaviour
 
     [Header("UI")]
     public GameObject interactionPrompt; // Drag your [E] Read canvas here
+    public GameObject crosshair; // Optional: Hide crosshair while reading
 
     [Header("Sounds")]
     public AudioClip openNoteSFX;
@@ -90,7 +91,8 @@ public class NoteViewer : MonoBehaviour
 
     isReading = true;
     Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
+        crosshair.SetActive(false);
+
     }
 
     public void CloseNote()
@@ -109,5 +111,7 @@ public class NoteViewer : MonoBehaviour
     isReading = false;
     Cursor.lockState = CursorLockMode.Locked;
     Cursor.visible = false;
+        if (crosshair != null)
+        crosshair.SetActive(true);
     }
 }

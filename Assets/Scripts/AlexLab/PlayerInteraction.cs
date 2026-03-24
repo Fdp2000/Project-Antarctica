@@ -41,13 +41,11 @@ public class PlayerInteraction : MonoBehaviour
             {
                 currentInteractable = interactable;
 
-                InteractionPromptUI.Instance.ShowPrompt(interactable.GetPrompt());
 
                 return;
             }
         }
 
         currentInteractable = null;
-        InteractionPromptUI.Instance.HidePrompt();
     }
 }
