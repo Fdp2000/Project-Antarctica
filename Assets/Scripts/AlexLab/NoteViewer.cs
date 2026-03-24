@@ -35,7 +35,11 @@ public class NoteViewer : MonoBehaviour
 
     void Update()
     {
-    if (!isReading) return;
+    if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
+    {
+    // Skip all movement/rotation while reading
+    return;
+    }
 
     // Close note
     if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Escape))

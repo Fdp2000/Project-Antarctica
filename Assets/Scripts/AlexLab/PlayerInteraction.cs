@@ -8,16 +8,16 @@ public class PlayerInteraction : MonoBehaviour
     IInteractable currentInteractable;
 
     void Update()
-    {
+{
     // If reading, pressing E closes the note
-    if (NoteUIManager.Instance.isReading)
+    if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
     {
-      if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Escape))
         {
-    NoteUIManager.Instance.CloseNote();
-        }   
+            NoteViewer.Instance.CloseNote();
+        }
 
-        return; // stop all other interaction
+        return; // stop all other interaction/movement
     }
 
     CheckForInteractable();
@@ -26,7 +26,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         currentInteractable.Interact();
     }
-    }
+}
 
     void CheckForInteractable()
     {
