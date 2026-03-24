@@ -12,10 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d349c6d2656e0146a55cb2c339a120c, type: 3}
   m_Name: NewNote
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
-  noteTitle: 11111
-  noteText: 'Research note #12
-
-
-    The base is frozen over, we are dead... run
-    xd'
-  journalEntry: {fileID: 11400000, guid: 21448df92d4c29840a703d8a72372437, type: 2}
+  noteTitle: 
+  noteText: Hello my name uis frederik
+  journalEntry: {fileID: 0}
