@@ -320,11 +320,14 @@ public class SimpleFPSController : MonoBehaviour
         {
             heldCassetteVisual.SetActive(true);
 
-            // --- NEW: Swap the material based on the beacon data ---
-            CassetteMaterialSwapper swapper = heldCassetteVisual.GetComponent<CassetteMaterialSwapper>();
-            if (swapper != null && tape.sourceBeacon != null)
+            // --- THE DIRECT METHOD ---
+            // 1. Find the MeshRenderer (whether it is on the parent or the child)
+            MeshRenderer tapeRenderer = heldCassetteVisual.GetComponentInChildren<MeshRenderer>();
+
+            // 2. Directly apply the material from the Beacon!
+            if (tapeRenderer != null && tape.sourceBeacon != null && tape.sourceBeacon.uniqueTapeMaterial != null)
             {
-                swapper.SetTapeMaterial(tape.sourceBeacon.uniqueTapeMaterial);
+                tapeRenderer.material = tape.sourceBeacon.uniqueTapeMaterial;
             }
         }
 

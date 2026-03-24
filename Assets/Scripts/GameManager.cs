@@ -184,11 +184,11 @@ public class GameManager : MonoBehaviour
                 {
                     player.heldCassetteVisual.SetActive(true);
 
-                    // --- NEW: Restore the correct material on respawn ---
-                    CassetteMaterialSwapper swapper = player.heldCassetteVisual.GetComponent<CassetteMaterialSwapper>();
-                    if (swapper != null)
+                    // --- THE DIRECT METHOD ---
+                    MeshRenderer tapeRenderer = player.heldCassetteVisual.GetComponentInChildren<MeshRenderer>();
+                    if (tapeRenderer != null && foundBeacon.uniqueTapeMaterial != null)
                     {
-                        swapper.SetTapeMaterial(foundBeacon.uniqueTapeMaterial);
+                        tapeRenderer.material = foundBeacon.uniqueTapeMaterial;
                     }
                 }
                 Debug.Log($"<color=cyan>Restored Tape to Player Hand: {tapeName}</color>");
