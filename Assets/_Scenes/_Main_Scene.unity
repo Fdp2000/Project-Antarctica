@@ -1191,9 +1191,6 @@ PrefabInstance:
       addedObject: {fileID: 1865297188}
     - targetCorrespondingSourceObject: {fileID: 7362020696061208266, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 247040012}
-    - targetCorrespondingSourceObject: {fileID: 7362020696061208266, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 184678070}
     - targetCorrespondingSourceObject: {fileID: 7362020696061208266, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
       insertIndex: -1
@@ -8979,7 +8976,11 @@ PrefabInstance:
     - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_fontAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+      objectReference: {fileID: 11400000, guid: b274f1a18abce374eb86e88afb46e3d3, type: 2}
+    - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2256266087843168159, guid: b274f1a18abce374eb86e88afb46e3d3, type: 2}
     - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
@@ -8987,6 +8988,14 @@ PrefabInstance:
     - target: {fileID: 6867042637739662611, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_Name
       value: Note 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8554458277543493492, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2256266087843168159, guid: b274f1a18abce374eb86e88afb46e3d3, type: 2}
+    - target: {fileID: 8576092483488706861, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15915,37 +15924,6 @@ MonoBehaviour:
     targetTransform: {fileID: 90442941}
     clearDistance: 10
     fullFogDistance: 15.9
---- !u!1 &1270150642
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1270150643}
-  m_Layer: 0
-  m_Name: 
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1270150643
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1270150642}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1311549452 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 396509724910473010, guid: edc693f5ab65c9640a6d8916562c4c7f, type: 3}
@@ -19469,7 +19447,6 @@ AudioSource:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1270150643}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 273574921}
