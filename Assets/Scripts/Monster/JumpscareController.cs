@@ -213,13 +213,13 @@ public class JumpscareController : MonoBehaviour
                 jumpscareStudioMonsterNode.position = activeScenario.monsterStartNode.position;
                 jumpscareStudioMonsterNode.rotation = activeScenario.monsterStartNode.rotation;
                 jumpscareStudioMonsterNode.gameObject.SetActive(true);
-            }
-
-            if (activeScenario.cameraNode != null)
-            {
                 jumpscareCamera.transform.position = activeScenario.cameraNode.position;
                 jumpscareCamera.transform.rotation = activeScenario.cameraNode.rotation;
             }
+
+
+
+            
 
             for (int i = 0; i < studioSpotlights.Count; i++)
             {
