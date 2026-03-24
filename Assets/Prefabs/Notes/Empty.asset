@@ -13,8 +13,5 @@ MonoBehaviour:
   m_Name: Empty
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
-  noteText: "This place is... not what I expected.\LIt's too quiet. Even for Antarctica.\LI
-    thought I'd hear wind all the time. But sometimes it's just... nothing.\nI hear
-    strange noises from the lab at times, i wonder what the scientists are doing
-    in there."
+  noteText: 
   journalEntry: {fileID: 0}
