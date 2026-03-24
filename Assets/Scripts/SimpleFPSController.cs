@@ -74,6 +74,11 @@ public class SimpleFPSController : MonoBehaviour
 
     void Update()
     {
+        if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
+        {
+        // Don't rotate camera, move player, or highlight objects
+        return;
+        }
         rotationX += -Input.GetAxis("Mouse Y") * lookSensitivity;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
 
@@ -153,6 +158,13 @@ public class SimpleFPSController : MonoBehaviour
 
     private void HandleInteractions()
     {
+          // --- NEW: Skip all interaction while reading a note ---
+        if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
+        {
+        ClearHighlight();  // Optional: remove any highlight when note is open
+        return;
+        }   
+        
         float maxRayRange = Mathf.Max(interactRange, Mathf.Max(cassettePickupRange, winchInteractRange));
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
