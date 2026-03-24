@@ -590,19 +590,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3913534625580482086, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.10468647
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 3913534625580482086, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.12
+      value: 0.119
       objectReference: {fileID: 0}
     - target: {fileID: 3913534625580482086, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.485
+      value: 1.496
       objectReference: {fileID: 0}
     - target: {fileID: 3913534625580482086, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.137
+      value: 3.109
       objectReference: {fileID: 0}
     - target: {fileID: 3913534625580482086, guid: c1ba112810841534e9dddbe9fbe71f96, type: 3}
       propertyPath: m_LocalRotation.w
@@ -13901,7 +13901,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoteViewer
   notePrefab: {fileID: 6824164940566390362, guid: bee01f9f327593b448199eabfc194722, type: 3}
-  spawnDistance: 0.22
+  spawnDistance: 0.15
   spawnHeight: 0
   rotationSpeed: 50
   smoothFaceSpeed: 10
