@@ -30,13 +30,16 @@ public class ClutchController : MonoBehaviour
     public int maxMistakes = 3;
     public float penaltyJerkAngle = 6f;
     public float inputForgivenessBuffer = 0.25f;
-    public float recurringPenaltyInterval = 1.0f; [Header("Audio (Struggle Sounds)")]
+    public float recurringPenaltyInterval = 1.0f;
+
+    [Header("Audio (Struggle Sounds)")]
     public AudioClip winchLoopStruggle;
     public AudioClip penaltyJerk;
     public AudioClip doorRipOpen;
 
     [Header("Live Debug")]
-    public bool debugForceStalkBehind = false; // <--- NEW: Force Stalk Behind Loss
+    public bool debugForceStalkBehind = false;
+    public bool debugForceNormalStrike = false; // <--- CHANGED: Force a Leaping Strike
     public float lastReactionScore;
     public float lastAngleScore;
     public float lastPlayerTotal;
@@ -78,7 +81,6 @@ public class ClutchController : MonoBehaviour
             winchController.loopSource.pitch = 1f;
             winchController.loopSource.Play();
         }
-
 
         float struggleBaseAngle = startAngle;
         int currentMistakes = 0;
@@ -124,17 +126,21 @@ public class ClutchController : MonoBehaviour
 
                 if (monsterDirector != null && monsterDirector.jumpscareController != null)
                 {
-                    // --- THE NEW 50/50 ROLL WITH DEBUG OVERRIDE ---
                     MonsterDirector.StrikeType finalStrike;
 
+                    // --- THE FIX: Now rolls for a Leaping Strike! ---
                     if (debugForceStalkBehind)
                     {
                         finalStrike = MonsterDirector.StrikeType.StalkBehind;
                     }
+                    else if (debugForceNormalStrike)
+                    {
+                        finalStrike = MonsterDirector.StrikeType.Normal;
+                    }
                     else
                     {
                         finalStrike = (Random.value > 0.5f) ?
-                            MonsterDirector.StrikeType.PointBlank :
+                            MonsterDirector.StrikeType.Normal :
                             MonsterDirector.StrikeType.StalkBehind;
                     }
 
