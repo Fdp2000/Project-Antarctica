@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 906e58a565a0b4874ae08ad1fce25e34
+guid: 68d83bd779aa94dcc90a20a215616c3f
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,48 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Blank
-    second: {fileID: 2100000, guid: ba1302c75516d43058deb39c229e7623, type: 2}
+      name: FenceChain
+    second: {fileID: 2100000, guid: 05659c056a763490ba8a8bc93c235fdb, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: DamagedInteriorCruiser
-    second: {fileID: 2100000, guid: ef336df7d20a34db7b75478a86894a51, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: DamagedMainCruiser
-    second: {fileID: 2100000, guid: d274b39ae506e4b9aaa5df035e769195, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: InteriorCruiser
-    second: {fileID: 2100000, guid: 940ac7fc69d05465e9d48d430bf358f9, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: MainCruiser
-    second: {fileID: 2100000, guid: d45363603c0534390891dbb4814e48bd, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Metal
-    second: {fileID: 2100000, guid: 9c383d86cff34480aaa092284233af40, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Meters
-    second: {fileID: 2100000, guid: c7ba1e5b0f2a6461597239cf14411bc6, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: RedLight
-    second: {fileID: 2100000, guid: 69d58e48f6ac7455297b68949a44ccf2, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: YellowLight
-    second: {fileID: 2100000, guid: 6535486c4a3f94b1fb7345d8fc953b43, type: 2}
+      name: FencePost
+    second: {fileID: 2100000, guid: b1e01d898bc7e43aca80af585bd837c7, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -80,7 +45,7 @@ ModelImporter:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
-    addColliders: 1
+    addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
     importPhysicalCameras: 1
