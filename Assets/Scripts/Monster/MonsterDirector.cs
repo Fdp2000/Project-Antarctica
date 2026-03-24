@@ -81,6 +81,7 @@ public class MonsterDirector : MonoBehaviour
     private float currentMaxApproachTime;
     private float currentMaxSilenceTime;
     private float currentMaxRetreatTime;
+    private float currentMaxStrikeTime; // <--- ADD THIS
     private float currentSprintSpeed;
 
     [Header("Strike Logic Funnel")]
@@ -132,7 +133,7 @@ public class MonsterDirector : MonoBehaviour
         {
             case EncounterState.GracePeriod:
                 if (isMinigameComplete) TransitionToState(EncounterState.Idle);
-                else if (winchController != null && winchController.IsDoorClosed) stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
+                else if (winchController != null && winchController.IsDoorClosed) stateTimer = currentDifficulty.GetRandomTimer(currentDifficulty.gracePeriod);
                 else
                 {
                     stateTimer -= Time.deltaTime;
@@ -209,7 +210,7 @@ public class MonsterDirector : MonoBehaviour
                     if (siegeEventTimer <= 0f)
                     {
                         TriggerRandomSiegeEvent();
-                        siegeEventTimer = Random.Range(currentDifficulty.minSiegeEventInterval, currentDifficulty.maxSiegeEventInterval);
+                        siegeEventTimer = Random.Range(currentDifficulty.siegeEventInterval.x, currentDifficulty.siegeEventInterval.y);
                     }
 
                     if (stateTimer <= 0) TransitionToState(EncounterState.Retreat);
@@ -249,7 +250,7 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.GracePeriod:
-                stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.baseGracePeriod);
+                stateTimer = currentDifficulty.GetRandomTimer(currentDifficulty.gracePeriod);
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
                 if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps
                 if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false);
@@ -263,7 +264,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Approach:
                 if (!isReversing)
                 {
-                    currentMaxApproachTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.approachDuration);
+                    currentMaxApproachTime = currentDifficulty.GetRandomTimer(currentDifficulty.approachDuration);
                     stateTimer = currentMaxApproachTime;
                 }
                 else stateTimer = 0f;
@@ -280,7 +281,7 @@ public class MonsterDirector : MonoBehaviour
             case EncounterState.Silence:
                 if (!isReversing)
                 {
-                    currentMaxSilenceTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.silenceDuration);
+                    currentMaxSilenceTime = currentDifficulty.GetRandomTimer(currentDifficulty.silenceDuration);
                     stateTimer = currentMaxSilenceTime;
                 }
                 else stateTimer = 0f;
@@ -291,7 +292,8 @@ public class MonsterDirector : MonoBehaviour
                 break;
 
             case EncounterState.Strike:
-                stateTimer = currentDifficulty.strikeDuration;
+                currentMaxStrikeTime = currentDifficulty.GetRandomTimer(currentDifficulty.strikeDuration);
+                stateTimer = currentMaxStrikeTime;
                 bool isSiegeBreach = (previousState == EncounterState.Siege);
                 float distanceToPlayer = Vector3.Distance(rampEntryTarget.position, playerCamera.position);
                 Vector3 rampChestLevel = rampEntryTarget.position + (Vector3.up * 1.0f);
@@ -328,19 +330,19 @@ public class MonsterDirector : MonoBehaviour
                 if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps for Clutch
                 if (clutchController != null)
                 {
-                    float maxDangerTime = currentMaxSilenceTime + currentDifficulty.strikeDuration;
+                    float maxDangerTime = currentMaxSilenceTime + currentMaxStrikeTime;
                     clutchController.EvaluateStruggle(playerReactionTime, maxDangerTime, winchController.CurrentAngle, currentDifficulty);
                 }
                 break;
 
             case EncounterState.Siege:
-                stateTimer = currentDifficulty.GetRandomizedTimer(currentDifficulty.patienceThreshold);
-                siegeEventTimer = Random.Range(currentDifficulty.minSiegeEventInterval, currentDifficulty.maxSiegeEventInterval);
+                stateTimer = currentDifficulty.GetRandomTimer(currentDifficulty.patienceThreshold);
+                siegeEventTimer = Random.Range(currentDifficulty.siegeEventInterval.x, currentDifficulty.siegeEventInterval.y);
                 if (silenceAudioSnapshot != null) silenceAudioSnapshot.TransitionTo(silenceFadeTime);
                 break;
 
             case EncounterState.Retreat:
-                currentMaxRetreatTime = currentDifficulty.GetRandomizedTimer(currentDifficulty.retreatDuration);
+                currentMaxRetreatTime = currentDifficulty.GetRandomTimer(currentDifficulty.retreatDuration);
                 stateTimer = currentMaxRetreatTime;
                 if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
                 if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps
