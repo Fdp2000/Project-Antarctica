@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d349c6d2656e0146a55cb2c339a120c, type: 3}
-  m_Name: Research Note #1
+  m_Name: Research Note #3
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
-  noteText: "This place is... not what I expected.\LIt's too quiet. Even for Antarctica.\LI
-    thought I'd hear wind all the time. But sometimes it's just... nothing.\nI hear
-    strange noises from the lab at times, i wonder what the scientists are doing
-    in there."
+  noteText: "If anyone reads this\nIm all alone now.\nThere is something out there.\nI
+    heard it again tonight. Not pipes. Not wind.\LScratching. Moving. Hunting.\nThe
+    storm stills and the radio cuts off.\nCant call for help.\nCant run."
   journalEntry: {fileID: 0}
