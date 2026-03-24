@@ -1,5 +1,36 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class JumpscareScenario
+{
+    public string scenarioName = "New Jumpscare";
+
+    [Header("Studio Placements")]
+    public Transform monsterStartNode;
+    public Transform cameraNode;
+
+    [Header("Lighting Nodes")]
+    [Tooltip("Add as many empty Transforms here as you need for this specific scenario.")]
+    public List<Transform> spotlightNodes = new List<Transform>();
+
+    [Header("Animation & Timing")]
+    public string animationTriggerBool;
+    [Tooltip("How fast the animation plays to fit within the total duration.")]
+    public float animationSpeedMultiplier = 1.0f;
+    [Tooltip("The total time before cutting to the black death screen.")]
+    public float totalJumpscareDuration = 1.5f;
+
+    [Header("Camera FX")]
+    public float zoomDuration = 0.5f;
+    public float targetZoomFOV = 35f;
+
+    [Header("Audio (The Vocal)")]
+    [Tooltip("The unique 3D roar or bite sound for this specific monster animation.")]
+    public AudioClip screamClip;
+    [Range(0f, 1f)] public float screamVolume = 1.0f;
+}
 
 public class JumpscareController : MonoBehaviour
 {
@@ -11,66 +42,67 @@ public class JumpscareController : MonoBehaviour
     public float cameraSnapDuration = 0.15f;
     public float ambushBreachDuration = 0.25f;
     public float monsterLeapDuration = 0.3f;
-    public float leapArcHeight = 1.2f; [Header("Stalk Behind Settings (50/50 Loss)")]
+    public float leapArcHeight = 1.2f;
+
+    [Header("Stalk Behind Settings (50/50 Loss)")]
     public float stalkDuration = 4.0f;
-    public float stalkDistance = 1.5f; [Tooltip("How much the player has to look at the monster before it strikes (1 = perfectly centered, 0.5 = edge of screen).")]
+    public float stalkDistance = 1.5f;
     public float stalkLookThreshold = 0.6f;
     public AudioSource monsterAudioSource;
     public AudioClip breathingSound;
-    public BoxCollider stalkCollider; // Solid wall behind the player![Header("Jumpscare Execution (The Face Zoom)")]
-    public AudioSource jumpscareAudioSource;
-    public AudioClip jumpscareScream;
-    public float jumpscareZoomDuration = 0.6f;
-    public float targetZoomFOV = 30f;
-    public float jumpscareHoldDuration = 1.2f;
+    public BoxCollider stalkCollider;
 
-    public Transform monsterHead;
-    public float playerCameraHeightOffset = 1.9f;
-
-    [Header("Jumpscare Studio (Anti-Clip)")]
+    [Header("Jumpscare Studio (The Puppet System)")]
     public Camera jumpscareCamera;
     public Transform jumpscareStudioMonsterNode;
+    public Animator studioMonsterAnimator;
+    public AudioSource studioMonsterAudioSource;
+    public List<Light> studioSpotlights = new List<Light>();
+
+    // ==========================================
+    // --- NEW: THE UNIVERSAL STINGER ---
+    // ==========================================
+    [Header("Universal Audio (The Stinger)")]
+    [Tooltip("The 2D AudioSource attached to the Jumpscare Camera or Manager.")]
+    public AudioSource universalStingerSource;
+    [Tooltip("The massive cinematic BANG that plays on frame 1 of every scenario.")]
+    public AudioClip universalStingerClip;
+    [Range(0f, 1f)] public float stingerVolume = 1.0f;
+    // ==========================================
+
+    [Header("The Scenarios")]
+    [Tooltip("Set to -1 for random. Set to 0, 1, 2, etc., to force a specific scenario for testing.")]
+    public int debugForceScenarioIndex = -1;
+    public List<JumpscareScenario> scenarios = new List<JumpscareScenario>();
 
     [Header("Ambush Nodes")]
     public Transform shadowSpawnNode;
     public Transform doorwayLeapNode;
 
-    public void ExecuteJumpscare(MonsterDirector.StrikeType strikeType, Transform monsterTransform, Transform rampEntryTarget)
+    public void ExecuteJumpscare(MonsterDirector.StrikeType strikeType, Transform monsterPhys, Transform rampEntry)
     {
-        // Don't trigger the leap instantly if we are just stalking!
-        if (strikeType != MonsterDirector.StrikeType.StalkBehind && monsterAnimator != null)
-        {
-            monsterAnimator.SetBool("isLeaping", true);
-        }
-
-        StartCoroutine(JumpscareRoutine(strikeType, monsterTransform, rampEntryTarget));
+        StartCoroutine(JumpscareRoutine(strikeType, monsterPhys, rampEntry));
     }
 
-    private IEnumerator JumpscareRoutine(MonsterDirector.StrikeType activeStrikeType, Transform monsterTransform, Transform rampEntryTarget)
+    private IEnumerator JumpscareRoutine(MonsterDirector.StrikeType strikeType, Transform monsterPhys, Transform rampEntry)
     {
-        if (monsterTransform != null) monsterTransform.gameObject.SetActive(true);
+        Debug.Log($"<color=red><b>[ FATAL STRIKE INITIATED: {strikeType} ]</b></color>");
 
-        if (activeStrikeType == MonsterDirector.StrikeType.StalkBehind)
+        if (fpsController != null) fpsController.enabled = false;
+
+        // 1. STALK BEHIND FUNNEL
+        if (strikeType == MonsterDirector.StrikeType.StalkBehind)
         {
-            // --- 1. THE STALK SETUP ---
-            Vector3 flatForward = playerCamera.forward;
-            flatForward.y = 0;
-            flatForward.Normalize();
-
-            // Spawn directly behind the player's back
-            Vector3 spawnPos = playerCamera.position - (flatForward * stalkDistance);
-            spawnPos.y = playerCamera.position.y - playerCameraHeightOffset;
-
-            if (monsterTransform != null)
-            {
-                monsterTransform.position = spawnPos;
-                Vector3 flatLook = new Vector3(playerCamera.position.x, monsterTransform.position.y, playerCamera.position.z);
-                monsterTransform.LookAt(flatLook);
-            }
-
-            // Set animations and audio
-            if (monsterAnimator != null) monsterAnimator.SetBool("isStalking", true);
             if (stalkCollider != null) stalkCollider.enabled = true;
+
+            if (monsterPhys != null)
+            {
+                monsterPhys.gameObject.SetActive(true);
+                Vector3 behindPos = playerCamera.position - (playerCamera.forward * stalkDistance);
+                behindPos.y = rampEntry.position.y;
+                monsterPhys.position = behindPos;
+                monsterPhys.rotation = Quaternion.LookRotation(playerCamera.position - monsterPhys.position);
+            }
 
             if (monsterAudioSource != null && breathingSound != null)
             {
@@ -79,165 +111,172 @@ public class JumpscareController : MonoBehaviour
                 monsterAudioSource.Play();
             }
 
-            // --- 2. THE WAITING ROOM ---
-            float stalkElapsed = 0f;
-            while (stalkElapsed < stalkDuration)
+            float stalkTimer = 0f;
+            bool playerLooked = false;
+
+            while (stalkTimer < stalkDuration)
             {
-                stalkElapsed += Time.deltaTime;
-                if (monsterTransform != null)
+                stalkTimer += Time.deltaTime;
+
+                if (monsterPhys != null)
                 {
-                    // Check if player looked at the monster
-                    Vector3 dirToMonster = (monsterTransform.position - playerCamera.position).normalized;
-                    if (Vector3.Dot(playerCamera.forward, dirToMonster) > stalkLookThreshold)
+                    Vector3 dirToMonster = (monsterPhys.position - playerCamera.position).normalized;
+                    float dotProduct = Vector3.Dot(playerCamera.forward, dirToMonster);
+
+                    if (dotProduct > stalkLookThreshold)
                     {
-                        break; // Player turned around! End the stalk early.
+                        playerLooked = true;
+                        break;
                     }
                 }
                 yield return null;
             }
 
-            // --- 3. THE TRIGGER ---
             if (monsterAudioSource != null) monsterAudioSource.Stop();
-            if (stalkCollider != null) stalkCollider.enabled = false;
-            if (fpsController != null) fpsController.enabled = false; // Lock the player now!
-
-            // Fast snap to face
-            Quaternion startRot = playerCamera.rotation;
-            float snapElapsed = 0f;
-            while (snapElapsed < cameraSnapDuration)
-            {
-                snapElapsed += Time.deltaTime;
-                Vector3 targetHeadPos = monsterHead != null ? monsterHead.position : monsterTransform.position + (Vector3.up * 2.2f);
-                playerCamera.rotation = Quaternion.Slerp(startRot, Quaternion.LookRotation(targetHeadPos - playerCamera.position), snapElapsed / cameraSnapDuration);
-                yield return null;
-            }
-
-            // Note: It naturally flows straight down into Phase 4 (The Jumpscare Studio Cut) from here!
         }
         else
         {
-            // --- NORMAL JUMPSCARE LOGIC ---
-            // 1. THE LOCK
-            if (fpsController != null) fpsController.enabled = false;
+            // 2. THE CAMERA SNAP
+            Vector3 startPos = playerCamera.position;
+            Quaternion startRot = playerCamera.rotation;
+            Vector3 targetPos = startPos;
+            Quaternion targetRot = startRot;
 
-            Quaternion startCamRot = playerCamera.rotation;
-            Vector3 startLeapPos = rampEntryTarget.position;
-
-            // 2. THE SNAP / BREACH 
-            if (activeStrikeType == MonsterDirector.StrikeType.FogStrike || activeStrikeType == MonsterDirector.StrikeType.PointBlank)
+            if (strikeType == MonsterDirector.StrikeType.FogStrike || strikeType == MonsterDirector.StrikeType.PointBlank)
             {
-                if (monsterTransform != null)
-                {
-                    Vector3 instantSpawnPos = playerCamera.position + (playerCamera.forward * 1.5f);
-                    instantSpawnPos.y = playerCamera.position.y - playerCameraHeightOffset;
-                    monsterTransform.position = instantSpawnPos;
-                    Vector3 flatLook = new Vector3(playerCamera.position.x, monsterTransform.position.y, playerCamera.position.z);
-                    monsterTransform.LookAt(flatLook);
-                }
-
-                float elapsed = 0f;
-                while (elapsed < cameraSnapDuration)
-                {
-                    elapsed += Time.deltaTime;
-                    Vector3 targetHeadPos = monsterHead != null ? monsterHead.position : monsterTransform.position + (Vector3.up * 2.2f);
-                    playerCamera.rotation = Quaternion.Slerp(startCamRot, Quaternion.LookRotation(targetHeadPos - playerCamera.position), elapsed / cameraSnapDuration);
-                    yield return null;
-                }
+                if (monsterPhys != null) targetRot = Quaternion.LookRotation(monsterPhys.position - playerCamera.position);
             }
-            else if (activeStrikeType == MonsterDirector.StrikeType.Ambush && shadowSpawnNode != null && doorwayLeapNode != null)
+            else if (strikeType == MonsterDirector.StrikeType.Ambush || strikeType == MonsterDirector.StrikeType.Normal)
             {
-                if (monsterTransform != null) monsterTransform.position = shadowSpawnNode.position;
-
-                float elapsed = 0f;
-                while (elapsed < ambushBreachDuration)
-                {
-                    elapsed += Time.deltaTime;
-                    float percent = elapsed / ambushBreachDuration;
-
-                    monsterTransform.position = Vector3.Lerp(shadowSpawnNode.position, doorwayLeapNode.position, percent);
-                    Vector3 flatLook = new Vector3(doorwayLeapNode.position.x, monsterTransform.position.y, doorwayLeapNode.position.z);
-                    monsterTransform.LookAt(flatLook);
-
-                    Vector3 directionToDoorway = (doorwayLeapNode.position + (Vector3.up * 1.5f)) - playerCamera.position;
-                    playerCamera.rotation = Quaternion.Slerp(startCamRot, Quaternion.LookRotation(directionToDoorway), percent);
-
-                    yield return null;
-                }
-                startLeapPos = doorwayLeapNode.position;
-            }
-            else
-            {
-                if (monsterTransform != null) monsterTransform.position = rampEntryTarget.position;
-
-                float elapsed = 0f;
-                while (elapsed < cameraSnapDuration)
-                {
-                    elapsed += Time.deltaTime;
-                    Vector3 targetHeadPos = monsterHead != null ? monsterHead.position : monsterTransform.position + (Vector3.up * 2.2f);
-                    playerCamera.rotation = Quaternion.Slerp(startCamRot, Quaternion.LookRotation(targetHeadPos - playerCamera.position), elapsed / cameraSnapDuration);
-                    yield return null;
-                }
+                if (doorwayLeapNode != null) targetRot = Quaternion.LookRotation(doorwayLeapNode.position - playerCamera.position);
             }
 
-            // 3. THE LEAP 
-            if (activeStrikeType == MonsterDirector.StrikeType.Normal || activeStrikeType == MonsterDirector.StrikeType.Ambush)
+            float elapsedSnap = 0f;
+            while (elapsedSnap < cameraSnapDuration)
             {
-                float elapsed = 0f;
-                Vector3 finalFacePosition = playerCamera.position + (playerCamera.forward * 1.2f);
-                finalFacePosition.y = playerCamera.position.y - playerCameraHeightOffset;
-
-                while (elapsed < monsterLeapDuration)
-                {
-                    elapsed += Time.deltaTime;
-                    float percent = elapsed / monsterLeapDuration;
-                    float currentHeight = Mathf.Sin(percent * Mathf.PI) * leapArcHeight;
-                    Vector3 currentPos = Vector3.Lerp(startLeapPos, finalFacePosition, percent);
-                    currentPos.y += currentHeight;
-
-                    if (monsterTransform != null)
-                    {
-                        monsterTransform.position = currentPos;
-                        Vector3 flatLook = new Vector3(playerCamera.position.x, monsterTransform.position.y, playerCamera.position.z);
-                        monsterTransform.LookAt(flatLook);
-                    }
-                    yield return null;
-                }
-            }
-        }
-
-        // 4. THE JUMPSCARE STUDIO CUT (Both Normal and Stalking funnels down into this!)
-        if (jumpscareCamera != null && jumpscareStudioMonsterNode != null && monsterTransform != null)
-        {
-            monsterTransform.position = jumpscareStudioMonsterNode.position;
-            monsterTransform.rotation = jumpscareStudioMonsterNode.rotation;
-
-            if (playerCameraLens != null) playerCameraLens.gameObject.SetActive(false);
-            jumpscareCamera.gameObject.SetActive(true);
-
-            if (jumpscareAudioSource != null && jumpscareScream != null)
-            {
-                jumpscareAudioSource.PlayOneShot(jumpscareScream);
-            }
-
-            float elapsed = 0f;
-            float startFOV = jumpscareCamera.fieldOfView;
-
-            while (elapsed < jumpscareZoomDuration)
-            {
-                elapsed += Time.deltaTime;
-                jumpscareCamera.fieldOfView = Mathf.Lerp(startFOV, targetZoomFOV, elapsed / jumpscareZoomDuration);
-
-                if (monsterHead != null)
-                {
-                    jumpscareCamera.transform.rotation = Quaternion.LookRotation(monsterHead.position - jumpscareCamera.transform.position);
-                }
+                elapsedSnap += Time.deltaTime;
+                playerCamera.rotation = Quaternion.Slerp(startRot, targetRot, elapsedSnap / cameraSnapDuration);
                 yield return null;
             }
 
-            yield return new WaitForSeconds(jumpscareHoldDuration);
+            // 3. THE LEAP 
+            if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", true);
+
+            if (strikeType == MonsterDirector.StrikeType.Ambush && doorwayLeapNode != null && shadowSpawnNode != null)
+            {
+                monsterPhys.position = shadowSpawnNode.position;
+                float elapsedBreach = 0f;
+                while (elapsedBreach < ambushBreachDuration)
+                {
+                    elapsedBreach += Time.deltaTime;
+                    monsterPhys.position = Vector3.Lerp(shadowSpawnNode.position, doorwayLeapNode.position, elapsedBreach / ambushBreachDuration);
+                    yield return null;
+                }
+            }
+
+            if (monsterPhys != null && doorwayLeapNode != null)
+            {
+                Vector3 leapStartPos = monsterPhys.position;
+                Vector3 leapTargetPos = playerCamera.position;
+
+                float elapsedLeap = 0f;
+                while (elapsedLeap < monsterLeapDuration)
+                {
+                    elapsedLeap += Time.deltaTime;
+                    float t = elapsedLeap / monsterLeapDuration;
+                    Vector3 currentPos = Vector3.Lerp(leapStartPos, leapTargetPos, t);
+                    currentPos.y += Mathf.Sin(t * Mathf.PI) * leapArcHeight;
+                    monsterPhys.position = currentPos;
+                    yield return null;
+                }
+            }
         }
 
-        // 5. THE DEATH
+        // 4. THE JUMPSCARE STUDIO CUT
+        if (scenarios.Count > 0 && jumpscareCamera != null && playerCameraLens != null)
+        {
+            playerCameraLens.gameObject.SetActive(false);
+            jumpscareCamera.gameObject.SetActive(true);
+
+            if (monsterPhys != null) monsterPhys.gameObject.SetActive(false);
+
+            int pickedIndex = debugForceScenarioIndex;
+            if (pickedIndex < 0 || pickedIndex >= scenarios.Count)
+            {
+                pickedIndex = Random.Range(0, scenarios.Count);
+            }
+            JumpscareScenario activeScenario = scenarios[pickedIndex];
+            Debug.Log($"<color=magenta>Triggering Jumpscare Scenario: {activeScenario.scenarioName}</color>");
+
+            if (jumpscareStudioMonsterNode != null && activeScenario.monsterStartNode != null)
+            {
+                jumpscareStudioMonsterNode.position = activeScenario.monsterStartNode.position;
+                jumpscareStudioMonsterNode.rotation = activeScenario.monsterStartNode.rotation;
+                jumpscareStudioMonsterNode.gameObject.SetActive(true);
+            }
+
+            if (activeScenario.cameraNode != null)
+            {
+                jumpscareCamera.transform.position = activeScenario.cameraNode.position;
+                jumpscareCamera.transform.rotation = activeScenario.cameraNode.rotation;
+            }
+
+            for (int i = 0; i < studioSpotlights.Count; i++)
+            {
+                if (studioSpotlights[i] == null) continue;
+
+                if (i < activeScenario.spotlightNodes.Count && activeScenario.spotlightNodes[i] != null)
+                {
+                    studioSpotlights[i].transform.position = activeScenario.spotlightNodes[i].position;
+                    studioSpotlights[i].transform.rotation = activeScenario.spotlightNodes[i].rotation;
+                    studioSpotlights[i].enabled = true;
+                }
+                else
+                {
+                    studioSpotlights[i].enabled = false;
+                }
+            }
+
+            // --- NEW: Play BOTH Audio Layers ---
+            if (universalStingerSource != null && universalStingerClip != null)
+            {
+                universalStingerSource.PlayOneShot(universalStingerClip, stingerVolume);
+            }
+
+            if (studioMonsterAudioSource != null && activeScenario.screamClip != null)
+            {
+                studioMonsterAudioSource.PlayOneShot(activeScenario.screamClip, activeScenario.screamVolume);
+            }
+            // -----------------------------------
+
+            if (studioMonsterAnimator != null && !string.IsNullOrEmpty(activeScenario.animationTriggerBool))
+            {
+                studioMonsterAnimator.speed = activeScenario.animationSpeedMultiplier;
+                studioMonsterAnimator.SetBool(activeScenario.animationTriggerBool, true);
+            }
+
+            float elapsedZoom = 0f;
+            float startFOV = jumpscareCamera.fieldOfView;
+            float timeRunning = 0f;
+
+            while (timeRunning < activeScenario.totalJumpscareDuration)
+            {
+                timeRunning += Time.deltaTime;
+
+                if (elapsedZoom < activeScenario.zoomDuration)
+                {
+                    elapsedZoom += Time.deltaTime;
+                    jumpscareCamera.fieldOfView = Mathf.Lerp(startFOV, activeScenario.targetZoomFOV, elapsedZoom / activeScenario.zoomDuration);
+                }
+
+                yield return null;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Jumpscare Studio skipped: Missing Scenarios or Cameras!");
+        }
+
         TriggerPlayerDeath();
     }
 
@@ -254,6 +293,24 @@ public class JumpscareController : MonoBehaviour
     {
         if (jumpscareCamera != null) jumpscareCamera.gameObject.SetActive(false);
         if (playerCameraLens != null) playerCameraLens.gameObject.SetActive(true);
-        if (stalkCollider != null) stalkCollider.enabled = false; // Reset collision failsafe
+        if (stalkCollider != null) stalkCollider.enabled = false;
+
+        if (jumpscareStudioMonsterNode != null) jumpscareStudioMonsterNode.gameObject.SetActive(false);
+        if (studioMonsterAnimator != null)
+        {
+            studioMonsterAnimator.speed = 1.0f;
+            foreach (var scenario in scenarios)
+            {
+                if (!string.IsNullOrEmpty(scenario.animationTriggerBool))
+                {
+                    studioMonsterAnimator.SetBool(scenario.animationTriggerBool, false);
+                }
+            }
+        }
+
+        foreach (Light l in studioSpotlights)
+        {
+            if (l != null) l.enabled = false;
+        }
     }
 }
