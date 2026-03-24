@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &7319686696353186175
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 22.334715
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.856
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -28.724949
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_text
+      value: "\n\n\nDay 1 \u2013 Field Log\nArrived at the cave entrance at 0600
+        hours. Initial scans confirm unusual seismic readings originating from within.
+        Command wants all available data retrieved and logged.\L\nThe interior is
+        deeper than expected. Some interference in our instruments, cause unknown.\L\nProceeding
+        further inside."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: b274f1a18abce374eb86e88afb46e3d3, type: 2}
+    - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2256266087843168159, guid: b274f1a18abce374eb86e88afb46e3d3, type: 2}
+    - target: {fileID: 6867042637739662611, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_Name
+      value: CaveNote1 Variant
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}

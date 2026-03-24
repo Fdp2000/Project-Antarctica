@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: Cave Note #1
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
-  noteText: 
+  noteText: "Day 1 \u2013 Field Log\nArrived at the cave entrance at 0600 hours.
+    Initial scans confirm unusual seismic readings originating from within. Command
+    wants all available data retrieved and logged.\LThe interior is deeper than expected.
+    Some interference in our instruments, cause unknown.\LProceeding further inside."
   journalEntry: {fileID: 0}
