@@ -304,11 +304,13 @@ public class SimpleFPSController : MonoBehaviour
         smoothCameraOffset = isCrouching ? crouchingCameraOffset : standingCameraOffset;
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
+        // --- THE FIX: Force the camera height to update THIS frame! ---
+        playerCamera.transform.localPosition = smoothCameraOffset;
+
         Physics.SyncTransforms();
         characterController.enabled = true;
         Physics.SyncTransforms();
     }
-
     private void PickUpTape(CassetteInteractable tape)
     {
         hasCassette = true;

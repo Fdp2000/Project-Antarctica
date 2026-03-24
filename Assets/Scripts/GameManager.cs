@@ -127,6 +127,9 @@ public class GameManager : MonoBehaviour
             monsterDirector.currentProgressionIndex = PlayerPrefs.GetInt("SavedDifficulty");
             monsterDirector.currentDifficulty = monsterDirector.difficultyProgression[monsterDirector.currentProgressionIndex];
             monsterDirector.TransitionToState(MonsterDirector.EncounterState.Idle);
+
+            // --- NEW: Revert the world to the correct POI tier ---
+            if (POIDirector.Instance != null) POIDirector.Instance.EvaluatePOIs(monsterDirector.currentProgressionIndex);
         }
 
         // 2. Teleport Vehicle

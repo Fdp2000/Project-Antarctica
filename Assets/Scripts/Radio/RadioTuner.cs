@@ -82,7 +82,8 @@ public class RadioTuner : MonoBehaviour
 
         foreach (RadioBeacon beacon in availableBeacons)
         {
-            if (beacon == null) continue;
+            // --- THE FIX: Ignore empty slots AND disabled POIs ---
+            if (beacon == null || !beacon.gameObject.activeInHierarchy) continue;
 
             float beaconSignal = EvaluateBeaconSignal(beacon);
 

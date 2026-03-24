@@ -98,6 +98,9 @@ public class MonsterDirector : MonoBehaviour
         }
 
         if (winchController != null) winchController.OnDoorStartedClosing += RecordPlayerReaction;
+
+        // --- NEW: Set the initial state of the world ---
+        if (POIDirector.Instance != null) POIDirector.Instance.EvaluatePOIs(currentProgressionIndex);
     }
 
     void OnDestroy()
@@ -483,5 +486,8 @@ public class MonsterDirector : MonoBehaviour
         currentProgressionIndex++;
         if (currentProgressionIndex >= difficultyProgression.Length) currentProgressionIndex = difficultyProgression.Length - 1;
         currentDifficulty = difficultyProgression[currentProgressionIndex];
+
+        // --- NEW: Unlock new POIs dynamically ---
+        if (POIDirector.Instance != null) POIDirector.Instance.EvaluatePOIs(currentProgressionIndex);
     }
 }
