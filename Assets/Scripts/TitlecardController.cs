@@ -22,6 +22,7 @@ public class TitlecardController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T))
         {
             StartCredits();
+            Debug.Log("T key pressed - Starting Credits Animation");
         }
     }
 

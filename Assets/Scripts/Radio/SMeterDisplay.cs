@@ -55,10 +55,7 @@ public class SMeterDisplay : MonoBehaviour
         {
             EncounterDirector.Instance.OnRadioInterferenceStarted += HandleMonsterJamming;
         }
-        else
-        {
-            Debug.LogWarning("SMeterDisplay: EncounterDirector not found in scene. Monster jamming event won't trigger.");
-        }
+
     }
 
     private void OnDestroy()
