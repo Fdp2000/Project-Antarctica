@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d349c6d2656e0146a55cb2c339a120c, type: 3}
+  m_Name: RadioTower Note
+  m_EditorClassIdentifier: Assembly-CSharp::NoteData
+  noteTitle: 
+  fontSize: 5.5
+  noteText: 'starting to wonder if im going deaf.
+
+    Im SO CLOSE but this damn
+    wave keeps drifting!
+
+
+    This information is too important to be kept a secret,
+    i need to warn the world, if its the last thing i do.
+
+
+    hopefully i will
+    have succeded and this message wont matter, otherwise...
+
+
+    GOD HELP US '
+  journalEntry: {fileID: 0}

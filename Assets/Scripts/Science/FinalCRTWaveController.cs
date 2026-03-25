@@ -304,6 +304,8 @@ public class FinalCRTWaveController : MonoBehaviour
     private void TurnOffMachine(bool playSound = true)
     {
         this.enabled = false;
+        crtOneShotSource.PlayOneShot(crtTurnOffSound);
+
 
         if (targetLine) targetLine.gameObject.SetActive(false);
         if (playerLine) playerLine.gameObject.SetActive(false);
@@ -320,7 +322,11 @@ public class FinalCRTWaveController : MonoBehaviour
         {
             if (crtLoopSource != null) crtLoopSource.Stop();
             if (crtOneShotSource != null) crtOneShotSource.pitch = 1f;
-            if (crtOneShotSource != null && crtTurnOffSound != null) crtOneShotSource.PlayOneShot(crtTurnOffSound);
+            if (crtOneShotSource != null && crtTurnOffSound != null)
+            {
+                crtOneShotSource.PlayOneShot(crtTurnOffSound);
+                Debug.Log("<color=red>FINAL CRT MACHINE OFFLINE.</color>");
+            }
         }
         else
         {
