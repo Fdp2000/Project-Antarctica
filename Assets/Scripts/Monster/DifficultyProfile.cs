@@ -24,6 +24,9 @@ public class DifficultyProfile : ScriptableObject
     public float clutchStrengthVariance = 20f;
 
     [Header("Science Minigame (Target Wave)")]
+    [Tooltip("X = Min, Y = Max seconds required to hold the sync to win.")]
+    public Vector2 minigameCompletionTime = new Vector2(5f, 8f); // <--- NEW
+
     public float baseTargetAmplitude = 0.7f;
     public float baseTargetFrequency = 8.0f;
     public float baseTargetPhase = 10.43f;
@@ -36,6 +39,8 @@ public class DifficultyProfile : ScriptableObject
     public float amplitudeDriftVariance = 1.3f;
     public float frequencyDriftVariance = 1.5f;
     public float phaseDriftVariance = 1.5f;
+
+
 
     // --- NEW RANDOMIZER ---
     public float GetRandomTimer(Vector2 minMax)

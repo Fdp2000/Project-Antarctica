@@ -45,8 +45,8 @@ public class CRTWaveController : MonoBehaviour
     public Material lightOnMaterial;
 
     [Header("Time & Penalty Settings")]
-    public float timeToComplete = 6.0f;
     public float interruptionPenaltyPercent = 0.65f;
+    private float activeTimeToComplete = 6.0f;
 
     [Header("Rewards")]
     public GameObject punchcardPrefab;
@@ -207,7 +207,7 @@ public class CRTWaveController : MonoBehaviour
 
         if (isSynced) currentProgress += Time.deltaTime;
 
-        float totalTargetTime = timeToComplete + completionTimeExtension;
+        float totalTargetTime = activeTimeToComplete + completionTimeExtension;
         currentProgress = Mathf.Clamp(currentProgress, 0f, totalTargetTime);
 
         if (currentProgress >= totalTargetTime)
@@ -254,7 +254,7 @@ public class CRTWaveController : MonoBehaviour
     {
         if (progressLEDs == null || progressLEDs.Length == 0) return;
 
-        float timePerLED = timeToComplete / progressLEDs.Length;
+        float timePerLED = activeTimeToComplete / progressLEDs.Length;
         int ledsDoneThisFrame = 0;
 
         for (int i = 0; i < progressLEDs.Length; i++)
@@ -262,7 +262,7 @@ public class CRTWaveController : MonoBehaviour
             float startThreshold = i * timePerLED;
             float endThreshold = (i + 1) * timePerLED;
 
-            if (i == progressLEDs.Length - 1) endThreshold = timeToComplete + completionTimeExtension;
+            if (i == progressLEDs.Length - 1) endThreshold = activeTimeToComplete + completionTimeExtension;
 
             Light currentLight = (i < progressPointLights.Length) ? progressPointLights[i] : null;
 
@@ -332,6 +332,16 @@ public class CRTWaveController : MonoBehaviour
     {
         bool wasOff = !this.enabled;
         currentProfile = profile;
+
+        if (currentProfile != null)
+        {
+            activeTimeToComplete = Random.Range(currentProfile.minigameCompletionTime.x, currentProfile.minigameCompletionTime.y);
+            Debug.Log($"<color=yellow>Minigame active. Required sync time rolled: {activeTimeToComplete:F1} seconds.</color>");
+        }
+        else
+        {
+            activeTimeToComplete = 6.0f; // Fallback just in case
+        }
 
         if (linkedBeacon != sourceBeacon)
         {
