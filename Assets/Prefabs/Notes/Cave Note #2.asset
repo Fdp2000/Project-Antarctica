@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d349c6d2656e0146a55cb2c339a120c, type: 3}
+  m_Name: Cave Note #2
+  m_EditorClassIdentifier: Assembly-CSharp::NoteData
+  noteTitle: 
+  noteText: "Day 9 \u2013 Field Log\nWe have the data. Whatever is in this cave\u2026
+    it\u2019s not just geological. The team is gone. Something followed us in the
+    dark.\L\nWe\u2019re heading back to the cruiser with the drives. That\u2019s
+    all that matters now.\L\nIf anyone finds this \u2013"
+  journalEntry: {fileID: 0}
