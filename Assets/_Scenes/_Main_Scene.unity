@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0.7647059, g: 0.7647059, b: 0.7647059, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.093
@@ -9236,6 +9236,11 @@ Transform:
   - {fileID: 1096158594}
   m_Father: {fileID: 162632475}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1883738468 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1870940266702454050, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
+  m_PrefabInstance: {fileID: 3766041856087497633}
+  m_PrefabAsset: {fileID: 0}
 --- !u!82 &1895797821 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 8643508365505516781, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
@@ -10178,6 +10183,10 @@ MonoBehaviour:
   - unlockAtDifficultyIndex: 0
     poisToEnable:
     - {fileID: 8675442611207066954}
+  - unlockAtDifficultyIndex: 1
+    poisToEnable:
+    - {fileID: 1883738468}
+    - {fileID: 9186147502299173440}
 --- !u!43 &2114143986
 Mesh:
   m_ObjectHideFlags: 0
@@ -10384,6 +10393,10 @@ PrefabInstance:
       propertyPath: playerVehicle
       value: 
       objectReference: {fileID: 8165526100382092564}
+    - target: {fileID: 2909676821911495876, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: broadcastFrequency
+      value: 90.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3253926655196032062, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -10420,6 +10433,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SNOWBASE
       objectReference: {fileID: 0}
+    - target: {fileID: 5655453309005666280, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5675068621039385287, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -10450,7 +10467,7 @@ PrefabInstance:
       objectReference: {fileID: 2089951961}
     - target: {fileID: 7440097792913407969, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -96.1
+      value: 113
       objectReference: {fileID: 0}
     - target: {fileID: 7440097792913407969, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10458,7 +10475,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7440097792913407969, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -133.8
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 7440097792913407969, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10568,9 +10585,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: CavePOIdone (final)
       objectReference: {fileID: 0}
+    - target: {fileID: 1744564795819202355, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5899036866901964835, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -35.6
+      value: -57
       objectReference: {fileID: 0}
     - target: {fileID: 5899036866901964835, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10578,7 +10599,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5899036866901964835, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 47.1
+      value: -379
       objectReference: {fileID: 0}
     - target: {fileID: 5899036866901964835, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10612,6 +10633,14 @@ PrefabInstance:
       propertyPath: playerVehicle
       value: 
       objectReference: {fileID: 8165526100382092564}
+    - target: {fileID: 8201021460611535685, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
+      propertyPath: broadcastPayload
+      value: 
+      objectReference: {fileID: 8300000, guid: 496211381dedb6c46b3f2f64a18c9a18, type: 3}
+    - target: {fileID: 8201021460611535685, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
+      propertyPath: broadcastFrequency
+      value: 96.8
+      objectReference: {fileID: 0}
     - target: {fileID: 9000787033590521804, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
       propertyPath: windAudio
       value: 
@@ -10619,13 +10648,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4087283156874585072, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 1010168828469561078, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
 --- !u!4 &3721621135152136113 stripped
 Transform:
@@ -10660,9 +10683,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: FredesPOITerrain (Final)
       objectReference: {fileID: 0}
+    - target: {fileID: 1870940266702454050, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2446708470563076072, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -222.4
+      value: -428.5
       objectReference: {fileID: 0}
     - target: {fileID: 2446708470563076072, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10670,7 +10697,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2446708470563076072, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -130.8
+      value: -171.2
       objectReference: {fileID: 0}
     - target: {fileID: 2446708470563076072, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10712,6 +10739,10 @@ PrefabInstance:
       propertyPath: playerVehicle
       value: 
       objectReference: {fileID: 8165526100382092564}
+    - target: {fileID: 5395437498913808396, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
+      propertyPath: broadcastFrequency
+      value: 106.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5423457290685187415, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -10938,6 +10969,11 @@ Transform:
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5655453309005666280, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
   m_PrefabInstance: {fileID: 71524555630936172}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9186147502299173440 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1744564795819202355, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
+  m_PrefabInstance: {fileID: 3424448778584180625}
   m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
