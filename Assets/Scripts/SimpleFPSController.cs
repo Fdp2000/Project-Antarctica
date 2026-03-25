@@ -54,7 +54,7 @@ public class SimpleFPSController : MonoBehaviour
     private CharacterController characterController;
     private float rotationX = 0;
     private float rotationY = 0;
-    private bool isSeated = false;
+    public bool isSeated = false;
     private bool isCrouching = false;
     private Transform currentSeat;
     private float verticalVelocity = 0f;
