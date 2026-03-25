@@ -3,7 +3,12 @@ guid: 9c71ef50195da4d11b55923b3bffc6bf
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: StickyNote
+    second: {fileID: 2100000, guid: 74fbb5f88f6274184af23b507841a398, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
