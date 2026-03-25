@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: CrashedCruiser#1
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
-  noteText: 
+  noteText: "The storm isn\u2019t empty.\nSomething is in it.\nAnd every time you
+    try to analyze the data, every time you push a little further\nyou\u2019re just
+    calling it.\nI thought I was discovering something.\nI was just telling it where
+    I was.\nIt doesn\u2019t need to see you.\nIt just needs you to listen."
   journalEntry: {fileID: 0}

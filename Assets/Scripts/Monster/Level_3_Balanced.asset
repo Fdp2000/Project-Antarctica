@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7cacba0e0bd3bad4a846f50480443b27, type: 3}
-  m_Name: Level_1_Profile
+  m_Name: Level_3_Balanced
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
-  gracePeriod: {x: 10, y: 30}
-  approachDuration: {x: 4, y: 16}
-  silenceDuration: {x: 4, y: 16}
+  gracePeriod: {x: 10, y: 12}
+  approachDuration: {x: 4, y: 8}
+  silenceDuration: {x: 6, y: 12}
   strikeDuration: {x: 1, y: 1}
-  retreatDuration: {x: 3, y: 6}
+  retreatDuration: {x: 4, y: 8}
   patienceThreshold: {x: 8, y: 12}
   siegeEventInterval: {x: 2, y: 6}
   baseMonsterClutchStrength: 120
   clutchStrengthVariance: 20
-  baseTargetAmplitude: 1.1
+  baseTargetAmplitude: 0.7
   baseTargetFrequency: 8
   baseTargetPhase: 10.43
-  minDriftInterval: 4
+  minDriftInterval: 3
   maxDriftInterval: 6
   driftLerpDuration: 3
-  amplitudeDriftVariance: 1.3
-  frequencyDriftVariance: 1.1
-  phaseDriftVariance: 1.1
+  amplitudeDriftVariance: 1.5
+  frequencyDriftVariance: 1.5
+  phaseDriftVariance: 1.5

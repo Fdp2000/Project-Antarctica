@@ -559,6 +559,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: abf7f2bf400890a428e2e9462dadb42d, type: 2}
   - {fileID: 11400000, guid: ce9ea7874e9b43e40be41bf35e694d78, type: 2}
   - {fileID: 11400000, guid: 65824abdc18c6184bad2b9a3f117c19d, type: 2}
+  - {fileID: 11400000, guid: 02d04d52acc05e84ab3184d0a7bebce0, type: 2}
+  - {fileID: 11400000, guid: 0e39966c824a361478bcb30d1e8b6e51, type: 2}
   currentProgressionIndex: 0
   monsterTransform: {fileID: 1377644444}
   monsterAnimator: {fileID: 1377644445}
@@ -12105,6 +12107,14 @@ PrefabInstance:
     - target: {fileID: 4568193931198155463, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalPosition.z
       value: -1.122
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: closeSpeedMax
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: closeSpeedMin
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6064706463153669528, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: windAudio
