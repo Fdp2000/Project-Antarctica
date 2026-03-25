@@ -23571,7 +23571,7 @@ GameObject:
   - component: {fileID: 1461088809}
   - component: {fileID: 1461088810}
   m_Layer: 0
-  m_Name: Target beacon (Opera)
+  m_Name: Target beacon (FANAFLIPPED)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32986,6 +32986,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 298.671
       objectReference: {fileID: 0}
+    - target: {fileID: 4875057470875423253, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Name
+      value: Target beacon (SnowBase)
+      objectReference: {fileID: 0}
     - target: {fileID: 4973790827659811259, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_text
       value: 
@@ -33657,6 +33661,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1278664094763554615, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: maxSignalDistance
+      value: 160
+      objectReference: {fileID: 0}
+    - target: {fileID: 1278664094763554615, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: availableBeacons.Array.size
       value: 5
       objectReference: {fileID: 0}
@@ -33692,6 +33700,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1609819812}
+    - target: {fileID: 3742059013631796330, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: maxSpeed
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 4568193931198155463, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalPosition.y
       value: 2.675

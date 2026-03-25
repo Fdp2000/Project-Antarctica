@@ -39,7 +39,6 @@ public class POIDistanceMatrix : EditorWindow
             return;
         }
 
-        // --- NEW: Find the vehicle to calculate drive time! ---
         VehicleController vehicle = FindObjectOfType<VehicleController>();
         float vehicleSpeed = vehicle != null ? vehicle.maxSpeed : 5.0f;
 
@@ -56,6 +55,39 @@ public class POIDistanceMatrix : EditorWindow
 
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
+        // ==============================================================
+        // --- NEW: START POSITION (CRUISER TO ALL BEACONS) ---
+        // ==============================================================
+        if (vehicle != null)
+        {
+            // Tinting this header slightly green so it stands out as the starting point!
+            GUI.contentColor = new Color(0.6f, 1f, 0.6f);
+            GUILayout.Label("From: Cruiser (Game Start Position)", EditorStyles.boldLabel);
+            GUI.contentColor = Color.white;
+
+            EditorGUI.indentLevel++;
+
+            for (int j = 0; j < allBeacons.Length; j++)
+            {
+                RadioBeacon target = allBeacons[j];
+                float distance = Vector3.Distance(vehicle.transform.position, target.transform.position);
+
+                float timeInSeconds = distance / vehicleSpeed;
+                int minutes = Mathf.FloorToInt(timeInSeconds / 60f);
+                int seconds = Mathf.FloorToInt(timeInSeconds % 60f);
+                string timeText = $"{minutes}m {seconds}s";
+
+                // No overlap warning needed here since it's just the start point
+                GUILayout.Label($"To {target.gameObject.name}: {distance:F0}m | Est. Drive: {timeText}");
+            }
+
+            EditorGUI.indentLevel--;
+            GUILayout.Space(20); // Extra space to separate the start point from the POI matrix
+        }
+
+        // ==============================================================
+        // --- EXISTING: BEACON TO BEACON MATRIX ---
+        // ==============================================================
         for (int i = 0; i < allBeacons.Length; i++)
         {
             RadioBeacon source = allBeacons[i];
@@ -70,13 +102,11 @@ public class POIDistanceMatrix : EditorWindow
                 RadioBeacon target = allBeacons[j];
                 float distance = Vector3.Distance(source.transform.position, target.transform.position);
 
-                // --- NEW: Time Calculation ---
                 float timeInSeconds = distance / vehicleSpeed;
                 int minutes = Mathf.FloorToInt(timeInSeconds / 60f);
                 int seconds = Mathf.FloorToInt(timeInSeconds % 60f);
                 string timeText = $"{minutes}m {seconds}s";
 
-                // --- THE UI FIX: Using a single string to prevent column clipping ---
                 if (distance < warningDistance)
                 {
                     GUI.contentColor = new Color(1f, 0.4f, 0.4f);
