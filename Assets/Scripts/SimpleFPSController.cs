@@ -62,6 +62,29 @@ public class SimpleFPSController : MonoBehaviour
 
     private Vector3 smoothCameraOffset;
 
+    [Header("Footsteps")]
+    public AudioSource footstepAudioSource;
+    public AudioClip[] footstepClips; // Array so you can add multiple snow crunch sounds!
+
+    [Tooltip("How far the player physically moves before a step triggers.")]
+    public float walkStepDistance = 2.0f;
+    public float crouchStepDistance = 1.5f;
+
+    [Range(0f, 1f)] public float footstepVolume = 0.5f;
+    public float basePitch = 1.0f;
+    public float pitchVariance = 0.15f;
+    public LayerMask footstepGroundLayer = ~0; // What layers make a sound?
+
+    // Add this private tracker with your other private variables:
+    private float stepCycle = 0f;
+    [Tooltip("Minimum time in seconds between footstep sounds to prevent rapid-fire spam.")]
+    public float minStepCooldown = 0.25f;
+    [Tooltip("How far the player must physically move before the VERY FIRST step sounds. (0 = Instant)")]
+    public float firstStepDistanceBuffer = 0.2f; // <-- NEW
+
+    // Add this private timer next to your private 'stepCycle' variable
+    private float stepCooldownTimer = 0f;
+
     void Start()
     {
         characterController = GetComponent<CharacterController>();
@@ -115,6 +138,8 @@ public class SimpleFPSController : MonoBehaviour
 
             move.y = verticalVelocity;
             characterController.Move(move * Time.deltaTime);
+
+            HandleFootsteps();
         }
 
         // --- NEW: Apply the Engine Camera Shake ---
@@ -365,4 +390,59 @@ public class SimpleFPSController : MonoBehaviour
     }
 
     public bool IsPunchcardInTray() { return FindObjectOfType<PunchcardInteractable>() != null; }
+    private void HandleFootsteps()
+    {
+        if (stepCooldownTimer > 0f)
+        {
+            stepCooldownTimer -= Time.deltaTime;
+        }
+
+        Vector2 horizontalVelocity = new Vector2(characterController.velocity.x, characterController.velocity.z);
+
+        if (horizontalVelocity.magnitude > 0.1f)
+        {
+            stepCycle += horizontalVelocity.magnitude * Time.deltaTime;
+            float currentStepDistance = isCrouching ? crouchStepDistance : walkStepDistance;
+
+            if (stepCycle >= currentStepDistance && stepCooldownTimer <= 0f)
+            {
+                stepCycle = 0f;
+                PlayFootstepSound();
+                stepCooldownTimer = minStepCooldown;
+            }
+        }
+        else
+        {
+            // --- THE FIX: DELAYED FIRST STEP ---
+            // Calculate what the required distance is right now
+            float currentStepDistance = isCrouching ? crouchStepDistance : walkStepDistance;
+
+            // Prime the counter, but subtract your custom buffer!
+            // (Mathf.Max ensures the math never accidentally goes below 0)
+            stepCycle = Mathf.Max(0f, currentStepDistance - firstStepDistanceBuffer);
+        }
+    }
+    private void PlayFootstepSound()
+    {
+        if (footstepAudioSource == null || footstepClips == null || footstepClips.Length == 0) return;
+
+        // --- THE RAYCAST CHECK ---
+        // Start the raycast from the exact center of the player
+        Vector3 rayOrigin = transform.position;
+
+        // Shoot it down exactly half the player's current height, plus a tiny 0.2m buffer to hit the floor
+        float rayDistance = (characterController.height / 2f) + 0.2f;
+
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, rayDistance, footstepGroundLayer))
+        {
+            // Pick a random sound from the array
+            AudioClip clip = footstepClips[Random.Range(0, footstepClips.Length)];
+
+            // Apply the pitch variance
+            footstepAudioSource.pitch = basePitch + Random.Range(-pitchVariance, pitchVariance);
+
+            // Play it!
+            footstepAudioSource.PlayOneShot(clip, footstepVolume);
+        }
+    }
 }
