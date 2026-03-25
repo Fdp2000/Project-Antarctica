@@ -10061,10 +10061,6 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1219065151}
-    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
-      propertyPath: CollisionModule.m_EnergyLossOnCollision.scalar
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2673576364243323435, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -10075,7 +10071,7 @@ PrefabInstance:
       objectReference: {fileID: 153760722}
     - target: {fileID: 2885083868256593963, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_VersionIndex
-      value: 153
+      value: 159
       objectReference: {fileID: 0}
     - target: {fileID: 2909676821911495876, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: playerVehicle
@@ -10087,7 +10083,7 @@ PrefabInstance:
       objectReference: {fileID: 2089951961}
     - target: {fileID: 3253926655196032062, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_VersionIndex
-      value: 153
+      value: 159
       objectReference: {fileID: 0}
     - target: {fileID: 3886293831841772087, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
@@ -10103,28 +10099,20 @@ PrefabInstance:
       objectReference: {fileID: 690148849}
     - target: {fileID: 4173341682920566959, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_VersionIndex
-      value: 153
+      value: 159
       objectReference: {fileID: 0}
     - target: {fileID: 4215629290618438246, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 153760722}
-    - target: {fileID: 4973790827659811259, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
-      propertyPath: m_fontSize
-      value: 5.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4973790827659811259, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
-      propertyPath: m_fontStyle
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4973790827659811259, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 5.5
-      objectReference: {fileID: 0}
     - target: {fileID: 5465459406748719963, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 2089951961}
+    - target: {fileID: 5567613988279850901, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5655453309005666280, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Name
       value: SNOWBASE
@@ -10139,7 +10127,11 @@ PrefabInstance:
       objectReference: {fileID: 1217664059}
     - target: {fileID: 5706258517224753610, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_VersionIndex
-      value: 149
+      value: 155
+      objectReference: {fileID: 0}
+    - target: {fileID: 6365375336143347455, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6391562030317891458, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
@@ -10151,7 +10143,7 @@ PrefabInstance:
       objectReference: {fileID: 1219065151}
     - target: {fileID: 6676529020475944454, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_VersionIndex
-      value: 153
+      value: 159
       objectReference: {fileID: 0}
     - target: {fileID: 6705397538444492606, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
@@ -10195,6 +10187,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7440097792913407969, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8099813315173889772, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8569905675716419263, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
