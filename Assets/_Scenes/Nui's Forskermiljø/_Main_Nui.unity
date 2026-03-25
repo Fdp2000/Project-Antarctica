@@ -7022,9 +7022,6 @@ PrefabInstance:
       addedObject: {fileID: 1895797822}
     - targetCorrespondingSourceObject: {fileID: 4094464058702789719, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1895797824}
-    - targetCorrespondingSourceObject: {fileID: 4094464058702789719, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1895797826}
     - targetCorrespondingSourceObject: {fileID: 6598162170707994674, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       insertIndex: -1
@@ -10200,28 +10197,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!95 &1895797824
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 320393348}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 590c8ee1ca7e04bd38e623983571dfc8, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1895797826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10234,7 +10209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9af7fbc1a3304b2bae4d64f44ac5396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitlecardController
-  titleAnim: {fileID: 1895797824}
+  titleAnim: {fileID: 2054261768}
 --- !u!1 &1917566117
 GameObject:
   m_ObjectHideFlags: 0
