@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CrashedCruiser#1
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
+  fontSize: 6
   noteText: "The storm isn\u2019t empty.\nSomething is in it.\nAnd every time you
     try to analyze the data, every time you push a little further\nyou\u2019re just
     calling it.\nI thought I was discovering something.\nI was just telling it where
