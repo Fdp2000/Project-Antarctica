@@ -19,6 +19,10 @@ public class POIDirector : MonoBehaviour
     [Tooltip("Define which POIs unlock at which difficulty index.")]
     public List<POITier> progressionTiers = new List<POITier>();
 
+    [Header("Debug")]
+    [Tooltip("If checked, all POIs will be enabled immediately, ignoring the difficulty progression.")]
+    public bool debugForceUnlockAll = false; // <--- NEW
+
     void Awake()
     {
         // Standard Singleton setup
@@ -36,8 +40,8 @@ public class POIDirector : MonoBehaviour
 
         foreach (var tier in progressionTiers)
         {
-            // Check if the player has reached or passed this tier's required difficulty
-            bool isUnlocked = currentDifficultyIndex >= tier.unlockAtDifficultyIndex;
+            // --- THE FIX: Automatically sets isUnlocked to true if the debug box is checked ---
+            bool isUnlocked = debugForceUnlockAll || (currentDifficultyIndex >= tier.unlockAtDifficultyIndex);
 
             foreach (var poi in tier.poisToEnable)
             {

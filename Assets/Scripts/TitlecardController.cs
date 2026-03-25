@@ -17,12 +17,12 @@ public class TitlecardController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // For testing animation, press T to start credits animation
+         //For testing animation, press T to start credits animation
 
-        //if (Input.GetKeyDown(KeyCode.T))
-        //{
-            //StartCredits();
-        //}
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            StartCredits();
+        }
     }
 
     public void StartCredits()
