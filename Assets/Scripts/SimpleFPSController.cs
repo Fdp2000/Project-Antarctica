@@ -242,6 +242,22 @@ public class SimpleFPSController : MonoBehaviour
                 else { ClearHighlight(); }
                 return;
             }
+            var finalStarter = target.GetComponent<FinalMachineStarter>();
+            if (finalStarter != null)
+            {
+                if (distanceToTarget <= interactRange)
+                {
+                    HighlightObject(target);
+                    if (Input.GetKeyDown(interactKey))
+                    {
+                        ClearHighlight();
+                        finalStarter.Interact();
+                    }
+                }
+                else { ClearHighlight(); }
+                return;
+            }
+
 
             if (target.CompareTag("Winch"))
             {
@@ -269,6 +285,9 @@ public class SimpleFPSController : MonoBehaviour
 
                     var sciKnob = target.GetComponent<ScienceKnobInteraction>();
                     if (sciKnob != null) { sciKnob.StartManualDrag(); return; }
+
+                    var finalSciKnob = target.GetComponent<FinalScienceKnobInteraction>();
+                    if (finalSciKnob != null) { finalSciKnob.StartManualDrag(); return; }
 
                     if (Input.GetKeyDown(interactKey))
                     {

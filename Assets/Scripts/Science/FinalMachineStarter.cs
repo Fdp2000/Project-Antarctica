@@ -35,6 +35,13 @@ public class FinalMachineStarter : MonoBehaviour, IInteractable
     {
         hasBeenActivated = true;
 
+        // --- NEW: Permanently remove the Outline so it can never be highlighted again ---
+        Outline outlineComponent = GetComponent<Outline>();
+        if (outlineComponent != null)
+        {
+            Destroy(outlineComponent);
+        }
+
         GameObject card = null;
 
         // 1. Spawn the card at the starting node
