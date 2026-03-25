@@ -13570,15 +13570,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.5
+      value: 97.3
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 29.5
+      value: 5.2
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 163.8
+      value: 32.6
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -14073,8 +14073,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.43343875, y: 0.3877438, z: 2.4241478}
-  m_Center: {x: -0.13206421, y: 0.23070662, z: 0.212075}
+  m_Size: {x: 0.09571526, y: 0.3877438, z: 2.3322089}
+  m_Center: {x: -0.30778304, y: 0.23070525, z: 0.16610593}
 --- !u!1001 &633111606
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36406,6 +36406,18 @@ PrefabInstance:
       propertyPath: MaxDistance
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 1033216457244583150, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.288
+      objectReference: {fileID: 0}
+    - target: {fileID: 1033216457244583150, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.875
+      objectReference: {fileID: 0}
+    - target: {fileID: 1033216457244583150, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 8.179
+      objectReference: {fileID: 0}
     - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: VelocityModule.x.scalar
       value: -4
@@ -36432,6 +36444,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: CollisionModule.m_EnergyLossOnCollision.scalar
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468832480835734654, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Size.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468832480835734654, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Size.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468832480835734654, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Size.z
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468832480835734654, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468832480835734654, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Offset.z
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1468832480835734654, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_FadeFactor
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2673576364243323435, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
@@ -36486,6 +36522,26 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 153760722}
+    - target: {fileID: 4302274479672042004, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.953717
+      objectReference: {fileID: 0}
+    - target: {fileID: 4302274479672042004, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4302274479672042004, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.30070576
+      objectReference: {fileID: 0}
+    - target: {fileID: 4302274479672042004, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4302274479672042004, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 4410022399829824374, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.86016726
@@ -36497,6 +36553,18 @@ PrefabInstance:
     - target: {fileID: 4410022399829824374, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 298.671
+      objectReference: {fileID: 0}
+    - target: {fileID: 4515783748079066358, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.79
+      objectReference: {fileID: 0}
+    - target: {fileID: 4515783748079066358, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.677
+      objectReference: {fileID: 0}
+    - target: {fileID: 4515783748079066358, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -7.019
       objectReference: {fileID: 0}
     - target: {fileID: 4875057470875423253, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Name
@@ -36522,6 +36590,20 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 2089951961}
+    - target: {fileID: 5596299899382145319, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_text
+      value: "\n\n\n\nIf anyone reads this\nIm all alone now.\nThere is something
+        out there.\nI heard it again tonight.\LScratching. Moving. Hunting.\nThe
+        storm stills and the radio cuts off.\nCant call for help.\nCant run."
+      objectReference: {fileID: 0}
+    - target: {fileID: 5596299899382145319, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_margin.x
+      value: 0.83055687
+      objectReference: {fileID: 0}
+    - target: {fileID: 5596299899382145319, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_margin.z
+      value: -0.9300685
+      objectReference: {fileID: 0}
     - target: {fileID: 5655453309005666280, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Name
       value: SNOWBASE
@@ -36636,7 +36718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7908989983052694615, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.94
+      value: 1.46
       objectReference: {fileID: 0}
     - target: {fileID: 7979612901999957173, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_AdditionalLightsShadowResolutionTier
@@ -36668,19 +36750,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9084800991574954463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Size.x
-      value: 3.6583858
+      value: 4.175399
+      objectReference: {fileID: 0}
+    - target: {fileID: 9084800991574954463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Size.y
+      value: 5.2671375
       objectReference: {fileID: 0}
     - target: {fileID: 9084800991574954463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Size.z
-      value: 0.79007995
+      value: 1.2636104
       objectReference: {fileID: 0}
     - target: {fileID: 9084800991574954463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Center.x
-      value: 14.589809
+      value: -0.8471461
+      objectReference: {fileID: 0}
+    - target: {fileID: 9084800991574954463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: m_Center.y
+      value: 2.0552402
       objectReference: {fileID: 0}
     - target: {fileID: 9084800991574954463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Center.z
-      value: 1.736978
+      value: 4.826782
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5567613988279850901, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}

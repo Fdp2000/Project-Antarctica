@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Research Note #3
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
+  fontSize: 5.5
   noteText: "If anyone reads this\nIm all alone now.\nThere is something out there.\nI
-    heard it again tonight. Not pipes. Not wind.\LScratching. Moving. Hunting.\nThe
-    storm stills and the radio cuts off.\nCant call for help.\nCant run."
+    heard it again tonight.\LScratching. Moving. Hunting.\nThe storm stills and the
+    radio cuts off.\nCant call for help.\nCant run."
   journalEntry: {fileID: 0}
