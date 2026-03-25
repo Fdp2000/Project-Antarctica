@@ -1,41 +1,39 @@
 using UnityEngine;
 
+// We can safely keep this, as you need at least one collider on the object!
 [RequireComponent(typeof(Collider))]
 public class AudioDucker : MonoBehaviour
 {
+    public static AudioDucker CurrentActiveZone = null;
+
     [Header("Audio Source")]
-    [Tooltip("The wind/ambient AudioSource you want to duck.")]
     public AudioSource windAudio;
 
     [Header("The 3 Volume States")]
-    [Tooltip("Volume when standing completely outside the cruiser.")]
     [Range(0f, 1f)] public float outsideVolume = 1.0f;
-
-    [Tooltip("Volume when standing inside the cruiser, but the door is completely OPEN. (Base isolation)")]
     [Range(0f, 1f)] public float insideDoorOpenVolume = 0.5f;
-
-    [Tooltip("Volume when standing inside the cruiser, and the door is completely CLOSED. (Full isolation)")]
     [Range(0f, 1f)] public float insideDoorClosedVolume = 0.1f;
 
     [Header("Transition Speed")]
-    [Tooltip("Higher number = Faster volume changes. 3 is a good, natural audio fade.")]
     public float fadeSharpness = 3.0f;
 
     [Header("Door Integration")]
-    [Tooltip("Link the WinchController (Valve) here.")]
     public WinchController linkedDoor;
-
-    [Tooltip("X-axis: Door Open % (0=Closed, 1=Open). Y-axis: Volume Multiplier (0=Sealed, 1=Open Gap).")]
     public AnimationCurve doorOpenCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
-    private bool isPlayerInside = false;
+    // --- THE MULTI-COLLIDER FIX ---
+    // Instead of a true/false bool, we count how many trigger zones the player is touching.
+    private int playerInsideCount = 0;
+
     private float currentTargetVolume;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInside = true;
+            // Add 1 to our tracker every time we touch a new collider piece
+            playerInsideCount++;
+            CurrentActiveZone = this;
         }
     }
 
@@ -43,7 +41,11 @@ public class AudioDucker : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInside = false;
+            // Subtract 1 when we leave a piece
+            playerInsideCount--;
+
+            // Safety clamp just in case physics get weird
+            if (playerInsideCount < 0) playerInsideCount = 0;
         }
     }
 
@@ -51,36 +53,30 @@ public class AudioDucker : MonoBehaviour
     {
         if (windAudio == null) return;
 
-        // 1. Figure out what the volume SHOULD be right now
-        if (!isPlayerInside)
+        if (CurrentActiveZone != this && CurrentActiveZone != null) return;
+
+        // --- NEW LOGIC: If the count is greater than 0, we are inside! ---
+        if (playerInsideCount == 0)
         {
-            // If we are outside, we want full volume, no matter what the door is doing.
             currentTargetVolume = outsideVolume;
         }
         else
         {
-            // If we are inside, check the door!
             if (linkedDoor != null)
             {
-                // Calculate how open the door is (0.0 is closed, 1.0 is fully open)
                 float totalTravel = Mathf.Abs(linkedDoor.openAngle - linkedDoor.closedAngle);
                 float currentTravel = Mathf.Abs(linkedDoor.CurrentAngle - linkedDoor.closedAngle);
                 float percentOpen = Mathf.Clamp01(currentTravel / totalTravel);
 
-                // Run it through your custom curve to make it feel non-linear
                 float curveValue = doorOpenCurve.Evaluate(percentOpen);
-
-                // Find the exact volume between the Open State and Closed State
                 currentTargetVolume = Mathf.Lerp(insideDoorClosedVolume, insideDoorOpenVolume, curveValue);
             }
             else
             {
-                // If there's no door attached to this script, just give them max isolation
                 currentTargetVolume = insideDoorClosedVolume;
             }
         }
 
-        // 2. Smoothly slide the actual audio source towards our target volume
         windAudio.volume = Mathf.Lerp(windAudio.volume, currentTargetVolume, fadeSharpness * Time.deltaTime);
     }
 }
