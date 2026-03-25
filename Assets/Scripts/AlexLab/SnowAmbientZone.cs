@@ -21,6 +21,7 @@ public class SnowAmbientZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Player entered Snow Ambient Zone.");
         if (!other.CompareTag("Player")) return;
 
         playerInside = true;
@@ -29,18 +30,7 @@ public class SnowAmbientZone : MonoBehaviour
             loopCoroutine = StartCoroutine(PlayLoop());
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (!other.CompareTag("Player")) return;
 
-        playerInside = false;
-
-        if (loopCoroutine != null)
-        {
-            StopCoroutine(loopCoroutine);
-            loopCoroutine = null;
-        }
-    }
 
     IEnumerator PlayLoop()
     {
@@ -52,6 +42,7 @@ public class SnowAmbientZone : MonoBehaviour
             if (!playerInside) yield break;
 
             PlayRandomSound();
+            Debug.Log("Played snow ambient sound.");
         }
     }
 
