@@ -2505,7 +2505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffaa25efddc5edc469c73bbadef2beee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterDirector
-  currentDifficulty: {fileID: 11400000, guid: abf7f2bf400890a428e2e9462dadb42d, type: 2}
+  currentDifficulty: {fileID: 11400000, guid: 02d04d52acc05e84ab3184d0a7bebce0, type: 2}
   winchController: {fileID: 3948041480671068594}
   jumpscareController: {fileID: 178976305}
   clutchController: {fileID: 178976306}
@@ -13539,7 +13539,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 97.3
+      value: -16.9
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
@@ -13547,7 +13547,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 32.6
+      value: -27.6
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
