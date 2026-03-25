@@ -87,10 +87,15 @@ public class NoteViewer : MonoBehaviour
         }
 
         TMP_Text text = currentNote.GetComponentInChildren<TMP_Text>();
-    if (text != null)
-        text.text = note.noteText;
+        if (text != null)
+        {
+            text.text = note.noteText;
 
-    if (note.journalEntry != null)
+            // --- NEW: Apply the custom font size! ---
+            text.fontSize = note.fontSize;
+        }
+
+        if (note.journalEntry != null)
         JournalManager.Instance.AddEntry(note.journalEntry);
 
     isReading = true;
