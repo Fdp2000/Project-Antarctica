@@ -1,32 +1,32 @@
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class FootstepSystem : MonoBehaviour
 {
-    public enum FootstepMode
-    {
-        Outdoor,
-        Researchbase,
-        Ice,
-        Cave,
-        Vehicle
-    }
-
-    [Header("Audio")]
+    [Header("References")]
     public AudioSource footstepSource;
+    public SimpleFPSController playerController;
 
     [Header("Footstep Sounds")]
-    public AudioClip[] outdoorSteps;
-    public AudioClip[] researchbaseSteps;
-    public AudioClip[] iceSteps;
-    public AudioClip[] caveSteps;
-    public AudioClip[] vehicleSteps;
+    public AudioClip[] footstepClips;
 
     [Header("Timing")]
     public float stepInterval = 0.4f;
     private float stepTimer;
 
-    [Header("Current Mode")]
-    public FootstepMode currentMode = FootstepMode.Outdoor;
+    [Header("Ground Check")]
+    public float groundCheckDistance = 1.3f;
+
+    [Header("Randomization")]
+    public Vector2 pitchRange = new Vector2(0.9f, 1.1f);
+    public Vector2 volumeRange = new Vector2(0.8f, 1.0f);
+
+    private CharacterController controller;
+
+    void Start()
+    {
+        controller = GetComponent<CharacterController>();
+    }
 
     void Update()
     {
@@ -35,10 +35,17 @@ public class FootstepSystem : MonoBehaviour
 
     void HandleFootsteps()
     {
-        bool isMoving = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) ||
-                        Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);
+        // ❌ Don't play footsteps while in vehicle / seated
+        if (playerController != null && playerController.isSeated)
+            return;
 
-        if (isMoving)
+        // ✅ Movement based on velocity
+        bool isMoving = controller.velocity.magnitude > 0.2f;
+
+        // ✅ Ground check using raycast
+        bool isGrounded = controller.isGrounded && CheckGroundRay();
+
+        if (isMoving && isGrounded)
         {
             stepTimer -= Time.deltaTime;
 
@@ -54,40 +61,32 @@ public class FootstepSystem : MonoBehaviour
         }
     }
 
+    bool CheckGroundRay()
+    {
+        Ray ray = new Ray(transform.position, Vector3.down);
+
+        // Detect ANY collider (no layer mask)
+        if (Physics.Raycast(ray, out RaycastHit hit, groundCheckDistance))
+        {
+            // Optional: ignore triggers
+            if (hit.collider.isTrigger) return false;
+
+            return true;
+        }
+
+        return false;
+    }
+
     void PlayStep()
     {
-        AudioClip[] clips = GetCurrentClips();
+        if (footstepClips == null || footstepClips.Length == 0) return;
 
-        if (clips == null || clips.Length == 0) return;
+        AudioClip clip = footstepClips[Random.Range(0, footstepClips.Length)];
 
-        AudioClip clip = clips[Random.Range(0, clips.Length)];
-        footstepSource.PlayOneShot(clip, Random.Range(0.85f, 1.15f));
-    }
+        // 🎲 Random pitch & volume
+        footstepSource.pitch = Random.Range(pitchRange.x, pitchRange.y);
+        float volume = Random.Range(volumeRange.x, volumeRange.y);
 
-    AudioClip[] GetCurrentClips()
-    {
-        switch (currentMode)
-        {
-            case FootstepMode.Researchbase:
-                return researchbaseSteps;
-
-            case FootstepMode.Ice:
-                return iceSteps;
-
-            case FootstepMode.Cave:
-                return caveSteps;
-
-            case FootstepMode.Vehicle:
-                return vehicleSteps;
-
-            default:
-                return outdoorSteps;
-        }
-    }
-
-    // 🔥 Public function to change mode from other scripts
-    public void SetFootstepMode(FootstepMode mode)
-    {
-        currentMode = mode;
+        footstepSource.PlayOneShot(clip, volume);
     }
 }

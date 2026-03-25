@@ -13,10 +13,9 @@ MonoBehaviour:
   m_Name: IntroNote
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
-  noteText: "If you're reading this, the storm didn\u2019t take you.\n\nGood. Our
-    bases in the area have gone dark and we haven't recieved any word from them.\nYou
-    will continue their work.\nUse the radio in your vehicle. Tune the frequencies
-    carefully. They\u2019ll guide you to each location.\nWhen you get there, collect
-    whatever data you can, analyze it and move on.\nAnd listen, don\u2019t go wandering
-    out into the storm.\nStay in the vehicle if things get bad.\n\n"
+  noteText: "If you're reading this, the storm didn\u2019t take you.\nGood. \nOur
+    bases in the area have gone dark.\nYou will continue their work.\nUse the radio
+    in your vehicle. Tune the frequencies carefully. They\u2019ll guide you to each
+    location.\nCollect whatever data you can, analyze it and move on.\nAnd listen,
+    we don't know what's out there so don\u2019t go wandering out into the storm."
   journalEntry: {fileID: 0}

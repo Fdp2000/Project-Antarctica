@@ -6749,6 +6749,9 @@ PrefabInstance:
     - {fileID: 55984903734840766, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
     - {fileID: 2416558436406529191, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1201788656}
     - targetCorrespondingSourceObject: {fileID: 4581479363590235892, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1405775170}
@@ -6756,6 +6759,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 656509036}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4094464058702789719, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1895797823}
     - targetCorrespondingSourceObject: {fileID: 6598162170707994674, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1236993752}
@@ -6902,9 +6908,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 820507570035519727, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.66
+      objectReference: {fileID: 0}
     - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.0364065
+      value: -1.038
       objectReference: {fileID: 0}
     - target: {fileID: 3884623168006506246, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6943,6 +6953,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: m_text
+      value: "\nIf you're reading this, the storm didn\u2019t take you.\n\nGood.
+        \nOur bases in the area have gone dark and we haven't recieved any word from
+        them.\nYou will continue their work.\nUse the radio in your vehicle. Tune
+        the frequencies carefully. They\u2019ll guide you to each location.\nWhen
+        you get there, collect whatever data you can, analyze it and move on.\nAnd
+        listen, we don't know what's out there so don\u2019t go wandering out into
+        the storm.\nStay in the vehicle if things get bad.\n"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_fontAsset
       value: 
       objectReference: {fileID: 11400000, guid: b274f1a18abce374eb86e88afb46e3d3, type: 2}
@@ -6958,10 +6978,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Note 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7509116544601499713, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f95bbeaede046e745babd86c12538a15, type: 2}
     - target: {fileID: 8554458277543493492, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2256266087843168159, guid: b274f1a18abce374eb86e88afb46e3d3, type: 2}
+    - target: {fileID: 8576092483488706861, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      propertyPath: noteData
+      value: 
+      objectReference: {fileID: 11400000, guid: e85f43ba3773eba41bd135d091f33de9, type: 2}
     - target: {fileID: 8576092483488706861, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -7804,6 +7832,135 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1917566118}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &1201788655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1201788656}
+  - component: {fileID: 1201788657}
+  m_Layer: 2
+  m_Name: Footstep audio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1201788656
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201788655}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1609819811}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1201788657
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201788655}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!43 &1217664059
 Mesh:
   m_ObjectHideFlags: 0
@@ -8353,7 +8510,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8011459379671551246, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
   m_PrefabInstance: {fileID: 615868963}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1827469925}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 192104ec78343744b99fc434ad3d3e33, type: 3}
@@ -8724,6 +8881,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1827469925 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4094464058702789719, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
+  m_PrefabInstance: {fileID: 615868963}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1842087130
 GameObject:
   m_ObjectHideFlags: 0
@@ -8743,7 +8905,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1842087131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9246,6 +9408,26 @@ AudioSource:
   m_CorrespondingSourceObject: {fileID: 8643508365505516781, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
   m_PrefabInstance: {fileID: 615868963}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1895797823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1827469925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f9c603d8237a644aa22fc8fd1eb7a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepSystem
+  footstepSource: {fileID: 0}
+  outdoorSteps: []
+  researchbaseSteps: []
+  iceSteps: []
+  caveSteps: []
+  vehicleSteps: []
+  stepInterval: 0.4
+  currentMode: 0
 --- !u!1 &1917566117
 GameObject:
   m_ObjectHideFlags: 0
