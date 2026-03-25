@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public float blackScreenDuration = 2.0f;
     [Tooltip("How long the fade-in takes.")]
     public float fadeDuration = 1.5f;
+    public float delayBeforeBlackScreen = 0.5f; // <--- NEW
 
     [Header("Dependencies")]
     public SimpleFPSController player;
@@ -77,26 +78,32 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator DeathAndRespawnRoutine()
     {
-        // 1. Instantly Cut to Black
+        // 1. Disable Controls completely so the player can't move while waiting
+        if (player != null) player.enabled = false;
+
+        // --- NEW: Wait before cutting to black ---
+        if (delayBeforeBlackScreen > 0f)
+        {
+            yield return new WaitForSeconds(delayBeforeBlackScreen);
+        }
+
+        // 2. Instantly Cut to Black
         if (blackScreen != null)
         {
             blackScreen.color = Color.black;
             blackScreen.raycastTarget = true;
         }
 
-        // 2. Disable Controls completely
-        if (player != null) player.enabled = false;
-
-        // Optional: Wait in terrifying silence for a moment
+        // 3. Wait in terrifying silence for a moment
         yield return new WaitForSeconds(blackScreenDuration);
 
-        // 3. Execute the Load/Respawn Physics in the dark
+        // 4. Execute the Load/Respawn Physics in the dark
         LoadCheckpoint();
 
-        // 4. Give controls back EXACTLY as the fade begins
+        // 5. Give controls back EXACTLY as the fade begins
         if (player != null) player.enabled = true;
 
-        // 5. Slowly Fade In
+        // 6. Slowly Fade In
         if (blackScreen != null)
         {
             float elapsed = 0f;
@@ -110,7 +117,6 @@ public class GameManager : MonoBehaviour
             blackScreen.raycastTarget = false;
         }
     }
-
     private void LoadCheckpoint()
     {
         Debug.Log("<color=cyan>LOADING CHECKPOINT...</color>");
