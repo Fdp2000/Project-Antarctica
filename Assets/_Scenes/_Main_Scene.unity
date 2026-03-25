@@ -7044,13 +7044,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_text
-      value: "\nIf you're reading this, the storm didn\u2019t take you.\n\nGood.
-        \nOur bases in the area have gone dark and we haven't recieved any word from
-        them.\nYou will continue their work.\nUse the radio in your vehicle. Tune
-        the frequencies carefully. They\u2019ll guide you to each location.\nWhen
-        you get there, collect whatever data you can, analyze it and move on.\nAnd
-        listen, we don't know what's out there so don\u2019t go wandering out into
-        the storm.\nStay in the vehicle if things get bad.\n"
+      value: "\nWelcome to antarctica!\nOur bases in the area have gone dark and
+        we haven't recieved any word from them.\nYou will continue their work.\nUse
+        the radio in your vehicle. Tune the frequencies carefully. They\u2019ll guide
+        you to each location.\nWhen you get there, collect whatever data you can,
+        analyze it and move on.\nAnd listen, we don't know what's out there so don\u2019t
+        go wandering out into the storm.\nStay in the vehicle if things get bad.\n"
       objectReference: {fileID: 0}
     - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_fontAsset
