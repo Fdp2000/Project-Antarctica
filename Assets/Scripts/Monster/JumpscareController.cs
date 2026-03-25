@@ -79,6 +79,18 @@ public class JumpscareController : MonoBehaviour
     public Transform shadowSpawnNode;
     public Transform doorwayLeapNode;
 
+    private float defaultJumpscareFOV = -1f; // <--- NEW: Stores the original FOV
+
+    void Start()
+    {
+        // --- NEW: Memorize the Inspector FOV setting on boot ---
+        if (jumpscareCamera != null)
+        {
+            defaultJumpscareFOV = jumpscareCamera.fieldOfView;
+        }
+    }
+
+
     public void ExecuteJumpscare(MonsterDirector.StrikeType strikeType, Transform monsterTransform, Transform rampEntryTarget)
     {
         // THE FIX: Removed the animation trigger from here so Unity doesn't ignore it!
@@ -352,7 +364,13 @@ public class JumpscareController : MonoBehaviour
     {
         CrossHair.SetActive(true);
 
-        if (jumpscareCamera != null) jumpscareCamera.gameObject.SetActive(false);
+        if (jumpscareCamera != null)
+        {
+            jumpscareCamera.gameObject.SetActive(false);
+
+            // --- NEW: Restore the original FOV ---
+            if (defaultJumpscareFOV > 0f) jumpscareCamera.fieldOfView = defaultJumpscareFOV;
+        }
         if (playerCameraLens != null) playerCameraLens.gameObject.SetActive(true);
         if (stalkCollider != null) stalkCollider.enabled = false;
 
