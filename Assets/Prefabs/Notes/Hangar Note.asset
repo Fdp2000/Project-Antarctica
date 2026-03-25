@@ -13,5 +13,13 @@ MonoBehaviour:
   m_Name: Hangar Note
   m_EditorClassIdentifier: Assembly-CSharp::NoteData
   noteTitle: 
-  noteText: 
+  noteText: 'WE HAVE DECIDED TO LEAVE!
+
+
+    There is no reason for the military
+    to be out here anymore.
+
+    If You''re wondering why we are leaving all this
+    equipment behind, well they dont work anymore. For some reason they all went
+    silent a couple days back gods know why.'
   journalEntry: {fileID: 0}
