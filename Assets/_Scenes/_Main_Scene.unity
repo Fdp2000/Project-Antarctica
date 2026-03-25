@@ -36446,6 +36446,14 @@ PrefabInstance:
       propertyPath: CollisionModule.m_EnergyLossOnCollision.scalar
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1374270641676296463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9041d6c8cc1100e4eaa7f8620689b9e0, type: 2}
+    - target: {fileID: 1374270641676296463, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4cd3ea32e439dd84083ed7c948202151, type: 2}
     - target: {fileID: 1468832480835734654, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Size.x
       value: 1
@@ -36522,6 +36530,14 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 153760722}
+    - target: {fileID: 4275035515035668106, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9041d6c8cc1100e4eaa7f8620689b9e0, type: 2}
+    - target: {fileID: 4275035515035668106, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4cd3ea32e439dd84083ed7c948202151, type: 2}
     - target: {fileID: 4302274479672042004, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.953717
