@@ -1,5 +1,6 @@
 using UnityEngine;
-using UnityEngine.Events; // <--- Needed for the Endgame Trigger
+using UnityEngine.Events;
+using System.Collections;
 
 public class FinalCRTWaveController : MonoBehaviour
 {
@@ -35,7 +36,6 @@ public class FinalCRTWaveController : MonoBehaviour
     public Material lightOnMaterial;
 
     [Header("=== FINAL PUZZLE DIFFICULTY ===")]
-    [Tooltip("How long the player must hold the sync to win the game.")]
     public float timeToComplete = 10.0f;
     public float baseTargetAmplitude = 0.7f;
     public float baseTargetFrequency = 8.0f;
@@ -59,28 +59,55 @@ public class FinalCRTWaveController : MonoBehaviour
     [Range(6.2f, 10f)] public float playerFrequency = 8.0f;
     [Range(0f, 12.56f)] public float playerPhase = 2.5f;
 
-    [Header("=== ENDGAME TRIGGER ===")]
-    [Tooltip("What happens when the final wave is synced? (E.g. Turn screen white, play loud sound, load credits)")]
+    [Header("=== ENDGAME CINEMATIC ===")]
+    public GameObject dataTransmittedText;
+    public AudioSource externalScreechSource;
+    public AudioClip monsterScreechClip;
+    public Light[] shedSpotlights;
+
+    // --- NEW: The physical bulb meshes ---
+    [Tooltip("The MeshRenderers for the physical light bulbs so their emission can be toggled.")]
+    public MeshRenderer[] shedBulbRenderers;
+
+    public AudioSource lightFlickerSource;
+    public AudioClip fastFlickerClip;
+    public AudioClip finalPowerDownClip;
+
+    // ==========================================
+    // --- EXPOSED CINEMATIC TIMINGS ---
+    // ==========================================
+    [Header("Cinematic Timings")]
+    [Tooltip("How fast the text flashes on and off.")]
+    public float textBlinkInterval = 0.4f;
+    [Tooltip("How long the text stays solid before the machine turns off.")]
+    public float textSolidDuration = 2.0f;
+    [Tooltip("Silence between the machine turning off and the monster screech.")]
+    public float delayBeforeScreech = 1.0f;
+    [Tooltip("How long to wait for the screech audio to finish before lights flicker.")]
+    public float delayAfterScreech = 1.5f;
+
+    public int LightFlickerAmount = 5;
+    [Tooltip("X = Min, Y = Max seconds the lights stay OFF during a flicker.")]
+    public Vector2 flickerOffDuration = new Vector2(0.05f, 0.2f);
+    [Tooltip("X = Min, Y = Max seconds the lights stay ON during a flicker.")]
+    public Vector2 flickerOnDuration = new Vector2(0.1f, 0.4f);
+
+    [Tooltip("X = Min, Y = Max seconds of pure darkness before the credits roll.")]
+    public Vector2 delayBeforeCredits = new Vector2(2.0f, 4.0f);
+
+    [Header("The Final Trigger")]
     public UnityEvent onFinalMinigameCompleted;
 
     [Header("Live Debug (Watch in Play Mode)")]
     public float currentProgress = 0f;
     public bool isMinigameComplete = false;
 
+
     // Internal variables
     private float currentDriftInterval;
-    private float currentTargetAmplitude;
-    private float currentTargetFrequency;
-    private float currentTargetPhase;
-
-    private float oldTargetAmplitude;
-    private float oldTargetFrequency;
-    private float oldTargetPhase;
-
-    private float newTargetAmplitude;
-    private float newTargetFrequency;
-    private float newTargetPhase;
-
+    private float currentTargetAmplitude, currentTargetFrequency, currentTargetPhase;
+    private float oldTargetAmplitude, oldTargetFrequency, oldTargetPhase;
+    private float newTargetAmplitude, newTargetFrequency, newTargetPhase;
     private float timer = 0f;
     private float lerpTimer = 0f;
     private int completedLEDCount = 0;
@@ -101,7 +128,8 @@ public class FinalCRTWaveController : MonoBehaviour
             if (i < progressPointLights.Length && progressPointLights[i] != null) progressPointLights[i].intensity = 0f;
         }
 
-        // Ensure the machine starts completely off
+        if (dataTransmittedText != null) dataTransmittedText.SetActive(false);
+
         this.enabled = false;
         if (targetLine) targetLine.gameObject.SetActive(false);
         if (playerLine) playerLine.gameObject.SetActive(false);
@@ -163,18 +191,9 @@ public class FinalCRTWaveController : MonoBehaviour
 
         switch (propertyToMutate)
         {
-            case 0:
-                float rawNewAmp = currentTargetAmplitude + Random.Range(-amplitudeDriftVariance, amplitudeDriftVariance);
-                newTargetAmplitude = Mathf.Clamp(rawNewAmp, 0.16f, 1.1f);
-                break;
-            case 1:
-                float rawNewFreq = currentTargetFrequency + Random.Range(-frequencyDriftVariance, frequencyDriftVariance);
-                newTargetFrequency = Mathf.Clamp(rawNewFreq, 6.2f, 10.0f);
-                break;
-            case 2:
-                float rawNewPhase = currentTargetPhase + Random.Range(-phaseDriftVariance, phaseDriftVariance);
-                newTargetPhase = Mathf.Clamp(rawNewPhase, 0f, 12.56f);
-                break;
+            case 0: newTargetAmplitude = Mathf.Clamp(currentTargetAmplitude + Random.Range(-amplitudeDriftVariance, amplitudeDriftVariance), 0.16f, 1.1f); break;
+            case 1: newTargetFrequency = Mathf.Clamp(currentTargetFrequency + Random.Range(-frequencyDriftVariance, frequencyDriftVariance), 6.2f, 10.0f); break;
+            case 2: newTargetPhase = Mathf.Clamp(currentTargetPhase + Random.Range(-phaseDriftVariance, phaseDriftVariance), 0f, 12.56f); break;
         }
 
         lerpTimer = 0f;
@@ -198,10 +217,7 @@ public class FinalCRTWaveController : MonoBehaviour
 
         UpdateProgressLEDs();
 
-        if (lightRenderer != null)
-        {
-            lightRenderer.material = isSynced ? (lightOnMaterial != null ? lightOnMaterial : lightRenderer.material) : (lightOffMaterial != null ? lightOffMaterial : lightRenderer.material);
-        }
+        if (lightRenderer != null) lightRenderer.material = isSynced ? (lightOnMaterial != null ? lightOnMaterial : lightRenderer.material) : (lightOffMaterial != null ? lightOffMaterial : lightRenderer.material);
         if (pointLightObject != null) pointLightObject.SetActive(isSynced);
 
         // --- WIN CONDITION ---
@@ -210,11 +226,7 @@ public class FinalCRTWaveController : MonoBehaviour
             isMinigameComplete = true;
             Debug.Log("<color=cyan>FINAL SEQUENCE TRIGGERED!</color>");
 
-            // Turn off the machine visuals
-            TurnOffMachine(false);
-
-            // Fire the ending events!
-            onFinalMinigameCompleted?.Invoke();
+            StartCoroutine(EndgameSequenceRoutine());
         }
     }
 
@@ -268,18 +280,15 @@ public class FinalCRTWaveController : MonoBehaviour
         }
     }
 
-    // --- CALL THIS FROM YOUR PUNCHCARD READER TO START THE FINAL PUZZLE ---
     public void StartFinalMinigame()
     {
         if (isMinigameComplete) return;
 
         currentProgress = 0f;
         completedLEDCount = 0;
-
         currentTargetAmplitude = baseTargetAmplitude;
         currentTargetFrequency = baseTargetFrequency;
         currentTargetPhase = baseTargetPhase;
-
         currentDriftInterval = Random.Range(minDriftInterval, maxDriftInterval);
         PickNewTargets();
 
@@ -297,15 +306,11 @@ public class FinalCRTWaveController : MonoBehaviour
             crtLoopSource.volume = crtLoopVolume;
             if (!crtLoopSource.isPlaying) crtLoopSource.Play();
         }
-
-        Debug.Log("<color=green>FINAL CRT MACHINE ONLINE.</color>");
     }
 
     private void TurnOffMachine(bool playSound = true)
     {
         this.enabled = false;
-        crtOneShotSource.PlayOneShot(crtTurnOffSound);
-
 
         if (targetLine) targetLine.gameObject.SetActive(false);
         if (playerLine) playerLine.gameObject.SetActive(false);
@@ -325,13 +330,106 @@ public class FinalCRTWaveController : MonoBehaviour
             if (crtOneShotSource != null && crtTurnOffSound != null)
             {
                 crtOneShotSource.PlayOneShot(crtTurnOffSound);
-                Debug.Log("<color=red>FINAL CRT MACHINE OFFLINE.</color>");
             }
         }
         else
         {
-            // Just kill the loop silently for the ending transition
             if (crtLoopSource != null) crtLoopSource.Stop();
+        }
+    }
+
+    // ==========================================
+    // --- THE GRAND FINALE SEQUENCE ---
+    // ==========================================
+    private IEnumerator EndgameSequenceRoutine()
+    {
+        if (targetLine) targetLine.gameObject.SetActive(false);
+        if (playerLine) playerLine.gameObject.SetActive(false);
+        if (lightRenderer != null && lightOffMaterial != null) lightRenderer.material = lightOffMaterial;
+        if (pointLightObject != null) pointLightObject.SetActive(false);
+
+        // Step 1: Blink the text using inspector timing
+        if (dataTransmittedText != null)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                dataTransmittedText.SetActive(true);
+                yield return new WaitForSeconds(textBlinkInterval);
+                dataTransmittedText.SetActive(false);
+                yield return new WaitForSeconds(textBlinkInterval);
+            }
+
+            // Step 2: Keep it solid
+            dataTransmittedText.SetActive(true);
+            yield return new WaitForSeconds(textSolidDuration);
+            dataTransmittedText.SetActive(false);
+        }
+
+        // Step 3: Turn off the machine
+        TurnOffMachine(true);
+        yield return new WaitForSeconds(delayBeforeScreech);
+
+        // Step 4: The Screech Outside
+        if (externalScreechSource != null && monsterScreechClip != null)
+        {
+            externalScreechSource.PlayOneShot(monsterScreechClip);
+        }
+        yield return new WaitForSeconds(delayAfterScreech);
+
+        // Step 5: Flicker the Shed Lights AND Bulb Meshes
+        int flickerCount = LightFlickerAmount;
+        for (int i = 0; i < flickerCount; i++)
+        {
+            SetShedLights(false);
+            if (lightFlickerSource && fastFlickerClip) lightFlickerSource.PlayOneShot(fastFlickerClip);
+            yield return new WaitForSeconds(Random.Range(flickerOffDuration.x, flickerOffDuration.y));
+
+            SetShedLights(true);
+            if (lightFlickerSource && fastFlickerClip) lightFlickerSource.PlayOneShot(fastFlickerClip);
+            yield return new WaitForSeconds(Random.Range(flickerOnDuration.x, flickerOnDuration.y));
+        }
+
+        // Step 6: Pitch Black
+        SetShedLights(false);
+        if (lightFlickerSource && finalPowerDownClip) lightFlickerSource.PlayOneShot(finalPowerDownClip);
+
+        // Step 7: Wait in the dark
+        float darkWaitTime = Random.Range(delayBeforeCredits.x, delayBeforeCredits.y);
+        yield return new WaitForSeconds(darkWaitTime);
+
+        // Step 8: Roll Credits!
+        Debug.Log("<color=magenta>ROLL CREDITS!</color>");
+        onFinalMinigameCompleted?.Invoke();
+    }
+
+    private void SetShedLights(bool isOn)
+    {
+        // 1. Toggle the actual Spotlight beams
+        if (shedSpotlights != null)
+        {
+            foreach (Light l in shedSpotlights)
+            {
+                if (l != null) l.enabled = isOn;
+            }
+        }
+
+        // 2. Toggle the Emission checkmark on the bulb meshes
+        if (shedBulbRenderers != null)
+        {
+            foreach (MeshRenderer r in shedBulbRenderers)
+            {
+                if (r != null && r.material != null)
+                {
+                    if (isOn)
+                    {
+                        r.material.EnableKeyword("_EMISSION");
+                    }
+                    else
+                    {
+                        r.material.DisableKeyword("_EMISSION");
+                    }
+                }
+            }
         }
     }
 }
