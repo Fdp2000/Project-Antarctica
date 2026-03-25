@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Level_1_Profile
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
   gracePeriod: {x: 1, y: 1}
-  approachDuration: {x: 0, y: 1}
-  silenceDuration: {x: 0, y: 1}
+  approachDuration: {x: 2, y: 2}
+  silenceDuration: {x: 2, y: 2}
   strikeDuration: {x: 1, y: 1}
   retreatDuration: {x: 6, y: 10}
   patienceThreshold: {x: 8, y: 12}
