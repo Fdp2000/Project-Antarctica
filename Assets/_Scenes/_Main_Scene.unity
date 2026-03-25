@@ -6544,7 +6544,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.49
+      value: -2.3
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6552,7 +6552,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -17.56
+      value: -22
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6856,6 +6856,32 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1236993753}
   m_SourcePrefab: {fileID: 100100000, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
+--- !u!1 &631943299 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6311372540994608282, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+  m_PrefabInstance: {fileID: 71524555630936172}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &631943304
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 631943299}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.43343875, y: 0.3877438, z: 2.4241478}
+  m_Center: {x: -0.13206421, y: 0.23070662, z: 0.212075}
 --- !u!1 &656509035 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c584921223cdc40e2a01cac31e6e4e1a, type: 3}
@@ -7044,12 +7070,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_text
-      value: "\nWelcome to antarctica!\nOur bases in the area have gone dark and
-        we haven't recieved any word from them.\nYou will continue their work.\nUse
-        the radio in your vehicle. Tune the frequencies carefully. They\u2019ll guide
-        you to each location.\nWhen you get there, collect whatever data you can,
-        analyze it and move on.\nAnd listen, we don't know what's out there so don\u2019t
-        go wandering out into the storm.\nStay in the vehicle if things get bad.\n"
+      value: "\n\n\nWelcome to Antarctica!\nOur bases in the area have gone dark.\nYou
+        will continue their work.\nUse the radio in your vehicle. Tune the frequencies
+        carefully. They\u2019ll guide you to each location.\nWhen you get there,
+        collect whatever data you can, analyze it and move on.\nAnd listen, we don't
+        know what's out there so don\u2019t go wandering out into the storm."
       objectReference: {fileID: 0}
     - target: {fileID: 5596622687143516412, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
       propertyPath: m_fontAsset
@@ -11290,6 +11315,38 @@ PrefabInstance:
       propertyPath: noteData
       value: 
       objectReference: {fileID: 11400000, guid: f9aaf88e90bd4aa48a52b944a531d8b7, type: 2}
+    - target: {fileID: 810104081926426213, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: MaxDistance
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: VelocityModule.x.scalar
+      value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: VelocityModule.x.minScalar
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: CollisionModule.radiusScale
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: CollisionModule.minKillSpeed
+      value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: CollisionModule.maxCollisionShapes
+      value: 512
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: VelocityModule.speedModifier.scalar
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201346649744161552, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: CollisionModule.m_EnergyLossOnCollision.scalar
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2673576364243323435, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -11317,6 +11374,10 @@ PrefabInstance:
     - target: {fileID: 3253926655196032062, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_VersionIndex
       value: 168
+      objectReference: {fileID: 0}
+    - target: {fileID: 3776755034911440498, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      propertyPath: MaxDistance
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 3886293831841772087, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_Mesh
@@ -11545,6 +11606,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7709069913839455150, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       insertIndex: -1
       addedObject: {fileID: 963189910}
+    - targetCorrespondingSourceObject: {fileID: 6311372540994608282, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 631943304}
     - targetCorrespondingSourceObject: {fileID: 6831254429329805743, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -11672,10 +11736,11 @@ MonoBehaviour:
   audioSource: {fileID: 71524555630936174}
   clips:
   - {fileID: 8300000, guid: 39187d233ef30e740a422214c0814471, type: 3}
-  minDelay: 3
-  maxDelay: 10
+  - {fileID: 8300000, guid: 035476d68c6d3d54ba0b367be669f3f8, type: 3}
+  minDelay: 15
+  maxDelay: 35
   randomPitch: 1
-  pitchRange: {x: 0.9, y: 1.1}
+  pitchRange: {x: 0.77, y: 1.2}
 --- !u!135 &71524555630936176
 SphereCollider:
   m_ObjectHideFlags: 0
