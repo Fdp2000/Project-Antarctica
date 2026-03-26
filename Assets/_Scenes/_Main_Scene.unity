@@ -14345,15 +14345,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.7
+      value: 13.99
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.45
+      value: 34.7
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -32.3
+      value: 168.1
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15488,7 +15488,7 @@ MonoBehaviour:
   LightFlickerAmount: 4
   flickerOffDuration: {x: 0.1, y: 0.25}
   flickerOnDuration: {x: 0.1, y: 0.25}
-  delayBeforeCredits: {x: 3.5, y: 3.5}
+  delayBeforeCredits: {x: 4, y: 4}
   onFinalMinigameCompleted:
     m_PersistentCalls:
       m_Calls:
