@@ -38871,7 +38871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NoteViewer
   notePrefab: {fileID: 6824164940566390362, guid: a6dbb9dfa6e0d2445a03d8b1676e0dfc, type: 3}
-  spawnDistance: 0.13
+  spawnDistance: 0.16
   spawnHeight: 0
   rotationSpeed: 50
   smoothFaceSpeed: 10
