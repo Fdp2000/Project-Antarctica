@@ -14712,7 +14712,7 @@ MonoBehaviour:
   maxProgressLightIntensity: 0.025
   lightOffMaterial: {fileID: 2100000, guid: 78d799da36a3b484795c8198d5c4dc3d, type: 2}
   lightOnMaterial: {fileID: 2100000, guid: 1e89bb2d95f645548be47e9043042270, type: 2}
-  timeToComplete: 10
+  timeToComplete: 1
   baseTargetAmplitude: 0.7
   baseTargetFrequency: 8
   baseTargetPhase: 10.43
@@ -14742,17 +14742,29 @@ MonoBehaviour:
   lightFlickerSource: {fileID: 760147972}
   fastFlickerClip: {fileID: 8300000, guid: 73c40e76749b7504db44b05822d479b3, type: 3}
   finalPowerDownClip: {fileID: 0}
-  textBlinkInterval: 0.4
-  textSolidDuration: 2
-  delayBeforeScreech: 1
-  delayAfterScreech: 1.5
-  LightFlickerAmount: 5
-  flickerOffDuration: {x: 0.05, y: 0.2}
-  flickerOnDuration: {x: 0.1, y: 0.4}
-  delayBeforeCredits: {x: 2, y: 4}
+  textBlinkInterval: 0.9
+  textSolidDuration: 3.5
+  delayBeforeScreech: 3.5
+  delayAfterScreech: 2.3
+  LightFlickerAmount: 4
+  flickerOffDuration: {x: 0.1, y: 0.25}
+  flickerOnDuration: {x: 0.1, y: 0.25}
+  delayBeforeCredits: {x: 3.5, y: 3.5}
   onFinalMinigameCompleted:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1895797824}
+        m_TargetAssemblyTypeName: TitlecardController, Assembly-CSharp
+        m_MethodName: StartCredits
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   currentProgress: 0
   isMinigameComplete: 0
 --- !u!1 &686907574 stripped
@@ -15663,7 +15675,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.155
+  m_Volume: 0.01
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -22113,7 +22125,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.155
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -28249,7 +28261,7 @@ Transform:
   m_GameObject: {fileID: 1590516066}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000029802322, y: -0.000000014901161, z: -0.016091809, w: -0.99987054}
-  m_LocalPosition: {x: -0.45395163, y: 6.9958034, z: -0.42133227}
+  m_LocalPosition: {x: 0, y: 0.00124, z: 0}
   m_LocalScale: {x: 1.0004776, y: 0.9991161, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35404,6 +35416,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 4645749248037788795, guid: 45b14567f04f74ffa9a580e9267a940c, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 78d799da36a3b484795c8198d5c4dc3d, type: 2}
     - target: {fileID: 5178017847336754072, guid: 45b14567f04f74ffa9a580e9267a940c, type: 3}
       propertyPath: m_Layer
       value: 10
