@@ -16,26 +16,25 @@ public class ForceSilenceZone : MonoBehaviour
     public bool triggerOnlyOnce = true;
     private bool hasTriggered = false;
 
-    // Cache the director so we can turn it back on later if needed
     private MonsterDirector activeDirector;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        bool isPlayer = other.CompareTag("Player");
+        bool isVehicle = other.CompareTag("Vehicle") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Vehicle"));
+
+        if (isPlayer || isVehicle)
         {
             if (triggerOnlyOnce && hasTriggered) return;
             hasTriggered = true;
 
             Debug.Log("<color=magenta>SILENCE ZONE ENTERED: Forcing Deafening Silence.</color>");
 
-            // 1. Force the audio snapshot
             if (silenceSnapshot != null)
             {
                 silenceSnapshot.TransitionTo(fadeTime);
             }
 
-            // 2. The "No Matter What" Override
-            // Find the MonsterDirector and shut it off completely so it cannot fight us for audio control!
             activeDirector = FindObjectOfType<MonsterDirector>();
             if (activeDirector != null)
             {
@@ -47,18 +46,18 @@ public class ForceSilenceZone : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        // Only run the exit logic if the trigger is meant to be repeatable
-        if (other.CompareTag("Player") && !triggerOnlyOnce)
+        bool isPlayer = other.CompareTag("Player");
+        bool isVehicle = other.CompareTag("Vehicle") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Vehicle"));
+
+        if ((isPlayer || isVehicle) && !triggerOnlyOnce)
         {
             Debug.Log("<color=magenta>EXITING SILENCE ZONE: Restoring Normal Audio.</color>");
 
-            // 1. Restore the normal audio
             if (normalSnapshot != null)
             {
                 normalSnapshot.TransitionTo(fadeTime);
             }
 
-            // 2. Turn the MonsterDirector back on so it can resume hunting
             if (activeDirector != null)
             {
                 activeDirector.enabled = true;

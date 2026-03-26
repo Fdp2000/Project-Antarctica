@@ -3823,6 +3823,7 @@ GameObject:
   m_Component:
   - component: {fileID: 231068493}
   - component: {fileID: 231068494}
+  - component: {fileID: 231068495}
   m_Layer: 0
   m_Name: Force Silence
   m_TagString: Untagged
@@ -3861,6 +3862,27 @@ MonoBehaviour:
   normalSnapshot: {fileID: 0}
   fadeTime: 1
   triggerOnlyOnce: 1
+--- !u!135 &231068495
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 231068492}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 133.3
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &232412138
 GameObject:
   m_ObjectHideFlags: 0
@@ -13832,7 +13854,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.19
+      value: -26.06
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
@@ -13840,7 +13862,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 151.51
+      value: -7.34
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -14604,6 +14626,7 @@ GameObject:
   m_Component:
   - component: {fileID: 648983934}
   - component: {fileID: 648983935}
+  - component: {fileID: 648983936}
   m_Layer: 0
   m_Name: FOGANDBLIZZARD TRIGGER
   m_TagString: Untagged
@@ -14640,11 +14663,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlizzardTransition
   triggerOnlyOnce: 1
   transitionDuration: 6
-  dayFogDensity: 0.02
-  nightFogDensity: 0.08
+  dayFogDensity: 0.093
+  nightFogDensity: 0.025
   snowParticleSystem: {fileID: 273574920}
   dayEmissionRate: 500
   nightEmissionRate: 2000
+--- !u!135 &648983936
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648983933}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 107.7
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &656509035 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c584921223cdc40e2a01cac31e6e4e1a, type: 3}
@@ -17844,7 +17888,7 @@ Transform:
   m_GameObject: {fileID: 897059306}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 117.1, y: 0, z: 110.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -24063,6 +24107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1303120797}
   - component: {fileID: 1303120798}
+  - component: {fileID: 1303120799}
   m_Layer: 0
   m_Name: DAYTONIGHT
   m_TagString: Untagged
@@ -24102,10 +24147,31 @@ MonoBehaviour:
   directionalLight: {fileID: 410087040}
   daySunColor: {r: 1, g: 1, b: 1, a: 1}
   nightSunColor: {r: 0.2, g: 0.4, b: 0.8, a: 1}
-  daySunIntensity: 1
+  daySunIntensity: 0.2
   nightSunIntensity: 0.1
   dayAmbientIntensity: 1
   nightAmbientIntensity: 0.6
+--- !u!135 &1303120799
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303120796}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 214.2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1303232925 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 68d83bd779aa94dcc90a20a215616c3f, type: 3}

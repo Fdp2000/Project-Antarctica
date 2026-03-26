@@ -22,7 +22,10 @@ public class BlizzardTransition : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        bool isPlayer = other.CompareTag("Player");
+        bool isVehicle = other.CompareTag("Vehicle") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Vehicle"));
+
+        if (isPlayer || isVehicle)
         {
             if (triggerOnlyOnce && hasTriggered) return;
 
@@ -35,15 +38,10 @@ public class BlizzardTransition : MonoBehaviour
     private IEnumerator TransitionWeather()
     {
         float elapsedTime = 0f;
-
-        // Capture starting values
         float startFogDensity = RenderSettings.fogDensity;
 
+        // Force the start rate to exactly match our Day variable!
         float startEmissionRate = dayEmissionRate;
-        if (snowParticleSystem != null)
-        {
-            startEmissionRate = snowParticleSystem.emission.rateOverTime.constant;
-        }
 
         while (elapsedTime < transitionDuration)
         {
@@ -51,27 +49,24 @@ public class BlizzardTransition : MonoBehaviour
             float t = elapsedTime / transitionDuration;
             float easedT = Mathf.SmoothStep(0f, 1f, t);
 
-            // 1. Blend Fog Density ONLY
             RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, nightFogDensity, easedT);
 
-            // 2. Blend Particle Emission Rate
             if (snowParticleSystem != null)
             {
                 var emissionModule = snowParticleSystem.emission;
-                // Unity requires assigning a new MinMaxCurve struct when updating rate over time via code
-                emissionModule.rateOverTime = new ParticleSystem.MinMaxCurve(Mathf.Lerp(startEmissionRate, nightEmissionRate, easedT));
+                // Using the Multiplier is Unity's bulletproof way of updating rates over time at runtime
+                emissionModule.rateOverTimeMultiplier = Mathf.Lerp(startEmissionRate, nightEmissionRate, easedT);
             }
 
             yield return null;
         }
 
-        // Hard set final values at the end
         RenderSettings.fogDensity = nightFogDensity;
 
         if (snowParticleSystem != null)
         {
             var emissionModule = snowParticleSystem.emission;
-            emissionModule.rateOverTime = new ParticleSystem.MinMaxCurve(nightEmissionRate);
+            emissionModule.rateOverTimeMultiplier = nightEmissionRate;
         }
     }
 }

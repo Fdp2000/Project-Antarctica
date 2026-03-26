@@ -21,14 +21,32 @@ public class DayToNightTransition : MonoBehaviour
     public float dayAmbientIntensity = 1.0f;
     public float nightAmbientIntensity = 0.05f;
 
+    [Header("Vehicle Integration")]
+    [Tooltip("Drag the Cruiser's front headlights here to automatically turn them on when night falls.")]
+    public Light[] vehicleHeadlights;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        // Safely check if it's the player, OR a vehicle child collider, OR the vehicle parent itself
+        bool isPlayer = other.CompareTag("Player");
+        bool isVehicle = other.CompareTag("Vehicle") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Vehicle"));
+
+        if (isPlayer || isVehicle)
         {
             if (triggerOnlyOnce && hasTriggered) return;
 
             hasTriggered = true;
             Debug.Log("<color=blue>Initiating Day to Night Lighting Transition...</color>");
+
+            // Turn on headlights immediately if the vehicle has them
+            if (vehicleHeadlights != null)
+            {
+                foreach (Light light in vehicleHeadlights)
+                {
+                    if (light != null) light.enabled = true;
+                }
+            }
+
             StartCoroutine(TransitionLighting());
         }
     }
