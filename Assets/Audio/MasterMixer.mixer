@@ -158,11 +158,14 @@ AudioMixerController:
   m_Snapshots:
   - {fileID: 24500006}
   - {fileID: 3766398300378165255}
+  - {fileID: 3215628121350361552}
   m_StartSnapshot: {fileID: 24500006}
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
   m_UpdateMode: 0
-  m_ExposedParameters: []
+  m_ExposedParameters:
+  - guid: 5d0ecdc78d9081e47b4cbe2fab8582c2
+    name: MasterVolume
   m_AudioMixerGroupViews:
   - guids:
     - ba26b1b9e3f7b0544a4bd7e1c0fe355a
@@ -230,9 +233,10 @@ AudioMixerSnapshotController:
   m_AudioMixer: {fileID: 24100000}
   m_SnapshotID: 5e30fd4f5367da742a777feec8eeec6f
   m_FloatValues:
-    5d0ecdc78d9081e47b4cbe2fab8582c2: -0.43201196
+    5d0ecdc78d9081e47b4cbe2fab8582c2: -0.10231405
     1767ffc7fba032a409ea2ea15514924b: 0.23288241
     c1dfe78857533b94f911f03d9a4e2f96: -0.08374829
+    e8fb283bf2b6fac4ab2635f70da6cce6: -6.133707
     08edb2db8dfd8e44c886d90ba85e99d8: -0.037667945
     cbe85a2ce3e6d1044bbd55fabb677c82: 0.23288241
     3a8fcdbd4fbd7c447b0095ff07c95426: -10.867776
@@ -289,6 +293,23 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!245 &3215628121350361552
+AudioMixerSnapshotController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: DeafeningSilence - Copy
+  m_AudioMixer: {fileID: 24100000}
+  m_SnapshotID: 11a27b021e33c7e43a99df7267a5c8f7
+  m_FloatValues:
+    1767ffc7fba032a409ea2ea15514924b: -80
+    c1dfe78857533b94f911f03d9a4e2f96: -8.362404
+    08edb2db8dfd8e44c886d90ba85e99d8: -80
+    cbe85a2ce3e6d1044bbd55fabb677c82: -80
+    7c467afc18d6c7841a4bb488061afd7a: -17.454803
+    3a8fcdbd4fbd7c447b0095ff07c95426: -10.867776
+  m_TransitionOverrides: {}
 --- !u!245 &3766398300378165255
 AudioMixerSnapshotController:
   m_ObjectHideFlags: 0
