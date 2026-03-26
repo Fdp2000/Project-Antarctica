@@ -11,15 +11,19 @@ public class WinchController : MonoBehaviour
 
     [Header("Audio System (Sources)")]
     [Tooltip("Attach an AudioSource here for the looping ratchet sounds.")]
-    public AudioSource loopSource;
-    [Tooltip("Attach a second AudioSource here for the explosive one-shot impacts.")]
+    public AudioSource loopSource; [Tooltip("Attach a second AudioSource here for the explosive one-shot impacts.")]
     public AudioSource impactSource;
 
-    [Header("Audio System (Clips)")]
-    public AudioClip winchLoopNormal;
+    [Header("Audio System (Clips & Volumes)")]
+    public AudioClip winchLoopNormal; [Range(0f, 1f)] public float winchLoopVolume = 1.0f; // <--- NEW
+
     public AudioClip doorSwingSound;
-    public AudioClip doorSlamShut;
+    [Range(0f, 1f)] public float doorSwingVolume = 1.0f; // <--- NEW
+
+    public AudioClip doorSlamShut; [Range(0f, 1f)] public float doorSlamVolume = 1.0f; // <--- NEW
+
     public AudioClip doorSnowImpact;
+    [Range(0f, 1f)] public float doorSnowImpactVolume = 1.0f; // <--- NEW
 
     [Header("Audio Tuning")]
     public float maxPitch = 1.3f;
@@ -35,25 +39,19 @@ public class WinchController : MonoBehaviour
     public Transform valveMesh;
     public Vector3 valveRotationAxis = Vector3.forward;
     public int valveFullSpins = 3;
-    public float valveLockAngle = 50f;
-
-    [Header("Animations (Violent Open / Heavy Close)")]
+    public float valveLockAngle = 50f; [Header("Animations (Violent Open / Heavy Close)")]
     public float openSlamSpeed = 350f;
     public float closeSpeedMin = 5f;
     public float closeSpeedMax = 40f;
     public float closeAcceleration = 20f;
     public float slamThresholdPercent = 0.07f;
-    public float slamDuration = 0.15f;
-
-    [Header("Interaction Timers")]
+    public float slamDuration = 0.15f; [Header("Interaction Timers")]
     public float openHoldTime = 0.25f;
     public float closeCooldownTime = 1.2f;
     public float openCooldownTime = 2.0f;
 
     [Header("Clutch State")]
-    public bool isStruggling = false;
-
-    [Header("Environment Forces (Wind Slam)")]
+    public bool isStruggling = false; [Header("Environment Forces (Wind Slam)")]
     public bool isPlayerInside = true;
     public float autoOpenOutsideTimer = 4.0f;
     private float currentOutsideTime = 0f;
@@ -134,10 +132,10 @@ public class WinchController : MonoBehaviour
                 Debug.Log("DOOR SLAMMED OPEN!");
                 OnDoorFullyOpened?.Invoke();
 
-                // --- AUDIO: SNOW IMPACT ---
+                // --- NEW: Apply the volume slider to the OneShot ---
                 if (impactSource != null && doorSnowImpact != null)
                 {
-                    impactSource.PlayOneShot(doorSnowImpact);
+                    impactSource.PlayOneShot(doorSnowImpact, doorSnowImpactVolume);
                 }
             }
         }
@@ -149,28 +147,27 @@ public class WinchController : MonoBehaviour
     {
         if (loopSource == null) return;
 
+        // --- NEW: A much cleaner way to handle the fading audio with custom volumes ---
+        float targetVolume = 0f;
+        float currentFadeSpeed = audioFadeSpeed;
+
         if (isStruggling)
         {
-            // The Clutch Controller handles the terrifying clip during struggle, 
-            // we just make sure the volume stays at 100% while it fights.
-            loopSource.volume = Mathf.Lerp(loopSource.volume, 1f, Time.deltaTime * audioFadeSpeed);
-            return;
+            targetVolume = winchLoopVolume;
         }
-
-        if (isSlamming)
+        else if (isSlamming)
         {
-            loopSource.volume = Mathf.Lerp(loopSource.volume, 0f, Time.deltaTime * 15f);
-            return;
+            targetVolume = 0f;
+            currentFadeSpeed = 15f; // Fast fade out when slamming
         }
-
-        if (isAutoOpening)
+        else if (isAutoOpening)
         {
             if (loopSource.clip != doorSwingSound)
             {
                 loopSource.clip = doorSwingSound;
                 loopSource.Play();
             }
-            loopSource.volume = Mathf.Lerp(loopSource.volume, 1f, Time.deltaTime * audioFadeSpeed);
+            targetVolume = doorSwingVolume; // Use the custom swing volume
             loopSource.pitch = 1f;
         }
         else if (IsBeingHeld && !IsDoorClosed)
@@ -180,17 +177,15 @@ public class WinchController : MonoBehaviour
                 loopSource.clip = winchLoopNormal;
                 loopSource.Play();
             }
-            loopSource.volume = Mathf.Lerp(loopSource.volume, 1f, Time.deltaTime * audioFadeSpeed);
+            targetVolume = winchLoopVolume; // Use the custom winch volume
 
             // Dynamically pitch the sound up as the door closes faster
             float speedPercent = Mathf.InverseLerp(closeSpeedMin, closeSpeedMax, currentDynamicCloseSpeed);
             loopSource.pitch = Mathf.Lerp(minPitch, maxPitch, speedPercent);
         }
-        else
-        {
-            // Player let go, slowly fade the ratchet out rather than cutting it instantly
-            loopSource.volume = Mathf.Lerp(loopSource.volume, 0f, Time.deltaTime * audioFadeSpeed);
-        }
+
+        // Apply the smooth fade towards whatever the target volume is this frame
+        loopSource.volume = Mathf.Lerp(loopSource.volume, targetVolume, Time.deltaTime * currentFadeSpeed);
     }
 
     public void InteractWinch()
@@ -280,16 +275,17 @@ public class WinchController : MonoBehaviour
         Debug.Log("DOOR SLAMMED SHUT & LOCKED!");
         OnDoorFullyClosed?.Invoke();
 
-        // --- AUDIO: DOOR SLAM SHUT (Now with a mute option!) ---
+        // --- NEW: Apply the volume slider to the OneShot ---
         if (playSound && impactSource != null && doorSlamShut != null)
         {
-            impactSource.PlayOneShot(doorSlamShut);
+            impactSource.PlayOneShot(doorSlamShut, doorSlamVolume);
         }
 
         currentOpenCooldown = openCooldownTime;
         isSlamming = false;
         isStruggling = false;
     }
+
     public void SetStruggleAngle(float forcedAngle)
     {
         currentAngle = Mathf.Clamp(forcedAngle, openAngle, closedAngle);
