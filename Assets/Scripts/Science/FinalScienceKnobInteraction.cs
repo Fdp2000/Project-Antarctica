@@ -13,7 +13,14 @@ public class FinalScienceKnobInteraction : MonoBehaviour
     private bool isDragging = false;
     private Quaternion baseRotation;
 
-    void Start() { baseRotation = transform.localRotation; }
+    void Start()
+    {
+        // 1. Memorize the "zero" rotation of the prefab
+        baseRotation = transform.localRotation;
+
+        // 2. Instantly snap the knob to match the WaveController's starting inspector values
+        UpdateKnobVisuals();
+    }
 
     public void StartManualDrag()
     {
@@ -33,6 +40,8 @@ public class FinalScienceKnobInteraction : MonoBehaviour
             }
 
             float mouseX = Input.GetAxis("Mouse X") * sensitivity;
+
+            // 3. Update the actual data in the CRT script based on mouse movement
             switch (function)
             {
                 case KnobType.Amplitude: waveController.playerAmplitude = Mathf.Clamp(waveController.playerAmplitude + (mouseX * 0.01f), 0.16f, 1.1f); break;
@@ -40,13 +49,21 @@ public class FinalScienceKnobInteraction : MonoBehaviour
                 case KnobType.Phase: waveController.playerPhase = Mathf.Clamp(waveController.playerPhase + (mouseX * 0.2f), 0f, 12.56f); break;
             }
 
-            float val = 0, min = 0, max = 1;
-            if (function == KnobType.Amplitude) { val = waveController.playerAmplitude; min = 0.16f; max = 1.1f; }
-            else if (function == KnobType.Frequency) { val = waveController.playerFrequency; min = 6.2f; max = 10.0f; }
-            else { val = waveController.playerPhase; min = 0f; max = 12.56f; }
-
-            float t = Mathf.InverseLerp(min, max, val);
-            transform.localRotation = baseRotation * Quaternion.AngleAxis(Mathf.Lerp(minVisualAngle, maxVisualAngle, t), rotationAxis);
+            // 4. Update the visual rotation while dragging
+            UpdateKnobVisuals();
         }
+    }
+
+    // --- NEW: Extracted rotation logic ---
+    private void UpdateKnobVisuals()
+    {
+        float val = 0, min = 0, max = 1;
+
+        if (function == KnobType.Amplitude) { val = waveController.playerAmplitude; min = 0.16f; max = 1.1f; }
+        else if (function == KnobType.Frequency) { val = waveController.playerFrequency; min = 6.2f; max = 10.0f; }
+        else { val = waveController.playerPhase; min = 0f; max = 12.56f; }
+
+        float t = Mathf.InverseLerp(min, max, val);
+        transform.localRotation = baseRotation * Quaternion.AngleAxis(Mathf.Lerp(minVisualAngle, maxVisualAngle, t), rotationAxis);
     }
 }
