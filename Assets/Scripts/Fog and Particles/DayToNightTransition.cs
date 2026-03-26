@@ -16,26 +16,19 @@ public class DayToNightTransition : MonoBehaviour
     public float daySunIntensity = 1.0f;
     public float nightSunIntensity = 0.1f;
 
-    [Header("Environment (Ambient Light)")]
-    [Tooltip("NOTE: Window -> Rendering -> Lighting -> Environment Lighting Source MUST be set to 'Color' for this to work!")]
-    public Color dayAmbientColor = new Color(0.6f, 0.6f, 0.6f);
-    public Color nightAmbientColor = new Color(0.05f, 0.05f, 0.1f); // Almost pitch black blue
-
-    [Header("Fog Settings")]
-    public Color dayFogColor = Color.white;
-    public Color nightFogColor = new Color(0.1f, 0.15f, 0.25f);
-    public float dayFogDensity = 0.02f;
-    public float nightFogDensity = 0.05f; // Thicker fog at night
+    [Header("Environment (Skybox)")]
+    [Tooltip("Blends the Window -> Rendering -> Lighting -> Intensity Multiplier")]
+    public float dayAmbientIntensity = 1.0f;
+    public float nightAmbientIntensity = 0.05f;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check if the object entering the trigger is the Player
         if (other.CompareTag("Player"))
         {
             if (triggerOnlyOnce && hasTriggered) return;
 
             hasTriggered = true;
-            Debug.Log("<color=blue>Initiating Day to Night Transition...</color>");
+            Debug.Log("<color=blue>Initiating Day to Night Lighting Transition...</color>");
             StartCoroutine(TransitionLighting());
         }
     }
@@ -44,19 +37,15 @@ public class DayToNightTransition : MonoBehaviour
     {
         float elapsedTime = 0f;
 
-        // Capture the exact starting values just in case they aren't exactly the "Day" values
-        Color startSunColor = directionalLight.color;
-        float startSunIntensity = directionalLight.intensity;
-        Color startAmbientColor = RenderSettings.ambientLight;
-        Color startFogColor = RenderSettings.fogColor;
-        float startFogDensity = RenderSettings.fogDensity;
+        // Capture the exact starting values
+        Color startSunColor = directionalLight != null ? directionalLight.color : daySunColor;
+        float startSunIntensity = directionalLight != null ? directionalLight.intensity : daySunIntensity;
+        float startAmbientIntensity = RenderSettings.ambientIntensity;
 
         while (elapsedTime < transitionDuration)
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / transitionDuration;
-
-            // Smoothly ease the transition so it doesn't abruptly start or stop
             float easedT = Mathf.SmoothStep(0f, 1f, t);
 
             // 1. Blend Directional Light
@@ -66,24 +55,18 @@ public class DayToNightTransition : MonoBehaviour
                 directionalLight.intensity = Mathf.Lerp(startSunIntensity, nightSunIntensity, easedT);
             }
 
-            // 2. Blend Ambient Light
-            RenderSettings.ambientLight = Color.Lerp(startAmbientColor, nightAmbientColor, easedT);
-
-            // 3. Blend Fog
-            RenderSettings.fogColor = Color.Lerp(startFogColor, nightFogColor, easedT);
-            RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, nightFogDensity, easedT);
+            // 2. Blend Skybox Ambient Intensity
+            RenderSettings.ambientIntensity = Mathf.Lerp(startAmbientIntensity, nightAmbientIntensity, easedT);
 
             yield return null;
         }
 
-        // Hard set final values to ensure absolute precision at the end of the timer
+        // Hard set final values to ensure absolute precision
         if (directionalLight != null)
         {
             directionalLight.color = nightSunColor;
             directionalLight.intensity = nightSunIntensity;
         }
-        RenderSettings.ambientLight = nightAmbientColor;
-        RenderSettings.fogColor = nightFogColor;
-        RenderSettings.fogDensity = nightFogDensity;
+        RenderSettings.ambientIntensity = nightAmbientIntensity;
     }
 }
