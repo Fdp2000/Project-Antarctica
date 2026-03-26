@@ -166,6 +166,16 @@ public class GameManager : MonoBehaviour
         ScienceStationManager station = FindObjectOfType<ScienceStationManager>();
         if (station != null) station.ResetStation();
 
+        // --- NEW: Reset the CRT Wave Minigame completely ---
+        CRTWaveController crtController = FindObjectOfType<CRTWaveController>();
+        if (crtController != null)
+        {
+            crtController.currentProgress = 0f;
+            crtController.completionTimeExtension = 0f; // Clear any interruption penalties!
+            crtController.isMinigameComplete = false;
+            crtController.TurnOffMachine(false); // Force it to turn off silently so it isn't running when they respawn
+        }
+
         // 5. Give the Tape Back to the Player
         if (PlayerPrefs.HasKey("SavedTape"))
         {
