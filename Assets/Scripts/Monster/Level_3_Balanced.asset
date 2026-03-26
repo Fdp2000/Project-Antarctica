@@ -16,9 +16,9 @@ MonoBehaviour:
   approachDuration: {x: 5, y: 5}
   silenceDuration: {x: 6, y: 8}
   strikeDuration: {x: 1, y: 1}
-  retreatDuration: {x: 6, y: 10}
-  patienceThreshold: {x: 8, y: 12}
-  siegeEventInterval: {x: 2, y: 6}
+  retreatDuration: {x: 3, y: 5}
+  patienceThreshold: {x: 6, y: 8}
+  siegeEventInterval: {x: 3, y: 5}
   baseMonsterClutchStrength: 120
   clutchStrengthVariance: 20
   minigameCompletionTime: {x: 10, y: 10}
@@ -27,7 +27,7 @@ MonoBehaviour:
   baseTargetPhase: 10.43
   minDriftInterval: 3
   maxDriftInterval: 6
-  driftLerpDuration: 3
+  driftLerpDuration: 2.5
   amplitudeDriftVariance: 1.5
   frequencyDriftVariance: 1.5
   phaseDriftVariance: 1.5
