@@ -1496,7 +1496,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2683728174412639645, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
 --- !u!1 &121943931
 GameObject:
@@ -10036,7 +10039,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2683728174412639645, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
 --- !u!43 &315141212
 Mesh:
@@ -16729,7 +16735,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &781451989
 Transform:
   m_ObjectHideFlags: 0
@@ -24132,7 +24138,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1263896863723353718, guid: f251652676eb4417689475e96bcd6744, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1263896863723353718, guid: f251652676eb4417689475e96bcd6744, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -25972,7 +25978,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2683728174412639645, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: e5b3fe4d53d02be4e8bb8a09f2825dca, type: 3}
 --- !u!1001 &1341604667
 PrefabInstance:
@@ -39975,7 +39984,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5655453309005666280, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5655453309005666280, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -40123,7 +40132,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7440097792913407969, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 113
+      value: 142
       objectReference: {fileID: 0}
     - target: {fileID: 7440097792913407969, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       propertyPath: m_LocalPosition.y
@@ -40367,6 +40376,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6311372540994608282, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
       insertIndex: -1
       addedObject: {fileID: 631943304}
+    - targetCorrespondingSourceObject: {fileID: 6831254429329805743, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 2816255258914039513, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4604272314505122375, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 5a4e745cc52e26248b3bd8cc48879470, type: 3}
 --- !u!1 &71524555630936173 stripped
 GameObject:
@@ -40792,7 +40810,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1744564795819202355, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1744564795819202355, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -41861,7 +41879,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4087283156874585072, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 1010168828469561078, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
 --- !u!4 &3721621135152136113 stripped
 Transform:
@@ -42050,7 +42074,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1870940266702454050, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1870940266702454050, guid: 1f11bf328e9dc85428d6b22d6d6915a2, type: 3}
       propertyPath: m_StaticEditorFlags
