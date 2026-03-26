@@ -99,7 +99,7 @@ public class Outline : MonoBehaviour {
     needsUpdate = true;
   }
 
-  void OnEnable() {
+void OnEnable() {
     foreach (var renderer in renderers) {
 
       // Append outline shaders
@@ -110,8 +110,10 @@ public class Outline : MonoBehaviour {
 
       renderer.materials = materials.ToArray();
     }
+    
+    // --- THE FIX: Force the material settings to update INSTANTLY ---
+    UpdateMaterialProperties(); 
   }
-
   void OnValidate() {
 
     // Update material properties
