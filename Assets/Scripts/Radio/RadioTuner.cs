@@ -25,7 +25,7 @@ public class RadioTuner : MonoBehaviour
     [Range(0f, 1f)] public float directionInfluenceOnDistance = 0.8f;
 
     [Tooltip("How many meters outside the proximity radius it takes to smoothly fade back to normal distance math.")]
-    public float proximityBlendDistance = 20f; // NEW: The physical crossfade zone
+    public float proximityBlendDistance = 20f;
 
     [Header("Transitions & Smoothing")]
     [Tooltip("How fast the OVERALL signal glides up or down. Set to 0 for instant.")]
@@ -52,6 +52,11 @@ public class RadioTuner : MonoBehaviour
     public bool showFrequencyUI = true;
     public bool showSignalUI = true;
 
+    [Tooltip("Hold this key to enable the debug toggle.")]
+    public KeyCode debugHoldKey = KeyCode.LeftControl;
+    [Tooltip("Press this key while holding the hold key to toggle the Radio Debug UI.")]
+    public KeyCode debugPressKey = KeyCode.R;
+
     void Start()
     {
         previousFrequency = currentFrequency;
@@ -59,6 +64,12 @@ public class RadioTuner : MonoBehaviour
 
     void Update()
     {
+        // --- NEW: Toggle Debug UI ---
+        if (Input.GetKey(debugHoldKey) && Input.GetKeyDown(debugPressKey))
+        {
+            showDebugUI = !showDebugUI;
+        }
+
         float currentTuningSpeed = Mathf.Abs(currentFrequency - previousFrequency) / Time.deltaTime;
         previousFrequency = currentFrequency;
 
@@ -82,7 +93,6 @@ public class RadioTuner : MonoBehaviour
 
         foreach (RadioBeacon beacon in availableBeacons)
         {
-            // --- THE FIX: Ignore empty slots AND disabled POIs ---
             if (beacon == null || !beacon.gameObject.activeInHierarchy) continue;
 
             float beaconSignal = EvaluateBeaconSignal(beacon);
@@ -110,14 +120,12 @@ public class RadioTuner : MonoBehaviour
         float jitter = (Mathf.PerlinNoise(Time.time * jitterSpeed, beacon.GetInstanceID()) - 0.5f) * 0.04f;
         float activeTuning = Mathf.Clamp01(rawTuning + jitter);
 
-        // --- THE UNIFIED OVERWRITE LOGIC ---
         if (beacon.isCompleted)
         {
             float lockedMaxSignal = activeTuning * (baseTuningWeight + directionWeight + distanceWeight);
             return lockedMaxSignal * beacon.signalMultiplier;
         }
 
-        // --- NORMAL NAVIGATION MATH ---
         Vector3 dirToBeacon = (beacon.transform.position - vehicleTransform.position).normalized;
         dirToBeacon.y = 0;
         Vector3 vehicleForward = vehicleTransform.forward;
@@ -138,8 +146,6 @@ public class RadioTuner : MonoBehaviour
 
         float overrideSignal = activeTuning * (baseTuningWeight + directionWeight + distanceWeight);
 
-        // --- NEW: THE BLEND ZONE MATH ---
-        // Instead of instantly snapping from 1 to 0, it physically crossfades over the 'proximityBlendDistance'
         float proximityWeight = Mathf.InverseLerp(beacon.proximityRadius + proximityBlendDistance, beacon.proximityRadius, currentDistance);
 
         return Mathf.Lerp(standardSignal, overrideSignal, proximityWeight);
