@@ -28,6 +28,6 @@ MonoBehaviour:
   minDriftInterval: 4
   maxDriftInterval: 4
   driftLerpDuration: 2
-  amplitudeDriftVariance: 2
-  frequencyDriftVariance: 2
-  phaseDriftVariance: 2
+  amplitudeDriftVariance: 3
+  frequencyDriftVariance: 6
+  phaseDriftVariance: 15

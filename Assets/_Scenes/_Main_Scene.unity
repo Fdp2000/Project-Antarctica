@@ -14617,15 +14617,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 149.8
+      value: 12.6
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.079999834
+      value: 27.56
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 27.5
+      value: 165.33
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15772,7 +15772,7 @@ MonoBehaviour:
   crtLoopVolume: 0.138
   targetLine: {fileID: 1513828209}
   playerLine: {fileID: 1854504343}
-  debugForceSync: 1
+  debugForceSync: 0
   lightRenderer: {fileID: 927237723}
   pointLightObject: {fileID: 1838040970}
   progressLEDs:
@@ -15786,16 +15786,16 @@ MonoBehaviour:
   maxProgressLightIntensity: 0.025
   lightOffMaterial: {fileID: 2100000, guid: 78d799da36a3b484795c8198d5c4dc3d, type: 2}
   lightOnMaterial: {fileID: 2100000, guid: 1e89bb2d95f645548be47e9043042270, type: 2}
-  timeToComplete: 1
-  baseTargetAmplitude: 0.7
-  baseTargetFrequency: 8
-  baseTargetPhase: 10.43
-  minDriftInterval: 4
-  maxDriftInterval: 6
-  driftLerpDuration: 3
-  amplitudeDriftVariance: 1.3
-  frequencyDriftVariance: 1.5
-  phaseDriftVariance: 1.5
+  timeToComplete: 14
+  baseTargetAmplitude: 0.15
+  baseTargetFrequency: 5
+  baseTargetPhase: 6
+  minDriftInterval: 1.5
+  maxDriftInterval: 2.5
+  driftLerpDuration: 1
+  amplitudeDriftVariance: 4
+  frequencyDriftVariance: 9
+  phaseDriftVariance: 12
   numPoints: 1000
   waveWidth: 0.4
   runSpeed: -1.5
