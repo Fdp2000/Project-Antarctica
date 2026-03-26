@@ -7,25 +7,14 @@ public class RadioAudioController : MonoBehaviour
 
     [Header("Static Channel (Hardware)")]
     public AudioSource staticSource;
-    public AudioLowPassFilter staticLowPass;
     [Range(0f, 1f)] public float maxStaticVolume = 1.0f;
-
-    [Tooltip("Static ducks down to 40% volume around 80% signal clarity.")]
     public AnimationCurve staticVolumeCurve = new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(0.8f, 0.4f), new Keyframe(1f, 0.4f));
-    public AnimationCurve staticCutoffCurve = new AnimationCurve(new Keyframe(0f, 4000f), new Keyframe(1f, 800f));
 
     [Header("Monster Interference (Driven by Director)")]
     public AudioClip distortedStaticClip;
-
-    [Tooltip("How loud the static gets when the monster is actively approaching.")]
     public float approachVolume = 1.0f;
-
-    [Tooltip("How loud the static gets when the monster gives up and retreats.")]
     public float retreatVolume = 0.4f;
-
-    [Tooltip("How far the static can be heard when the monster is right outside.")]
     public float maxMonsterDistance = 30f;
-
     [HideInInspector] public bool isMonsterApproaching = false;
     [HideInInspector] public bool isMonsterRetreating = false;
     [HideInInspector] public float approachProgress = 0f;
@@ -33,13 +22,11 @@ public class RadioAudioController : MonoBehaviour
     private AudioClip normalStaticClip;
     private float normalMaxDistance;
 
-    [Header("Broadcast Channel Components")]
-    public AudioSource broadcastSource;
-    public AudioLowPassFilter broadcastLowPass;
-    public AudioHighPassFilter broadcastHighPass;
-    public AudioDistortionFilter broadcastDistortion;
-    public AudioChorusFilter broadcastChorus;
-    public AudioEchoFilter broadcastEcho;
+    [Header("Broadcast Channel Components (WebGL)")]
+    [Tooltip("Plays the clean, untouched audio from the beacon.")]
+    public AudioSource cleanBroadcastSource;
+    [Tooltip("Plays the pre-baked, distorted audio from Audacity.")]
+    public AudioSource distortedBroadcastSource;
 
     void Start()
     {
@@ -69,109 +56,90 @@ public class RadioAudioController : MonoBehaviour
                 }
 
                 float baseVolume = staticVolumeCurve.Evaluate(signal) * maxStaticVolume;
-
-                if (isMonsterRetreating)
-                {
-                    staticSource.volume = Mathf.Lerp(baseVolume, retreatVolume, approachProgress);
-                }
-                else
-                {
-                    staticSource.volume = Mathf.Lerp(baseVolume, approachVolume, approachProgress);
-                }
+                if (isMonsterRetreating) staticSource.volume = Mathf.Lerp(baseVolume, retreatVolume, approachProgress);
+                else staticSource.volume = Mathf.Lerp(baseVolume, approachVolume, approachProgress);
 
                 staticSource.maxDistance = Mathf.Lerp(normalMaxDistance, maxMonsterDistance, approachProgress);
             }
             else
             {
-                // Return to normal static
-                if (staticSource.clip != normalStaticClip && normalStaticClip != null)
-                {
-                    staticSource.clip = normalStaticClip;
-                }
-
-                // --- THE BULLETPROOF FIX: Force it to play if it ever stopped! ---
-                if (!staticSource.isPlaying && staticSource.clip != null)
-                {
-                    staticSource.Play();
-                }
+                if (staticSource.clip != normalStaticClip && normalStaticClip != null) staticSource.clip = normalStaticClip;
+                if (!staticSource.isPlaying && staticSource.clip != null) staticSource.Play();
 
                 staticSource.volume = staticVolumeCurve.Evaluate(signal) * maxStaticVolume;
                 staticSource.maxDistance = normalMaxDistance;
             }
-
-            if (staticLowPass != null)
-                staticLowPass.cutoffFrequency = staticCutoffCurve.Evaluate(signal);
         }
 
         // --- 2. NO BEACON FOUND ---
         if (activeBeacon == null)
         {
-            if (broadcastSource != null) broadcastSource.volume = 0f;
+            if (cleanBroadcastSource != null) cleanBroadcastSource.volume = 0f;
+            if (distortedBroadcastSource != null) distortedBroadcastSource.volume = 0f;
             return;
         }
 
         // --- 3. DYNAMIC PAYLOAD LOADING (The Virtual Playhead) ---
-        if (broadcastSource != null && broadcastSource.clip != activeBeacon.broadcastPayload)
+        if (cleanBroadcastSource != null && distortedBroadcastSource != null && cleanBroadcastSource.clip != activeBeacon.cleanPayload)
         {
-            broadcastSource.clip = activeBeacon.broadcastPayload;
+            cleanBroadcastSource.clip = activeBeacon.cleanPayload;
+            distortedBroadcastSource.clip = activeBeacon.distortedPayload;
 
-            if (broadcastSource.clip != null)
+            if (cleanBroadcastSource.clip != null)
             {
-                float simulatedLiveTime = Time.time % broadcastSource.clip.length;
-                broadcastSource.time = simulatedLiveTime;
+                // Sync the playheads perfectly
+                float simulatedLiveTime = Time.time % cleanBroadcastSource.clip.length;
+                cleanBroadcastSource.time = simulatedLiveTime;
+
+                if (distortedBroadcastSource.clip != null)
+                {
+                    // Ensure the distorted file is exactly the same length in Audacity, or this math shifts slightly!
+                    distortedBroadcastSource.time = simulatedLiveTime;
+                }
             }
 
-            broadcastSource.Play();
+            cleanBroadcastSource.Play();
+            distortedBroadcastSource.Play();
         }
 
-        // --- 4. APPLY BEACON INSTRUCTIONS ---
-        if (broadcastSource != null)
+        // --- 4. APPLY BEACON INSTRUCTIONS (The Crossfade) ---
+        if (cleanBroadcastSource != null && distortedBroadcastSource != null)
         {
-            float currentVolume = activeBeacon.broadcastVolumeCurve.Evaluate(signal) * activeBeacon.maxBroadcastVolume;
+            // Evaluate both curves
+            float cleanVol = activeBeacon.cleanVolumeCurve.Evaluate(signal) * activeBeacon.maxBroadcastVolume;
+            float distVol = activeBeacon.distortedVolumeCurve.Evaluate(signal) * activeBeacon.maxBroadcastVolume;
 
+            // Apply Stutter (cuts out both tracks)
             if (activeBeacon.useStutter)
             {
                 float stutterThreshold = activeBeacon.signalStutterCurve.Evaluate(signal);
                 float noise = Mathf.PerlinNoise(Time.time * activeBeacon.stutterSpeed, 0f);
-                if (noise < stutterThreshold) currentVolume = 0f;
+                if (noise < stutterThreshold)
+                {
+                    cleanVol = 0f;
+                    distVol = 0f;
+                }
             }
-            broadcastSource.volume = currentVolume;
 
+            cleanBroadcastSource.volume = cleanVol;
+            distortedBroadcastSource.volume = distVol;
+
+            // Apply Pitch Flutter (WebGL supports Pitch shifting natively!)
             if (activeBeacon.usePitchFlutter)
             {
                 float basePitch = activeBeacon.broadcastBasePitchCurve.Evaluate(signal);
                 float flutterAmount = activeBeacon.broadcastPitchFlutterCurve.Evaluate(signal);
                 float pitchNoise = (Mathf.PerlinNoise(Time.time * activeBeacon.pitchFlutterSpeed, 100f) - 0.5f) * 2f;
-                broadcastSource.pitch = basePitch + (pitchNoise * flutterAmount);
+
+                float finalPitch = basePitch + (pitchNoise * flutterAmount);
+                cleanBroadcastSource.pitch = finalPitch;
+                distortedBroadcastSource.pitch = finalPitch;
             }
             else
             {
-                broadcastSource.pitch = 1f;
+                cleanBroadcastSource.pitch = 1f;
+                distortedBroadcastSource.pitch = 1f;
             }
-        }
-
-        // --- 5. APPLY HARDWARE FILTERS ---
-        if (broadcastLowPass != null)
-            broadcastLowPass.cutoffFrequency = activeBeacon.useLowPass ? activeBeacon.broadcastLowPassCurve.Evaluate(signal) : 22000f;
-
-        if (broadcastHighPass != null)
-            broadcastHighPass.cutoffFrequency = activeBeacon.useHighPass ? activeBeacon.broadcastHighPassCurve.Evaluate(signal) : 10f;
-
-        if (broadcastDistortion != null)
-            broadcastDistortion.distortionLevel = activeBeacon.useDistortion ? activeBeacon.broadcastDistortionCurve.Evaluate(signal) : 0f;
-
-        if (broadcastChorus != null)
-        {
-            float chorusMix = activeBeacon.useChorus ? activeBeacon.broadcastChorusMixCurve.Evaluate(signal) : 0f;
-            broadcastChorus.wetMix1 = chorusMix;
-            broadcastChorus.wetMix2 = chorusMix * 0.5f;
-            broadcastChorus.wetMix3 = chorusMix * 0.25f;
-        }
-
-        if (broadcastEcho != null)
-        {
-            broadcastEcho.wetMix = activeBeacon.useEcho ? activeBeacon.echoWetCurve.Evaluate(signal) : 0f;
-            broadcastEcho.dryMix = activeBeacon.useEcho ? activeBeacon.echoDryCurve.Evaluate(signal) : 1f;
         }
     }
 }
