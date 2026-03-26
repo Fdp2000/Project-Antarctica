@@ -9428,13 +9428,14 @@ GameObject:
   m_Component:
   - component: {fileID: 294830746}
   - component: {fileID: 294830745}
+  - component: {fileID: 294830747}
   m_Layer: 0
   m_Name: GameIntro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &294830745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9473,6 +9474,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &294830747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294830744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b004d80fbba0ff842ab0c98223603c88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WebGLFPSCounter
+  holdKey: 283
+  pressKey: 102
 --- !u!1 &301497393 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 68d83bd779aa94dcc90a20a215616c3f, type: 3}
@@ -13854,15 +13869,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 92.7
+      value: 21.5
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.6
+      value: 30.2
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 75.2
+      value: 167.4
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15905,7 +15920,7 @@ AudioSource:
   m_GameObject: {fileID: 760147971}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 4616497119816988930, guid: 275c8b5a796ca7849828bdb7f2b788de, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
@@ -22282,7 +22297,7 @@ AudioSource:
   m_GameObject: {fileID: 1192850111}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 4616497119816988930, guid: 275c8b5a796ca7849828bdb7f2b788de, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
@@ -38566,6 +38581,14 @@ PrefabInstance:
       objectReference: {fileID: 1609819812}
     - target: {fileID: 813804311683537077, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1278664094763554615, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: showDebugUI
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1278664094763554615, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: showFrequencyUI
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1278664094763554615, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}

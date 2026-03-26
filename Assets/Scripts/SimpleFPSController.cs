@@ -131,7 +131,15 @@ public class SimpleFPSController : MonoBehaviour
             float currentSpeed = isCrouching ? crouchSpeed : walkSpeed;
             Vector3 forward = transform.TransformDirection(Vector3.forward);
             Vector3 right = transform.TransformDirection(Vector3.right);
-            Vector3 move = (forward * currentSpeed * Input.GetAxis("Vertical")) + (right * currentSpeed * Input.GetAxis("Horizontal"));
+
+            // --- THE FIX: Clamp the input so diagonal movement isn't faster! ---
+            Vector2 inputDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            if (inputDir.magnitude > 1f)
+            {
+                inputDir.Normalize();
+            }
+
+            Vector3 move = (forward * inputDir.y + right * inputDir.x) * currentSpeed;
 
             if (characterController.isGrounded) verticalVelocity = -2.0f;
             else verticalVelocity -= gravity * Time.deltaTime;
