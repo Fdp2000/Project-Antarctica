@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: bbfd5d6631f29064091e8efeeecb7114, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -14345,15 +14345,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 13.99
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 34.7
+      value: -0.13
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 168.1
+      value: -29.24
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -23625,7 +23625,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.1
-  far clip plane: 1000
+  far clip plane: 300
   field of view: 60
   orthographic: 1
   orthographic size: 1
@@ -42997,31 +42997,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.14403737
+      value: -0.00549
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 21.398987
+      value: 0.00029
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.022927169
+      value: -0.00438
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.83635914
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.13411307
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.0841564
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.52481884
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 3552936509841296890, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: monsterDirector
@@ -43133,7 +43145,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8610008922165379892, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: orthographic
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8610008922165379892, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: far clip plane
+      value: 300
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

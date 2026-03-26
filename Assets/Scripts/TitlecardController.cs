@@ -15,16 +15,7 @@ public class TitlecardController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-         //For testing animation, press T to start credits animation
 
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            StartCredits();
-            Debug.Log("T key pressed - Starting Credits Animation");
-        }
-    }
 
     public void StartCredits()
     {
