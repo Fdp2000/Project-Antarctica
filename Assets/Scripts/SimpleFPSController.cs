@@ -100,7 +100,7 @@ public class SimpleFPSController : MonoBehaviour
     {
         if (NoteViewer.Instance != null && NoteViewer.Instance.isReading)
         {
-            if (Input.GetKeyDown(interactKey) || Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Escape))
             {
                 NoteViewer.Instance.CloseNote();
             }
@@ -211,13 +211,16 @@ public class SimpleFPSController : MonoBehaviour
             GameObject target = hit.collider.gameObject;
             float distanceToTarget = hit.distance;
 
+            bool interactDown = Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0);
+            bool interactHeld = Input.GetKey(interactKey) || Input.GetMouseButton(0);
+
             var note = target.GetComponent<NoteInteract>();
             if (note != null)
             {
                 if (distanceToTarget <= noteReadRange)
                 {
                     HighlightObject(target);
-                    if (Input.GetKeyDown(interactKey))
+                    if (interactDown)
                     {
                         ClearHighlight();
                         note.Interact();
