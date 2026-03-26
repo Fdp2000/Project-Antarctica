@@ -27,7 +27,7 @@ MonoBehaviour:
   baseTargetPhase: 9
   minDriftInterval: 4
   maxDriftInterval: 8
-  driftLerpDuration: 3
+  driftLerpDuration: 2
   amplitudeDriftVariance: 1
   frequencyDriftVariance: 1
   phaseDriftVariance: 1
