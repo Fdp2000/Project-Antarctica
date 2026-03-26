@@ -68,6 +68,7 @@ public class CRTWaveController : MonoBehaviour
     public float currentProgress = 0f;
     public float completionTimeExtension = 0f;
     public bool isMinigameComplete = false;
+    public bool isSignalBlockedByMonster = false; // <--- YOUR NEW BOOL
 
     // Internal variables
     private DifficultyProfile currentProfile;
@@ -205,8 +206,10 @@ public class CRTWaveController : MonoBehaviour
 
         if (isMinigameComplete) return;
 
-        if (isSynced) currentProgress += Time.deltaTime;
-
+        if (isSynced && !isSignalBlockedByMonster)
+        {
+            currentProgress += Time.deltaTime;
+        }
         float totalTargetTime = activeTimeToComplete + completionTimeExtension;
         currentProgress = Mathf.Clamp(currentProgress, 0f, totalTargetTime);
 

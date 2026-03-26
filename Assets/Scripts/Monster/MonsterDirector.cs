@@ -188,6 +188,9 @@ public class MonsterDirector : MonoBehaviour
 
                     if (stateTimer <= 0)
                     {
+                        CRTWaveController crt = FindObjectOfType<CRTWaveController>();
+                        if (crt != null) crt.isSignalBlockedByMonster = true;
+
                         if (winchController != null && winchController.IsDoorClosed) TransitionToState(EncounterState.Siege);
                         else if (winchController != null && winchController.CurrentAngle > clutchCutoffAngle) TransitionToState(EncounterState.ClutchStruggle);
                         else TriggerJumpscare();
@@ -247,6 +250,8 @@ public class MonsterDirector : MonoBehaviour
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
                 if (radioAudio != null) radioAudio.isMonsterApproaching = false;
                 radioAudio.isMonsterRetreating = false;
+                CRTWaveController safeCrt = FindObjectOfType<CRTWaveController>();
+                if (safeCrt != null) safeCrt.isSignalBlockedByMonster = false;
                 break;
 
             case EncounterState.GracePeriod:
@@ -259,6 +264,8 @@ public class MonsterDirector : MonoBehaviour
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
                 if (radioAudio != null) radioAudio.isMonsterApproaching = false;
                 radioAudio.isMonsterRetreating = false;
+                CRTWaveController scrt = FindObjectOfType<CRTWaveController>();
+                if (scrt != null) scrt.isSignalBlockedByMonster = false;
                 break;
 
             case EncounterState.Approach:
@@ -348,6 +355,8 @@ public class MonsterDirector : MonoBehaviour
                 if (footstepAudio != null) footstepAudio.Stop(); // <--- NEW: Stop Footsteps
                 if (monsterAnimator != null) monsterAnimator.SetBool("isLeaping", false);
                 if (normalAudioSnapshot != null) normalAudioSnapshot.TransitionTo(silenceFadeTime);
+                CRTWaveController crt = FindObjectOfType<CRTWaveController>();
+                if (crt != null) crt.isSignalBlockedByMonster = false;
                 if (radioAudio != null)
                 {
                     radioAudio.isMonsterApproaching = true;
