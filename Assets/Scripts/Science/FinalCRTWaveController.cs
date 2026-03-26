@@ -4,6 +4,35 @@ using System.Collections;
 
 public class FinalCRTWaveController : MonoBehaviour
 {
+    [Header("=== THE INTRUDER (Ending Sequence) ===")]
+    public AudioSource intruderAudioSource;
+    public AudioClip intruderLoopClip;
+    [Range(0f, 1f)] public float intruderVolume = 1.0f;
+
+    [Tooltip("The player's main camera (so we can violently snap it).")]
+    public Transform playerCamera;
+
+    [Tooltip("The player's movement/look script (so we can disable it).")]
+    public MonoBehaviour fpsController; // <--- ADD THIS LINE
+
+    [Tooltip("How fast the camera whips around to face the end node (in seconds).")]
+    public float cameraSnapDuration = 0.15f;
+
+    [Tooltip("Where the sound starts (e.g., the shed door).")]
+    public Transform intruderStartNode;
+
+    [Tooltip("Where the sound ends (e.g., right behind the player).")]
+    public Transform intruderEndNode;
+
+    [Tooltip("How many seconds it takes for the sound to travel from Start to End.")]
+    public float intruderTravelDuration = 8.0f;
+
+    [Tooltip("Seconds of pure silence AFTER the lights die, but BEFORE the intruder sound starts.")]
+    public float silenceBeforeIntruder = 3.0f;
+
+    [Tooltip("Seconds of pure silence AFTER the intruder sound stops, but BEFORE the credits roll.")]
+    public float silenceBeforeCredits = 2.0f;
+
     [Header("Audio System (CRT)")]
     public AudioSource crtLoopSource;
     public AudioSource crtOneShotSource;
@@ -343,6 +372,7 @@ public class FinalCRTWaveController : MonoBehaviour
     // ==========================================
     private IEnumerator EndgameSequenceRoutine()
     {
+        // ... (Keep Steps 1-4 exactly the same) ...
         if (targetLine) targetLine.gameObject.SetActive(false);
         if (playerLine) playerLine.gameObject.SetActive(false);
         if (lightRenderer != null && lightOffMaterial != null) lightRenderer.material = lightOffMaterial;
@@ -389,19 +419,72 @@ public class FinalCRTWaveController : MonoBehaviour
             yield return new WaitForSeconds(Random.Range(flickerOnDuration.x, flickerOnDuration.y));
         }
 
-        // Step 6: Pitch Black
+        // Step 6: Pitch Black Power Down
         SetShedLights(false);
         if (lightFlickerSource && finalPowerDownClip) lightFlickerSource.PlayOneShot(finalPowerDownClip);
 
-        // Step 7: Wait in the dark
-        float darkWaitTime = Random.Range(delayBeforeCredits.x, delayBeforeCredits.y);
-        yield return new WaitForSeconds(darkWaitTime);
+        // --- NEW: THE INTRUDER SEQUENCE ---
 
-        // Step 8: Roll Credits!
+        // Step 7: The Initial Silence
+        yield return new WaitForSeconds(silenceBeforeIntruder);
+
+        // Step 8: The Crawl
+        if (intruderAudioSource != null && intruderStartNode != null && intruderEndNode != null && intruderLoopClip != null)
+        {
+            // Snap the audio source to the start position
+            intruderAudioSource.transform.position = intruderStartNode.position;
+
+            // Set up and play the loop
+            intruderAudioSource.clip = intruderLoopClip;
+            intruderAudioSource.loop = true;
+            intruderAudioSource.volume = intruderVolume;
+            intruderAudioSource.Play();
+
+            // Lerp the position over time
+            float travelTimer = 0f;
+            while (travelTimer < intruderTravelDuration)
+            {
+                travelTimer += Time.deltaTime;
+                float percent = travelTimer / intruderTravelDuration;
+
+                intruderAudioSource.transform.position = Vector3.Lerp(intruderStartNode.position, intruderEndNode.position, percent);
+
+                yield return null;
+            }
+
+            // Snap the audio off instantly when it reaches the end
+            intruderAudioSource.Stop();
+        }
+        else
+        {
+            Debug.LogWarning("Intruder sequence skipped: Missing AudioSource, Nodes, or Clip in Inspector.");
+        }
+        // --- NEW: Step 8.5: The Forced Look ---
+        if (playerCamera != null && intruderEndNode != null)
+        {
+            if (fpsController != null) fpsController.enabled = false;
+            Quaternion startRot = playerCamera.rotation;
+            // Calculate the exact angle needed to look directly at the end node
+            Quaternion targetRot = Quaternion.LookRotation(intruderEndNode.position - playerCamera.position);
+
+            float snapTimer = 0f;
+            while (snapTimer < cameraSnapDuration)
+            {
+                snapTimer += Time.deltaTime;
+                playerCamera.rotation = Quaternion.Slerp(startRot, targetRot, snapTimer / cameraSnapDuration);
+                yield return null;
+            }
+            // Guarantee it is perfectly locked on at the end of the timer
+            playerCamera.rotation = targetRot;
+        }
+
+        // Step 9: The Final Breath
+        yield return new WaitForSeconds(silenceBeforeCredits);
+
+        // Step 10: Roll Credits!
         Debug.Log("<color=magenta>ROLL CREDITS!</color>");
         onFinalMinigameCompleted?.Invoke();
     }
-
     private void SetShedLights(bool isOn)
     {
         // 1. Toggle the actual Spotlight beams

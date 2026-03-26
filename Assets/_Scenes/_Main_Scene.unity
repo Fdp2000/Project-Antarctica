@@ -9891,7 +9891,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &294830745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12025,7 +12025,7 @@ Transform:
   m_GameObject: {fileID: 496749800}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.1242, y: -0.1098, z: -0.095}
+  m_LocalPosition: {x: -0.1051, y: -0.0804, z: -0.084}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14617,15 +14617,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 149.8
+      value: 15.74
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.079999834
+      value: 32.82
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 27.5
+      value: 163.7
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15760,6 +15760,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2e35e947839ac74cbe5c3d2cbc6e18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalCRTWaveController
+  intruderAudioSource: {fileID: 705739832}
+  intruderLoopClip: {fileID: 8300000, guid: 798dc1e88eef10d4485207cdfcacf7eb, type: 3}
+  intruderVolume: 1
+  playerCamera: {fileID: 1236993751}
+  fpsController: {fileID: 1609819812}
+  cameraSnapDuration: 0.15
+  intruderStartNode: {fileID: 59253879}
+  intruderEndNode: {fileID: 496749801}
+  intruderTravelDuration: 2.5
+  silenceBeforeIntruder: 1.5
+  silenceBeforeCredits: 0.25
   crtLoopSource: {fileID: 873889177}
   crtOneShotSource: {fileID: 873889176}
   crtTurnOnSound: {fileID: 8300000, guid: 7cc39b20a7b31c14c93774501128b767, type: 3}
@@ -15816,10 +15827,10 @@ MonoBehaviour:
   lightFlickerSource: {fileID: 760147972}
   fastFlickerClip: {fileID: 8300000, guid: 73c40e76749b7504db44b05822d479b3, type: 3}
   finalPowerDownClip: {fileID: 0}
-  textBlinkInterval: 0.9
-  textSolidDuration: 3.5
-  delayBeforeScreech: 3.5
-  delayAfterScreech: 2.3
+  textBlinkInterval: 0.4
+  textSolidDuration: 2.8
+  delayBeforeScreech: 3
+  delayAfterScreech: 1.6
   LightFlickerAmount: 4
   flickerOffDuration: {x: 0.1, y: 0.25}
   flickerOnDuration: {x: 0.1, y: 0.25}
@@ -15989,7 +16000,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 25
+  MaxDistance: 30
   Pan2D: 0
   rolloffMode: 2
   BypassEffects: 0
@@ -16961,7 +16972,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.01
+  m_Volume: 0.008
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -17054,7 +17065,7 @@ Transform:
   m_GameObject: {fileID: 760147971}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.0014, y: -0.044, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -23512,7 +23523,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.1
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -25419,14 +25430,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayToNightTransition
   triggerOnlyOnce: 1
-  transitionDuration: 10
+  transitionDuration: 15
   directionalLight: {fileID: 410087040}
   daySunColor: {r: 1, g: 1, b: 1, a: 1}
   nightSunColor: {r: 0.2, g: 0.4, b: 0.8, a: 1}
   daySunIntensity: 0.2
   nightSunIntensity: 0.1
   dayAmbientIntensity: 1
-  nightAmbientIntensity: 0.6
+  nightAmbientIntensity: 0.45
   vehicleHeadlights: []
 --- !u!135 &1303120799
 SphereCollider:
@@ -30154,7 +30165,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000029802322, y: -0.000000014901161, z: -0.016091809, w: -0.99987054}
   m_LocalPosition: {x: 0, y: 0.00124, z: 0}
-  m_LocalScale: {x: 1.0004776, y: 0.9991161, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 927237721}
@@ -30691,7 +30702,7 @@ MonoBehaviour:
   slideStartNode: {fileID: 1429950998}
   slideEndNode: {fileID: 35029733}
   slideDuration: 1.1
-  delayBeforeBoot: 4.5
+  delayBeforeBoot: 4
   audioSource: {fileID: 1618131376}
   insertSound: {fileID: 8300000, guid: 51684709977279d4ab9e90efc310baa4, type: 3}
   audioDelay: 0.3
@@ -38956,7 +38967,7 @@ MonoBehaviour:
   - unlockAtDifficultyIndex: 4
     poisToEnable:
     - {fileID: 781451988}
-  debugForceUnlockAll: 0
+  debugForceUnlockAll: 1
 --- !u!1 &2108983540
 GameObject:
   m_ObjectHideFlags: 0
@@ -43375,6 +43386,10 @@ PrefabInstance:
     - target: {fileID: 2516208769485257758, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3327827453106737875, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3374346649776350015, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: m_LocalPosition.x
