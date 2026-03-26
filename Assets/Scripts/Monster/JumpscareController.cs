@@ -83,7 +83,6 @@ public class JumpscareController : MonoBehaviour
 
     void Start()
     {
-        // --- NEW: Memorize the Inspector FOV setting on boot ---
         if (jumpscareCamera != null)
         {
             defaultJumpscareFOV = jumpscareCamera.fieldOfView;
@@ -270,6 +269,7 @@ public class JumpscareController : MonoBehaviour
             CrossHair.SetActive(false);
             playerCameraLens.gameObject.SetActive(false);
             jumpscareCamera.gameObject.SetActive(true);
+            RenderSettings.fog = false;
 
             if (monsterTransform != null) monsterTransform.gameObject.SetActive(false);
 
@@ -363,6 +363,7 @@ public class JumpscareController : MonoBehaviour
     public void ResetJumpscareState()
     {
         CrossHair.SetActive(true);
+        RenderSettings.fog = true;
 
         if (jumpscareCamera != null)
         {

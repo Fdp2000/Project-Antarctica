@@ -26,8 +26,15 @@ public class POIDirector : MonoBehaviour
     void Awake()
     {
         // Standard Singleton setup
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+            EvaluatePOIs(0); // Evaluate when the game starts
+        }
+        else
+        {
+            Destroy(gameObject); // Destroy duplicates
+        }
     }
 
     /// <summary>
@@ -40,15 +47,16 @@ public class POIDirector : MonoBehaviour
 
         foreach (var tier in progressionTiers)
         {
-            // --- THE FIX: Automatically sets isUnlocked to true if the debug box is checked ---
             bool isUnlocked = debugForceUnlockAll || (currentDifficultyIndex >= tier.unlockAtDifficultyIndex);
 
             foreach (var poi in tier.poisToEnable)
             {
-                if (poi != null && poi.activeSelf != isUnlocked)
+                // CHANGE: Only proceed if the POI should be unlocked AND it isn't already active.
+                // We no longer pass "false" to SetActive.
+                if (poi != null && isUnlocked && !poi.activeSelf)
                 {
-                    poi.SetActive(isUnlocked);
-                    Debug.Log($"<color=yellow>   -> {(isUnlocked ? "Unlocked" : "Locked")} POI: {poi.name}</color>");
+                    poi.SetActive(true); // Hardcode this to true so it can NEVER disable anything
+                    Debug.Log($"<color=yellow>   -> Unlocked POI: {poi.name}</color>");
                 }
             }
         }
