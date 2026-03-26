@@ -52482,6 +52482,18 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: doorSlamVolume
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: doorSwingVolume
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
+      propertyPath: winchLoopVolume
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: closeAcceleration
       value: 7.5
       objectReference: {fileID: 0}
