@@ -19,7 +19,7 @@ MonoBehaviour:
   retreatDuration: {x: 3, y: 6}
   patienceThreshold: {x: 5, y: 5}
   siegeEventInterval: {x: 3, y: 4}
-  baseMonsterClutchStrength: 70
+  baseMonsterClutchStrength: 90
   clutchStrengthVariance: 20
   minigameCompletionTime: {x: 12, y: 12}
   baseTargetAmplitude: 0.16
