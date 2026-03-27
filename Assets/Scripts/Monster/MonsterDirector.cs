@@ -59,6 +59,7 @@ public class MonsterDirector : MonoBehaviour
     public float shakeDuration = 0.3f;
 
     private float siegeEventTimer = 0f;
+    private int lastSiegeEvent = -1; // <--- NEW: Tracks the last event played (-1 means none)
     private Coroutine scrapeCoroutine;
     private Coroutine shakeCoroutine;
 
@@ -372,9 +373,23 @@ public class MonsterDirector : MonoBehaviour
     {
         int rand = Random.Range(0, 3);
 
+        // --- NEW: Reroll if it picked the exact same event as last time! ---
+        // (We bypass this check if you are actively using your Live Debug toggles)
+        if (!debugForceDoorBang && !debugForceRoofRoar && !debugForceMetalScrape)
+        {
+            while (rand == lastSiegeEvent)
+            {
+                rand = Random.Range(0, 3);
+            }
+        }
+
+        // Apply debug overrides if active
         if (debugForceDoorBang) rand = 0;
         else if (debugForceRoofRoar) rand = 1;
         else if (debugForceMetalScrape) rand = 2;
+
+        // Save this new event as the 'last' event for next time
+        lastSiegeEvent = rand;
 
         if (rand == 0)
         {
@@ -407,7 +422,6 @@ public class MonsterDirector : MonoBehaviour
             }
         }
     }
-
     private IEnumerator CameraShakeRoutine(float duration, float magnitude)
     {
         if (playerCamera == null) yield break;

@@ -279,6 +279,25 @@ public class SimpleFPSController : MonoBehaviour
                 else { ClearHighlight(); }
                 return;
             }
+            // ==========================================
+            // --- NEW: DUCK INTERACTABLE ---
+            // ==========================================
+            var duck = target.GetComponent<DuckInteractable>();
+            if (duck != null)
+            {
+                if (distanceToTarget <= interactRange)
+                {
+                    HighlightObject(target);
+                    // interactDown captures BOTH 'E' and 'Left Click'!
+                    if (interactDown)
+                    {
+                        duck.Interact();
+                    }
+                }
+                else { ClearHighlight(); }
+                return;
+            }
+            // ==========================================
 
 
             if (target.CompareTag("Winch"))
