@@ -3024,7 +3024,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffaa25efddc5edc469c73bbadef2beee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterDirector
-  currentDifficulty: {fileID: 11400000, guid: abf7f2bf400890a428e2e9462dadb42d, type: 2}
+  currentDifficulty: {fileID: 11400000, guid: ce9ea7874e9b43e40be41bf35e694d78, type: 2}
   winchController: {fileID: 3948041480671068594}
   jumpscareController: {fileID: 178976305}
   clutchController: {fileID: 178976306}

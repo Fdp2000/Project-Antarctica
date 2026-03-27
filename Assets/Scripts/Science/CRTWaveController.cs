@@ -154,9 +154,14 @@ public class CRTWaveController : MonoBehaviour
     public void ApplyInterruptionPenalty()
     {
         if (isMinigameComplete || currentProgress <= 0) return;
+
         float penaltyAmount = currentProgress * interruptionPenaltyPercent;
         completionTimeExtension += penaltyAmount;
-        Debug.Log($"<color=orange>SCIENCE: Progress interrupted! {penaltyAmount:F1}s added to completion debt.</color>");
+
+        // --- THE FIX: Cap the debt so it never exceeds the base required time ---
+        completionTimeExtension = Mathf.Min(completionTimeExtension, activeTimeToComplete);
+
+        Debug.Log($"<color=orange>SCIENCE: Progress interrupted! {penaltyAmount:F1}s added. Total debt is now {completionTimeExtension:F1}s (Max: {activeTimeToComplete:F1}s).</color>");
     }
 
     void PickNewTargets()
@@ -176,22 +181,44 @@ public class CRTWaveController : MonoBehaviour
         switch (propertyToMutate)
         {
             case 0:
-                float rawNewAmp = currentTargetAmplitude + Random.Range(-currentProfile.amplitudeDriftVariance, currentProfile.amplitudeDriftVariance);
-                newTargetAmplitude = Mathf.Clamp(rawNewAmp, 0.16f, 1.1f);
+                newTargetAmplitude = CalculateValidDrift(currentTargetAmplitude, currentProfile.amplitudeDriftVariance, 0.16f, 1.1f);
                 break;
             case 1:
-                float rawNewFreq = currentTargetFrequency + Random.Range(-currentProfile.frequencyDriftVariance, currentProfile.frequencyDriftVariance);
-                newTargetFrequency = Mathf.Clamp(rawNewFreq, 6.2f, 10.0f);
+                newTargetFrequency = CalculateValidDrift(currentTargetFrequency, currentProfile.frequencyDriftVariance, 6.2f, 10.0f);
                 break;
             case 2:
-                float rawNewPhase = currentTargetPhase + Random.Range(-currentProfile.phaseDriftVariance, currentProfile.phaseDriftVariance);
-                newTargetPhase = Mathf.Clamp(rawNewPhase, 0f, 12.56f);
+                newTargetPhase = CalculateValidDrift(currentTargetPhase, currentProfile.phaseDriftVariance, 0f, 12.56f);
                 break;
         }
 
         lerpTimer = 0f;
     }
 
+    // ==========================================
+    // --- NEW: Smart Drift Calculator ---
+    // ==========================================
+    private float CalculateValidDrift(float currentValue, float variance, float minBound, float maxBound)
+    {
+        // 1. Pick a guaranteed movement amount (Between 30% and 100% of your variance)
+        // This stops the game from rolling a tiny "0.01" change that the player wouldn't even notice.
+        float magnitude = Random.Range(variance * 0.3f, variance);
+
+        // 2. Pick a random direction (1 for UP, -1 for DOWN)
+        float sign = (Random.value > 0.5f) ? 1f : -1f;
+
+        // 3. If moving in that direction hits the ceiling or the floor, bounce it the other way!
+        if (currentValue + (magnitude * sign) > maxBound)
+        {
+            sign = -1f; // Force it to go down instead
+        }
+        else if (currentValue + (magnitude * sign) < minBound)
+        {
+            sign = 1f; // Force it to go up instead
+        }
+
+        // 4. Apply the drift and clamp it just to be safe
+        return Mathf.Clamp(currentValue + (magnitude * sign), minBound, maxBound);
+    }
     void CheckSync()
     {
         float ampDiff = Mathf.Abs(currentTargetAmplitude - playerAmplitude);

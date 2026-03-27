@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
   gracePeriod: {x: 12, y: 14}
   approachDuration: {x: 6, y: 6}
-  silenceDuration: {x: 5, y: 7}
+  silenceDuration: {x: 3.5, y: 6.2}
   strikeDuration: {x: 1, y: 1}
   retreatDuration: {x: 3, y: 5}
   patienceThreshold: {x: 6, y: 8}
   siegeEventInterval: {x: 3, y: 5}
-  baseMonsterClutchStrength: 120
-  clutchStrengthVariance: 20
+  baseMonsterClutchStrength: 115
+  clutchStrengthVariance: 10
   minigameCompletionTime: {x: 10, y: 10}
   baseTargetAmplitude: 0.7
   baseTargetFrequency: 8
