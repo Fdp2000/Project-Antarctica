@@ -14767,7 +14767,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 14.28
+      value: -14.28
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.y
@@ -14775,7 +14775,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 33.01
+      value: -33.01
       objectReference: {fileID: 0}
     - target: {fileID: 2587815672619993336, guid: 740d2d467d15c4143898c9ceb31d8872, type: 3}
       propertyPath: m_LocalRotation.w
@@ -42790,13 +42790,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4087283156874585072, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 1010168828469561078, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 789084cadae9e824b86ae9cd54ba73c9, type: 3}
 --- !u!4 &3721621135152136113 stripped
 Transform:
@@ -53892,7 +53886,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: doorSlamVolume
-      value: 0.3
+      value: 0.23
       objectReference: {fileID: 0}
     - target: {fileID: 5245471009685597631, guid: a96de13dfd4b1564a92f70407e02d208, type: 3}
       propertyPath: doorSwingVolume
