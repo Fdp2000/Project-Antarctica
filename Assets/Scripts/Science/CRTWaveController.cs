@@ -346,20 +346,17 @@ public class CRTWaveController : MonoBehaviour
             activeTimeToComplete = 6.0f; // Fallback just in case
         }
 
+        // When a new tape is inserted...
         if (linkedBeacon != sourceBeacon)
         {
             currentProgress = 0f;
             completionTimeExtension = 0f;
             isMinigameComplete = false;
             completedLEDCount = 0;
-
-            if (currentProfile != null)
-            {
-                currentTargetAmplitude = currentProfile.baseTargetAmplitude;
-                currentTargetFrequency = currentProfile.baseTargetFrequency;
-                currentTargetPhase = currentProfile.baseTargetPhase;
-            }
         }
+        currentTargetAmplitude = Random.Range(0.16f, 1.1f);
+        currentTargetFrequency = Random.Range(6.2f, 10.0f);
+        currentTargetPhase = Random.Range(0f, 12.56f);
 
         linkedBeacon = sourceBeacon;
         Debug.Log($"<color=cyan>CRT WAVE CONTROLLER ONLINE. Processing data for: {(linkedBeacon != null ? linkedBeacon.name : "Unknown POI")}</color>");
@@ -377,7 +374,6 @@ public class CRTWaveController : MonoBehaviour
 
         if (wasOff)
         {
-            // --- THE FIX: Reset pitch to exactly 1.0 before playing the turn-on sound ---
             if (crtOneShotSource != null) crtOneShotSource.pitch = 1f;
             if (crtOneShotSource != null && crtTurnOnSound != null) crtOneShotSource.PlayOneShot(crtTurnOnSound);
 
@@ -391,7 +387,6 @@ public class CRTWaveController : MonoBehaviour
             }
         }
     }
-
     public void NotifyPunchcardCollected()
     {
         TurnOffMachine(true);
