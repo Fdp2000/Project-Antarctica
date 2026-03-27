@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cacba0e0bd3bad4a846f50480443b27, type: 3}
   m_Name: Level_4_Aggro
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyProfile
-  gracePeriod: {x: 8, y: 9}
+  gracePeriod: {x: 9, y: 10}
   approachDuration: {x: 3, y: 4}
   silenceDuration: {x: 4, y: 5}
   strikeDuration: {x: 1, y: 1}
-  retreatDuration: {x: 3, y: 6}
+  retreatDuration: {x: 6, y: 6}
   patienceThreshold: {x: 8, y: 12}
   siegeEventInterval: {x: 2, y: 4}
-  baseMonsterClutchStrength: 125
+  baseMonsterClutchStrength: 120
   clutchStrengthVariance: 10
   minigameCompletionTime: {x: 7.5, y: 7.5}
   baseTargetAmplitude: 0.5
