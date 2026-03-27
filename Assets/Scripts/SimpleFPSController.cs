@@ -12,7 +12,6 @@ public class SimpleFPSController : MonoBehaviour
     public float lookXLimit = 85.0f;
 
     [Header("Crouch Settings")]
-    public KeyCode crouchKey = KeyCode.LeftControl;
     public float standingHeight = 2.0f;
     public float crouchHeight = 1.0f;
     public Vector3 standingCameraOffset = new Vector3(0, 0.9f, 0);
@@ -90,6 +89,15 @@ public class SimpleFPSController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (PlayerPrefs.HasKey("PlayerSensitivity"))
+        {
+            lookSensitivity = PlayerPrefs.GetFloat("PlayerSensitivity");
+        }
+        else
+        {
+            lookSensitivity = 2.0f; // The safe default for 800 DPI users
+        }
 
         if (heldCassetteVisual != null) heldCassetteVisual.SetActive(false);
         smoothCameraOffset = standingCameraOffset;
@@ -171,8 +179,11 @@ public class SimpleFPSController : MonoBehaviour
 
     private void HandleCrouch()
     {
+        // --- THE FIX: Check for either C or Left Shift ---
+        bool crouchInputHeld = Input.GetKey(KeyCode.C) || Input.GetKey(KeyCode.LeftShift);
+
         bool isBlockedAbove = false;
-        if (!Input.GetKey(crouchKey))
+        if (!crouchInputHeld)
         {
             Vector3 rayStart = transform.position + Vector3.up * characterController.radius;
             float rayLength = standingHeight - characterController.radius * 2;
@@ -182,7 +193,7 @@ public class SimpleFPSController : MonoBehaviour
             }
         }
 
-        isCrouching = Input.GetKey(crouchKey) || isBlockedAbove;
+        isCrouching = crouchInputHeld || isBlockedAbove;
 
         float targetHeight = isCrouching ? crouchHeight : standingHeight;
         Vector3 targetCameraOffset = isCrouching ? crouchingCameraOffset : standingCameraOffset;
@@ -220,7 +231,7 @@ public class SimpleFPSController : MonoBehaviour
                 if (distanceToTarget <= noteReadRange)
                 {
                     HighlightObject(target);
-                    if (interactDown)
+                    if (Input.GetKeyDown(interactKey))
                     {
                         ClearHighlight();
                         note.Interact();
