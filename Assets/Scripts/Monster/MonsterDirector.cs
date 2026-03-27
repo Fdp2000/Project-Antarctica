@@ -344,6 +344,7 @@ public class MonsterDirector : MonoBehaviour
 
             case EncounterState.Siege:
                 stateTimer = currentDifficulty.GetRandomTimer(currentDifficulty.patienceThreshold);
+                if (footstepAudio != null) footstepAudio.Stop();
                 siegeEventTimer = Random.Range(currentDifficulty.siegeEventInterval.x, currentDifficulty.siegeEventInterval.y);
                 if (silenceAudioSnapshot != null) silenceAudioSnapshot.TransitionTo(silenceFadeTime);
                 break;
