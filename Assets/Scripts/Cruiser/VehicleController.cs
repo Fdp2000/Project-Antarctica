@@ -48,6 +48,9 @@ public class VehicleController : MonoBehaviour
     private float currentSpeed = 0f;
     private float currentTurnRate = 0f;
 
+    // --- NEW: Tracks if the radar is currently hitting an obstacle ---
+    private bool isBlocked = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -57,7 +60,6 @@ public class VehicleController : MonoBehaviour
 
         if (steeringWheel != null) initialSteeringRotation = steeringWheel.localRotation;
 
-        // Initialize Audio
         if (engineIdleSource != null) { engineIdleSource.loop = true; engineIdleSource.volume = 0f; engineIdleSource.Play(); }
         if (engineActiveSource != null) { engineActiveSource.loop = true; engineActiveSource.volume = 0f; engineActiveSource.Play(); }
     }
@@ -72,7 +74,6 @@ public class VehicleController : MonoBehaviour
 
         bool isMechanicallyLocked = doorOpen || unfinishedTape || cardWaiting || carryingTape;
 
-        // The engine fires up the second the locks are cleared!
         isEngineRunning = !isMechanicallyLocked;
 
         // 2. Player Input Logic
@@ -80,11 +81,6 @@ public class VehicleController : MonoBehaviour
         {
             if (isMechanicallyLocked)
             {
-                if (doorOpen) Debug.LogWarning("Drive Locked: Rear door must be closed!");
-                if (unfinishedTape) Debug.LogWarning("Drive Locked: Finish the science minigame!");
-                if (cardWaiting) Debug.LogWarning("Drive Locked: Collect the punchcard first!");
-                if (carryingTape) Debug.LogWarning("Drive Locked: Store the cassette tape before driving!");
-
                 isMovementLocked = true;
                 currentMoveInput = 0f;
                 currentTurnInput = 0f;
@@ -119,8 +115,13 @@ public class VehicleController : MonoBehaviour
         {
             if (engineIdleSource) engineIdleSource.volume = Mathf.Lerp(engineIdleSource.volume, maxIdleVolume, Time.deltaTime * engineLerpSpeed);
 
-            // Calculate how hard the vehicle is currently working
             float movementIntensity = Mathf.Clamp01((Mathf.Abs(currentSpeed) / maxSpeed) + (Mathf.Abs(currentTurnRate) / turnSpeed));
+
+            // --- THE AUDIO FIX: Crush the intensity to zero if we are pressed against a wall! ---
+            if (isBlocked)
+            {
+                movementIntensity = 0f;
+            }
 
             if (engineActiveSource)
             {
@@ -133,7 +134,6 @@ public class VehicleController : MonoBehaviour
         }
         else
         {
-            // Engine is off (alarms are on), fade everything to zero
             if (engineIdleSource) engineIdleSource.volume = Mathf.Lerp(engineIdleSource.volume, 0f, Time.deltaTime * engineLerpSpeed * 2f);
             if (engineActiveSource) engineActiveSource.volume = Mathf.Lerp(engineActiveSource.volume, 0f, Time.deltaTime * engineLerpSpeed * 2f);
         }
@@ -141,6 +141,9 @@ public class VehicleController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Reset the block flag every physics frame before we check radar
+        isBlocked = false;
+
         float targetSpeed = isMovementLocked ? 0f : currentMoveInput * maxSpeed;
 
         if (Mathf.Abs(targetSpeed) > 0.1f)
@@ -165,7 +168,11 @@ public class VehicleController : MonoBehaviour
             Vector3 rotRadarCenter = rb.position + potentialRotation * radarOffset;
 
             Collider[] rotHits = Physics.OverlapBox(rotRadarCenter, checkExtents, potentialRotation, obstacleLayer);
-            if (rotHits.Length > 0) canRotate = false;
+            if (rotHits.Length > 0)
+            {
+                canRotate = false;
+                isBlocked = true; // <-- Flag it as blocked if turning hits a wall
+            }
         }
 
         if (!isMovementLocked && canRotate) rb.MoveRotation(rb.rotation * Quaternion.Euler(0, turnAmount, 0));
@@ -177,7 +184,11 @@ public class VehicleController : MonoBehaviour
             Vector3 futureRadarCenter = rb.position + moveOffset + transform.TransformDirection(radarOffset) + bufferOffset;
 
             Collider[] moveHits = Physics.OverlapBox(futureRadarCenter, checkExtents, transform.rotation, obstacleLayer);
-            if (moveHits.Length > 0) currentSpeed = 0f;
+            if (moveHits.Length > 0)
+            {
+                currentSpeed = 0f;
+                isBlocked = true; // <-- Flag it as blocked if driving forward/backward hits a wall
+            }
         }
 
         Vector3 newPosition = rb.position + (transform.forward * currentSpeed * Time.fixedDeltaTime);

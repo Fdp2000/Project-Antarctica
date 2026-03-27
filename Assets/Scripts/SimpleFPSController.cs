@@ -217,6 +217,11 @@ public class SimpleFPSController : MonoBehaviour
         float maxRayRange = Mathf.Max(interactRange, Mathf.Max(cassettePickupRange, winchInteractRange));
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
+        if (isSeated)
+        {
+            Physics.SyncTransforms();
+        }
+
         if (Physics.Raycast(ray, out RaycastHit hit, maxRayRange, interactionMask))
         {
             GameObject target = hit.collider.gameObject;
