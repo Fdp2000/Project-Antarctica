@@ -54,6 +54,8 @@ public class FinalCRTWaveController : MonoBehaviour
 
     [Header("Minigame Logic/Feedback")]
     public bool debugForceSync = false;
+    [Tooltip("Hold this key to auto-sync the wave without using the inspector.")]
+    public KeyCode debugForceSyncKey = KeyCode.G; // The '~' key above Tab
     public MeshRenderer lightRenderer;
     public GameObject pointLightObject;
 
@@ -238,7 +240,8 @@ public class FinalCRTWaveController : MonoBehaviour
         if (phaseDiff > Mathf.PI) phaseDiff = pi2 - phaseDiff;
 
         bool isSynced = (ampDiff <= matchTolerance && freqDiff <= matchTolerance && phaseDiff <= matchTolerance);
-        if (debugForceSync) isSynced = true;
+
+        if (debugForceSync || Input.GetKey(debugForceSyncKey)) isSynced = true;
 
         if (isSynced) currentProgress += Time.deltaTime;
 

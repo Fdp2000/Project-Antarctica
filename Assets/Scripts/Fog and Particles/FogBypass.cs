@@ -1,11 +1,10 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-// 1. This custom class creates the nice layout in your Inspector
 [System.Serializable]
 public class POISettings
 {
-    public string locationName = "New POI"; // Just to keep your Inspector organized!
+    public string locationName = "New POI";
     public Transform targetTransform;
     public float clearDistance = 10f;
     public float fullFogDistance = 15.9f;
@@ -23,7 +22,6 @@ public class FogBypass : MonoBehaviour
     private bool defaultFogState;
     private float defaultFogDensity;
 
-    // Internal tracking
     private POISettings closestPOI;
     private float distanceToClosest;
 
@@ -43,7 +41,6 @@ public class FogBypass : MonoBehaviour
     {
         if (overlayCamera == null || locations.Length == 0) return;
 
-        // 2. Scan the array to figure out which POI the player is currently closest to
         closestPOI = null;
         distanceToClosest = float.MaxValue;
 
@@ -61,7 +58,6 @@ public class FogBypass : MonoBehaviour
 
         if (closestPOI == null) return;
 
-        // 3. Turn the overlay camera off if we are completely blinded by the blizzard
         if (distanceToClosest >= closestPOI.fullFogDistance)
         {
             if (overlayCamera.enabled) overlayCamera.enabled = false;
@@ -74,16 +70,12 @@ public class FogBypass : MonoBehaviour
 
     private void OnBeginCamera(ScriptableRenderContext context, Camera camera)
     {
-        // Check if we are rendering the special Beacon camera
         if (camera.name == "BeaconOverlayCAM")
         {
             defaultFogState = RenderSettings.fog;
             defaultFogDensity = RenderSettings.fogDensity;
-
-            // FORCE FOG OFF: This ensures the Red Glow is 100% visible even at 500m
             RenderSettings.fog = false;
         }
-        // Otherwise, handle the normal fading interior
         else if (camera == overlayCamera && closestPOI != null)
         {
             defaultFogState = RenderSettings.fog;
@@ -98,15 +90,21 @@ public class FogBypass : MonoBehaviour
             else
             {
                 RenderSettings.fog = true;
-                float fadePercent = (distance - closestPOI.clearDistance) / (closestPOI.fullFogDistance - closestPOI.clearDistance);
-                RenderSettings.fogDensity = Mathf.Lerp(0f, defaultFogDensity, fadePercent);
+
+                // --- THE FIX: Safe Math & Easing Curve ---
+                // 1. Clamp ensures the raw percentage NEVER goes below 0.0 or above 1.0
+                float rawPercent = Mathf.Clamp01((distance - closestPOI.clearDistance) / (closestPOI.fullFogDistance - closestPOI.clearDistance));
+
+                // 2. SmoothStep curves the transition so it feels natural to the human eye, not rigid and robotic
+                float smoothPercent = Mathf.SmoothStep(0f, 1f, rawPercent);
+
+                RenderSettings.fogDensity = Mathf.Lerp(0f, defaultFogDensity, smoothPercent);
             }
         }
     }
 
     private void OnEndCamera(ScriptableRenderContext context, Camera camera)
     {
-        // Put the blizzard back for BOTH types of overlay cameras
         if (camera.name == "BeaconOverlayCAM" || camera == overlayCamera)
         {
             RenderSettings.fog = defaultFogState;

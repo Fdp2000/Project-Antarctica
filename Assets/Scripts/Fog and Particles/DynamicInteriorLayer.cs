@@ -1,4 +1,6 @@
 using UnityEngine;
+// --- REQUIRED: Gives us access to the DecalProjector component ---
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Collider))]
 public class DynamicInteriorLayer : MonoBehaviour
@@ -16,10 +18,8 @@ public class DynamicInteriorLayer : MonoBehaviour
 
     void Start()
     {
-        // Cache the layer IDs so we don't have to look them up every time
         defaultLayer = LayerMask.NameToLayer("Default");
         interiorLayer = LayerMask.NameToLayer(interiorLayerName);
-
         GetComponent<Collider>().isTrigger = true;
     }
 
@@ -27,7 +27,6 @@ public class DynamicInteriorLayer : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // Player walked inside! Swap the whole building to the Overlay Camera layer
             SetLayerRecursively(interiorEnvironment, interiorLayer);
         }
     }
@@ -36,18 +35,28 @@ public class DynamicInteriorLayer : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // Player walked outside! Swap the building back to the Default layer (Blizzard)
             SetLayerRecursively(interiorEnvironment, defaultLayer);
         }
     }
 
-    // This loops through the parent object and changes the layer of every single child prop/wall
     private void SetLayerRecursively(GameObject obj, int newLayer)
     {
         if (obj == null) return;
 
+        // ==========================================
+        // --- THE UNITY BUG FIX ---
+        // Grab the Decal component if it exists, and turn it off!
+        // ==========================================
+        DecalProjector decal = obj.GetComponent<DecalProjector>();
+        if (decal != null) decal.enabled = false;
+
+        // Change the layer
         obj.layer = newLayer;
 
+        // Turn the Decal back on so it re-registers with the new Overlay Camera!
+        if (decal != null) decal.enabled = true;
+
+        // Continue down the folder tree
         foreach (Transform child in obj.transform)
         {
             SetLayerRecursively(child.gameObject, newLayer);
