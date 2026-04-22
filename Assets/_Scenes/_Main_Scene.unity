@@ -34444,8 +34444,8 @@ Camera:
   m_GameObject: {fileID: 1823035880}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.76470596, g: 0.76470596, b: 0.76470596, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -34466,15 +34466,15 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 70
   field of view: 70
   orthographic: 0
   orthographic size: 5
-  m_Depth: 0
+  m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 8191
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -39937,7 +39937,7 @@ MonoBehaviour:
     - {fileID: 1883738468}
     - {fileID: 4013805083261358242}
     - {fileID: 549695367}
-  - unlockAtDifficultyIndex: 2
+  - unlockAtDifficultyIndex: 4
     poisToEnable:
     - {fileID: 781451988}
   debugForceUnlockAll: 0
@@ -39978,43 +39978,43 @@ MonoBehaviour:
   fadeInDuration: 0.5
   locations:
   - locationName: Start
-    modifierKey: 13
-    actionKey: 256
+    modifierKey: 293
+    actionKey: 48
     playerPosition: {x: -14.28, y: 0.07999977, z: -33.01}
     playerRotation: {x: 0, y: 28, z: 0}
     cruiserPosition: {x: 0, y: 0, z: 0}
     cruiserRotation: {x: 0, y: 0, z: 0}
   - locationName: SnowBase
-    modifierKey: 13
-    actionKey: 257
+    modifierKey: 293
+    actionKey: 49
     playerPosition: {x: 140.66449, y: 0.07999977, z: -8.174501}
     playerRotation: {x: 0, y: 47, z: 0}
     cruiserPosition: {x: 145.9, y: 0, z: 19.2}
     cruiserRotation: {x: 0, y: 0, z: 0}
   - locationName: Cave
-    modifierKey: 13
-    actionKey: 258
+    modifierKey: 293
+    actionKey: 50
     playerPosition: {x: 88.3039, y: 0.08999976, z: -98.87335}
     playerRotation: {x: 0, y: 217.5, z: 0}
     cruiserPosition: {x: 62.1, y: 0, z: -105.9}
     cruiserRotation: {x: 0, y: 254, z: 0}
   - locationName: FANA
-    modifierKey: 13
-    actionKey: 259
+    modifierKey: 293
+    actionKey: 51
     playerPosition: {x: 233.24498, y: 0.079999775, z: 76.784966}
     playerRotation: {x: 0, y: 23.6, z: 0}
     cruiserPosition: {x: 228.6, y: 0, z: 89.3}
     cruiserRotation: {x: 0, y: 333.8, z: 0}
   - locationName: HANGAR
-    modifierKey: 13
-    actionKey: 260
+    modifierKey: 293
+    actionKey: 52
     playerPosition: {x: 233.40039, y: 3.6840267, z: -90.263336}
     playerRotation: {x: 0, y: 82, z: 0}
     cruiserPosition: {x: 249.7, y: 0, z: 335}
     cruiserRotation: {x: 0, y: 432.5, z: 0}
   - locationName: END
-    modifierKey: 13
-    actionKey: 261
+    modifierKey: 293
+    actionKey: 53
     playerPosition: {x: 101.02662, y: 0.07999977, z: 86.68458}
     playerRotation: {x: 0, y: 290, z: 0}
     cruiserPosition: {x: 79.2, y: 0, z: 77.1}
@@ -40035,8 +40035,8 @@ MonoBehaviour:
   overlayCamera: {fileID: 1405775165}
   freecamObject: {fileID: 1823035880}
   crosshairUI: {fileID: 750398596}
-  toggleFreecamKey: 291
-  toggleCrosshairKey: 292
+  toggleFreecamKey: 288
+  toggleCrosshairKey: 289
 --- !u!114 &2105282953
 MonoBehaviour:
   m_ObjectHideFlags: 0

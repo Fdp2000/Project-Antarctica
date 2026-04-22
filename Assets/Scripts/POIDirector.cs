@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -21,7 +22,7 @@ public class POIDirector : MonoBehaviour
 
     [Header("Debug")]
     [Tooltip("If checked, all POIs will be enabled immediately, ignoring the difficulty progression.")]
-    public bool debugForceUnlockAll = false; // <--- NEW
+    public bool debugForceUnlockAll = false;
 
     void Awake()
     {
@@ -45,18 +46,26 @@ public class POIDirector : MonoBehaviour
     {
         Debug.Log($"<color=orange>[POI Director] Evaluating World State for Difficulty Index: {currentDifficultyIndex}</color>");
 
+        // --- THE FIX: Start the stagger coroutine instead of doing it all instantly ---
+        StartCoroutine(StaggeredEvaluatePOIs(currentDifficultyIndex));
+    }
+
+    // --- THE FIX: The new Coroutine that prevents the CPU freeze ---
+    private IEnumerator StaggeredEvaluatePOIs(int currentDifficultyIndex)
+    {
         foreach (var tier in progressionTiers)
         {
             bool isUnlocked = debugForceUnlockAll || (currentDifficultyIndex >= tier.unlockAtDifficultyIndex);
 
             foreach (var poi in tier.poisToEnable)
             {
-                // CHANGE: Only proceed if the POI should be unlocked AND it isn't already active.
-                // We no longer pass "false" to SetActive.
                 if (poi != null && isUnlocked && !poi.activeSelf)
                 {
-                    poi.SetActive(true); // Hardcode this to true so it can NEVER disable anything
+                    poi.SetActive(true);
                     Debug.Log($"<color=yellow>   -> Unlocked POI: {poi.name}</color>");
+
+                    // Tell Unity to pause this script and wait for the next frame before turning on the next POI
+                    yield return null;
                 }
             }
         }
