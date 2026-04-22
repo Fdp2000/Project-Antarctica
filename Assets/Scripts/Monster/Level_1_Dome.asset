@@ -21,7 +21,7 @@ MonoBehaviour:
   siegeEventInterval: {x: 2, y: 6}
   baseMonsterClutchStrength: 120
   clutchStrengthVariance: 20
-  minigameCompletionTime: {x: 7, y: 8}
+  minigameCompletionTime: {x: 10, y: 10}
   baseTargetAmplitude: 1.1
   baseTargetFrequency: 8
   baseTargetPhase: 10.43
