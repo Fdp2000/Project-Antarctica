@@ -227,6 +227,16 @@ public class SimpleFPSController : MonoBehaviour
             GameObject target = hit.collider.gameObject;
             float distanceToTarget = hit.distance;
 
+            // ==========================================
+            // --- NEW: IGNORE THE CURRENT DRIVER SEAT ---
+            // If we are seated and looking at our own seat, hide the outline and ignore it!
+            // ==========================================
+            if (isSeated && target.transform == currentSeat)
+            {
+                ClearHighlight();
+                return;
+            }
+
             bool interactDown = Input.GetKeyDown(interactKey) || Input.GetMouseButtonDown(0);
             bool interactHeld = Input.GetKey(interactKey) || Input.GetMouseButton(0);
 
@@ -437,7 +447,7 @@ public class SimpleFPSController : MonoBehaviour
 
     void HighlightObject(GameObject obj)
     {
-        Outline outline = obj.GetComponent<Outline>() ?? obj.GetComponentInParent<Outline>();
+        Outline outline = obj.GetComponent<Outline>() ?? obj.GetComponentInParent<Outline>() ?? obj.GetComponentInChildren<Outline>();
         if (outline != null)
         {
             if (currentOutline != null && currentOutline != outline) currentOutline.enabled = true;
